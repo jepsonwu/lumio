@@ -11,22 +11,19 @@ namespace Modules\Account\Services;
 use Jiuyan\Common\Component\InFramework\Components\ExceptionResponseComponent;
 use Jiuyan\Common\Component\InFramework\Services\BaseService;
 use Exception;
-use Modules\Account\Components\AccountQueueComponent;
 use Modules\Account\Constants\AccountErrorConstant;
 use Modules\Account\Exceptions\UserCenterException;
-use Modules\Account\Repositories\UserRepository;
 use Modules\Account\Constants\AccountBusinessConstant;
-use Jiuyan\Tools\Business\EmojiTool;
 use Log;
+use Modules\Account\Repositories\UserRepositoryEloquent;
 
 class UserService extends BaseService
 {
     /**
-     * @var UserRepository
      */
     protected $_userRepository;
 
-    public function __construct(UserRepository $userRepository)
+    public function __construct(UserRepositoryEloquent $userRepository)
     {
         $this->_userRepository = $userRepository;
         $this->_requestParamsComponent = app('RequestCommonParams');

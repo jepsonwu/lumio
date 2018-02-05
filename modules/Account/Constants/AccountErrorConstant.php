@@ -23,7 +23,6 @@ class AccountErrorConstant
     const ERR_ACCOUNT_PHONE_ALREADY_REGISTERED = '20111|手机号已经被别人绑定了';
     const ERR_ACCOUNT_REGISTER_FAILED = '20112|注册失败';
     const ERR_ACCOUNT_SMS_CODE_SEND_FAILED = '20113|短信验证码发送失败';
-    const ERR_ACCOUNT_SMS_CODE_ALREADY_SENT = '20114|短信验证码已经发送';
     const ERR_ACCOUNT_PASSWORD_ALREADY_SET = '20115|密码已经设置过了';
     const ERR_ACCOUNT_PASSWORD_SET_FAILED = '20116|设置密码失败';
     const ERR_ACCOUNT_PASSWORD_RESET_FAILED = '20117|重置密码失败';

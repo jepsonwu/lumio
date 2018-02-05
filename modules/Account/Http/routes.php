@@ -12,7 +12,7 @@ Route::version('v1', ['prefix' => '/api/account', 'namespace' => 'Modules\Accoun
 });
 
 Route::version('v1', ['prefix' => '/api/account', 'namespace' => 'Modules\Account\Http\Controllers', 'middleware' => ['jiuyan.api.auth']], function () {
-    Route::post('password', ['as' => 'set.password', 'uses' => 'AuthController@setPassword']);
-    Route::put('password', ['as' => 'change.password', 'uses' => 'AuthController@changePassword']);
+    Route::post('password', 'AuthController@setPassword');
+    Route::put('password', 'AuthController@changePassword');
     Route::post('logout', 'AuthController@logout');
 });

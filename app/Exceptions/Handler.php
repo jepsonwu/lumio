@@ -2,14 +2,13 @@
 
 namespace App\Exceptions;
 
+use App\Constants\GlobalErrorConstant;
 use Exception;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Jiuyan\Common\Component\InFramework\Exceptions\ApiExceptions;
 use Jiuyan\Common\Component\InFramework\Exceptions\BusinessException;
 use Jiuyan\Tools\Business\JsonTool;
 use Laravel\Lumen\Exceptions\Handler as ExceptionHandler;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -25,14 +24,6 @@ class Handler extends ExceptionHandler
         BusinessException::class
     ];
 
-    /**
-     * Report or log an exception.
-     *
-     * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
-     *
-     * @param  \Exception  $e
-     * @return void
-     */
     public function report(Exception $e)
     {
         parent::report($e);
@@ -41,25 +32,37 @@ class Handler extends ExceptionHandler
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Exception  $e
+     * @param  \Illuminate\Http\Request $request
+     * @param  \Exception $e
      * @return \Illuminate\Http\Response
      */
     public function render($request, Exception $e)
     {
+        //todo package
         if (app()->environment() == 'local') {
             return parent::render($request, $e);
         }
-        $responseData = [];
+
+        $errorInfo = explode('|', GlobalErrorConstant::ERR_SYSTEM);
+        $message = $errorInfo[1];
+        $code = $errorInfo[0];
         if ($e instanceof ValidationException && $e->getResponse()) {
-            $responseData = $e->getResponse()->getData(true);
+            $validation = $e->getResponse()->getData(true);
+            $code = GlobalErrorConstant::ERR_VALIDATION;
+            $message = ($validation ? key($validation) : "field") . " invalid";
         }
+
+        if ($e instanceof BusinessException || $e instanceof ApiExceptions) {
+            $message = $e->getMessage();
+            $code = $e->getCode();
+        }
+
         return response()->make(
             JsonTool::encode([
                 'succ' => false,
-                'data' => $responseData,
-                'code' => $e->getCode(),
-                'msg' => $e->getMessage() ?? '',
+                'data' => [],
+                'code' => $code,
+                'msg' => $message,
                 'time' => time()
             ]),
             200,

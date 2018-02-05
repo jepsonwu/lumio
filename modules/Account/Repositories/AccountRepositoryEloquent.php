@@ -12,7 +12,7 @@ use Modules\Account\Validators\AccountValidator;
  * Class AccountRepositoryEloquent
  * @package namespace Modules\Account\Repositories;
  */
-class AccountRepositoryEloquent extends BaseRepository implements AccountRepository
+class AccountRepositoryEloquent extends BaseRepository
 {
     /**
      * Specify Model class name
