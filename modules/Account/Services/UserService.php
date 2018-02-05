@@ -29,19 +29,13 @@ class UserService extends BaseService
         $this->_requestParamsComponent = app('RequestCommonParams');
     }
 
-    public function getUserByMobileForAuth($mobile, $authType)
-    {
-        $user = $this->_userRepository->getUserByMobileForAuth($mobile, $authType);
-        return $user;
-    }
-
     /**
      * @param $userId
      * @return \Modules\Account\Models\User
      */
     public function getUserById($userId)
     {
-        $user = $this->_userRepository->getUserById($userId);
+        $user = $this->_userRepository->find($userId);
         return $user;
     }
 

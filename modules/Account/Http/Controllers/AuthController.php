@@ -19,6 +19,8 @@ class AuthController extends AuthBaseController
     }
 
     /**
+     *
+     *
      * @api {GET} /api/account/v1/sms-captcha 发送短信验证码
      * @apiSampleRequest /api/account/v1/sms-captcha
      *

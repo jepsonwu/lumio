@@ -3,8 +3,6 @@
 namespace Modules\Account\Repositories;
 
 use Prettus\Repository\Eloquent\BaseRepository;
-use Prettus\Repository\Criteria\RequestCriteria;
-use Modules\Account\Repositories\AccountRepository;
 use Modules\Account\Models\Account;
 use Modules\Account\Validators\AccountValidator;
 

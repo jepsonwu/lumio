@@ -42,7 +42,12 @@ class AccountRequestService extends BaseService
         $this->_checkPasswordAvailable($requestParams['password']);
         $this->_checkSmsCaptcha($requestParams['mobile'], $requestParams);
 
+        //has user
         //todo register
+        $user = $this->_repository->create([
+            ""
+        ]);
+
         ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_REGISTER_FAILED);
     }
 
