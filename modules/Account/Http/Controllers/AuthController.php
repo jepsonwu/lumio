@@ -57,17 +57,15 @@ class AuthController extends AuthBaseController
 
     public function register(Request $request)
     {
-//        $this->validate(
-//            $request,
-//            [
-//                'mobile' => ['bail', 'required', 'mobile'],
-//                'code' => 'bail|required|integer',
-//                'password' => ['bail', 'required', 'string'],
-//            ]
-//        );
-        $this->validate($request, [
-            'mobile' => ['bail', 'required', 'mobile'],
-        ]);
+        $this->validate(
+            $request,
+            [
+                'mobile' => ['bail', 'required', 'mobile'],
+                'code' => 'bail|required|integer',
+                'password' => ['bail', 'required', 'string'],//长度
+            ]
+        );
+
         $user = $this->accountService->register($this->requestParams->getRegularParams());
         $this->saveLoginInfo($user);
 
@@ -79,12 +77,13 @@ class AuthController extends AuthBaseController
         $this->validate(
             $request,
             [
-                'username' => 'required|string',
+                'mobile' => ['bail', 'required', 'mobile'],
+                //'username' => 'required|string',
                 'password' => 'required|string'
             ]
         );
 
-        $user = $this->accountService->login($this->requestParams->getRegularParams());
+        $user = $this->accountService->login($request->input("mobile"), $request->input("password"));
         $this->saveLoginInfo($user);
 
         return $this->success($user);
@@ -93,17 +92,6 @@ class AuthController extends AuthBaseController
     public function logout()
     {
         $this->accountService->logout();
-        return $this->success([]);
-    }
-
-    public function setPassword(Request $request)
-    {
-        $this->validate($request, [
-            'password' => 'required|string'
-        ]);
-
-        $this->requestParams->setRegularParam('currentUser', Auth::user());
-        $this->accountService->setAccountPassword($this->requestParams->getRegularParams());
         return $this->success([]);
     }
 
@@ -116,9 +104,9 @@ class AuthController extends AuthBaseController
                 'new_password' => 'required|string',
             ]
         );
-        $this->requestParams->setRegularParam('currentUser', Auth::user());
-        $accountChangeInfo = $this->accountService->changeAccountPassword($this->requestParams->getRegularParams());
-        $this->saveLoginInfo($accountChangeInfo);
+
+        $this->accountService->changePassword(Auth::user(), $request->input("password"), $request->input("new_password"));
+
         return $this->success([]);
     }
 
@@ -127,13 +115,13 @@ class AuthController extends AuthBaseController
         $this->validate(
             $request,
             [
-                'mobile' => 'required|mobile',
-                'code' => 'required|integer',
-                'password' => 'required|string'
+                'mobile' => 'bail|required|mobile',
+                'code' => 'bail|required|integer',
+                'password' => 'bail|required|string'
             ]
         );
 
-        $this->accountService->resetAccountPassword($this->requestParams->getRegularParams());
+        $this->accountService->resetPassword($request->input("mobile"), $request->input("password"), $request->input("code"));
         return $this->success([]);
     }
 }

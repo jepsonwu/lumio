@@ -34,4 +34,18 @@ class UserRepositoryEloquent extends BaseRepository
     {
         return $this->model()::whereMobile($this->model->newQuery(), $mobile)->first();
     }
+
+    /**
+     * @param $token
+     * @return \Illuminate\Database\Eloquent\Model|null|static|User
+     */
+    public function getByToken($token)
+    {
+        return $this->model()::whereToken($this->model->newQuery(), $token)->first();
+    }
+
+    public function changePassword(User $user, $password)
+    {
+        return $user->changePassword($password);
+    }
 }

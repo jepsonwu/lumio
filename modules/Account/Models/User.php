@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
  * @property int $gender
  * @property string $password
  * @property string $token
+ * @property string $token_expires
  * @property int $created_at
  * @property string $updated_at
  *
@@ -28,13 +29,13 @@ class User extends Model implements Transformable
     protected $table = "user";
 
     protected $fillable = [
-        "id", "username", "avatar", "mobile", "gender", "password", "token", "created_at", "updated_at"
+        "id", "username", "avatar", "mobile", "gender", "password", "token", "token_expires", "created_at", "updated_at"
     ];
 
     public function toArray()
     {
         $result = parent::toArray();
-        unset($result['password'], $result['token'], $result['updated_at']);
+        unset($result['password'], $result['updated_at']);
 
         return $result;
     }
@@ -42,6 +43,18 @@ class User extends Model implements Transformable
     public static function whereMobile(Builder $builder, $mobile)
     {
         return $builder->where("mobile", $mobile);
+    }
+
+    public static function whereToken(Builder $builder, $token)
+    {
+        return $builder->where("token", $token);
+    }
+
+    public function changePassword($password)
+    {
+        return $this->update([
+            "password" => $password
+        ]);
     }
 }
 

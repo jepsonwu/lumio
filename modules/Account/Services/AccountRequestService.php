@@ -8,6 +8,7 @@ use Jiuyan\Common\Component\InFramework\Services\BaseService;
 use Modules\Account\Constants\AccountBanyanDBConstant;
 use Modules\Account\Constants\AccountBusinessConstant;
 use Modules\Account\Constants\AccountErrorConstant;
+use Modules\Account\Models\User;
 use Modules\Account\Repositories\AccountRepositoryEloquent;
 use Log;
 
@@ -33,30 +34,32 @@ class AccountRequestService extends BaseService
     {
         return true;
         //todo 提供新驱动
-        return CaptchaComponent::getInstance()->sendCaptcha($mobile, '', 'sms');
-        ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_SMS_CODE_SEND_FAILED);
+        $result = CaptchaComponent::getInstance()->sendCaptcha($mobile, '', 'sms');
+        if (!$result) {
+            ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_SMS_CODE_SEND_FAILED);
+        }
     }
 
     public function register($requestParams)
     {
-        $user = $this->_userService->getByMobile($requestParams['mobile']);
-        return $user;
-
         $this->_checkPasswordAvailable($requestParams['password']);
-        $this->_checkSmsCaptcha($requestParams['mobile'], $requestParams);
+        $this->_checkSmsCaptcha($requestParams['mobile'], $requestParams['code']);
+        $this->_userService->getByMobile($requestParams['mobile'])
+        && ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_USER_EXISTS);
 
-        //has user
-        //todo register
-        $user = $this->_repository->create([
-            ""
-        ]);
+        $user = $this->_userService->create($requestParams);
+        $user || ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_REGISTER_FAILED);
 
-        ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_REGISTER_FAILED);
+        return $user;
     }
 
-    public function login($requestParams)
+    public function login($mobile, $password)
     {
-        $user = [];
+        $user = $this->_checkUserByMobile($mobile);
+        $this->_checkPassword($user, $password);
+        $user = $this->_userService->updateToken($user);
+        $user === false && ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_LOGIN_FAILED);
+
         return $user;
     }
 
@@ -65,72 +68,53 @@ class AccountRequestService extends BaseService
 
     }
 
-    public function changeAccountPassword($requestParams)
+    public function changePassword(User $user, $password, $newPassword)
     {
-        $currentUserId = $requestParams['currentUser']['id'];
-        $password = $requestParams['password'];
-        $newPassword = $requestParams['new_password'];
-        return $this->_userService->changeAccountPassword($currentUserId, $password, $newPassword);
+        $password == $newPassword && ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_PASSWORD_SAME_NEW_PASSWORD);
+        $this->_checkPassword($user, $password);
 
-        ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_PASSWORD_SET_FAILED);
+        $result = $this->_userService->changePassword($user, $newPassword);
+        $result || ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_PASSWORD_CHANGE_FAILED);
+        return true;
     }
 
-    public function setAccountPassword($requestParams)
+    public function resetPassword($mobile, $password, $captcha)
     {
-        $currentUserId = $requestParams['currentUser']['id'];
-        $password = $requestParams['password'];
+        $user = $this->_checkUserByMobile($mobile);
         $this->_checkPasswordAvailable($password);
-        return $this->_userService->setAccountPassword($currentUserId, $password);
+        $this->_checkSmsCaptcha($mobile, $captcha);
 
-        ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_PASSWORD_SET_FAILED);
+        $result = $this->_userService->changePassword($user, $password);
+        $result || ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_PASSWORD_RESET_FAILED);
+        return true;
     }
 
-    public function resetAccountPassword($requestParams)
+    private function _checkSmsCaptcha($mobile, $captcha)
     {
-        $currentMobile = $requestParams['mobile'];
-        $newPassword = $requestParams['password'];
-        //$this->_checkResetActionPermission($currentMobile);
-        $this->_checkPasswordAvailable($newPassword);
-        $this->_checkSmsCaptcha($currentMobile, $requestParams);
-
-        //AccountErrorConstant::ERR_ACCOUNT_PASSWORD_RESET_FAILED
-        if ($this->_userService->resetAccountPassword($currentMobile, $newPassword)) {
-            return true;
-        }
-        return false;
-    }
-
-
-    private function _checkResetActionPermission($mobile)
-    {
-        $cacheHandle = AccountBanyanDBConstant::accountPasswordResetTimes();
-        $resetTimes = $cacheHandle->get($mobile);
-        if ($resetTimes) {
-            if ($resetTimes >= AccountBusinessConstant::COMMON_ACCOUNT_PASSWORD_RESET_TIMES_LIMIT_PER_DAY) {
-                Log::error('password-reset is too frequency mobile:' . $mobile . ' times:' . $resetTimes);
-                ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_PASSWORD_RESET_FAILED);
-            } else {
-                $cacheHandle->inc($mobile, 1);
-            }
-        } else {
-            $cacheHandle->set($mobile, 1, 86400);
-        }
-    }
-
-    private function _checkSmsCaptcha($mobile, &$requestParams)
-    {
-        $captcha = $requestParams['code'] ?? '';
+        return true;
         if (!CaptchaComponent::getInstance()->verifyCaptcha($captcha, $mobile)) {
             ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_INVALID_SMS_CODE);
         }
-        return true;
     }
 
     private function _checkPasswordAvailable($password)
     {
         if ($password &&
             (!preg_match(AccountBusinessConstant::COMMON_REGULAR_PASSWORD_FORMAT, $password, $pwdMatches) || !$pwdMatches)) {
-            ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_VOICE_CODE_SEND_FAILED);
+            ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_PASSWORD_FORMAT_INVALID);
         }
+    }
+
+    private function _checkUserByMobile($mobile)
+    {
+        $user = $this->_userService->getByMobile($mobile);
+        $user || ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_USER_NOT_EXISTS);
+
+        return $user;
+    }
+
+    private function _checkPassword(User $user, $password)
+    {
+        $user->password == $password || ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_USER_ACCOUNT_PASSWORD_WRONG);
     }
 }

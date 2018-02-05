@@ -8,18 +8,14 @@
 
 namespace Modules\Account\Services;
 
-use Jiuyan\Common\Component\InFramework\Components\ExceptionResponseComponent;
 use Jiuyan\Common\Component\InFramework\Services\BaseService;
-use Exception;
-use Modules\Account\Constants\AccountErrorConstant;
-use Modules\Account\Exceptions\UserCenterException;
-use Modules\Account\Constants\AccountBusinessConstant;
-use Log;
 use Modules\Account\Models\User;
 use Modules\Account\Repositories\UserRepositoryEloquent;
 
 class UserService extends BaseService
 {
+    const TOKEN_EXPIRES = 864000;
+
     /**
      */
     protected $_userRepository;
@@ -34,7 +30,7 @@ class UserService extends BaseService
      * @param $userId
      * @return \Modules\Account\Models\User
      */
-    public function getUserById($userId)
+    public function getById($userId)
     {
         $user = $this->_userRepository->find($userId);
         return $user;
@@ -51,71 +47,39 @@ class UserService extends BaseService
 
     public function getUserByToken($token)
     {
-        $user = $this->_userRepository->getUserByToken($token);
+        $user = $this->_userRepository->getByToken($token);
+        $user->token_expires < time() && $user = [];//todo exception
+
         return $user;
     }
 
-    /**
-     * @param $existUserId
-     * @param $mobile
-     * @param $password
-     * @return \Modules\Account\Models\User
-     */
-    public function registerByMobile($existUserId, $mobile, $password)
+    public function create($attributes)
     {
-        try {
-            $registeredUser = $this->_userRepository->registerByMobile($existUserId, $mobile, $password);
-            return $registeredUser;
-        } catch (Exception $e) {
-            $this->_respondUcException($e);
-        }
+        return $this->_userRepository->create([
+            "mobile" => $attributes['mobile'],
+            "password" => $attributes['password'],
+            "token" => $this->generateToken($attributes['mobile']),
+            "token_expires" => time() + self::TOKEN_EXPIRES,
+            "created_at" => time()
+        ]);
+    }
+
+    public function updateToken(User $user)
+    {
+        $user->token = $this->generateToken($user->mobile);
+        $user->token_expires = time() + self::TOKEN_EXPIRES;
+
+        return $user->update();
+    }
+
+    protected function generateToken($mobile)
+    {
+        return md5($mobile . rand(1, 99999999999) . microtime(true));
     }
 
 
-    public function loginCommonAccount($accountName, $password, $accountType)
+    public function changePassword(User $user, $newPassword)
     {
-        try {
-            $this->_userRepository->setSpecialUcExceptions(AccountBusinessConstant::COMMON_UC_EXCEPTION_PASSWORD_NOT_SET);
-            return $this->_userRepository->loginCommonAccount($accountName, $password, $accountType);
-        } catch (Exception $e) {
-            Log::error('partner common login error code:' . $e->getCode() . ' msg:' . $e->getMessage());
-            $this->_respondUcException($e);
-        }
-    }
-
-
-    public function changeAccountPassword($userId, $oldPassword, $newPassword)
-    {
-        try {
-            return $this->_userRepository->changeAccountPassword($userId, $oldPassword, $newPassword);
-        } catch (Exception $e) {
-            $this->_respondUcException($e);
-        }
-    }
-
-    public function setAccountPassword($userId, $password)
-    {
-        try {
-            return $this->_userRepository->setAccountPassword($userId, $password);
-        } catch (Exception $e) {
-            $this->_respondUcException($e);
-        }
-    }
-
-    public function resetAccountPassword($accountMobile, $newPassword)
-    {
-        if (!$currentUser = $this->getUserByMobile($accountMobile)) {
-            ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_USER_NOT_EXISTS);
-        }
-        if (($ret = $this->_userRepository->resetAccountPassword($currentUser->id, $newPassword) !== false)) {
-            return true;
-        }
-        return false;
-    }
-
-
-    private function _respondUcException(Exception $ucException)
-    {
-        ExceptionResponseComponent::customize($commonExceptionTpl, UserCenterException::class);
+        return $this->_userRepository->changePassword($user, $newPassword);
     }
 }
