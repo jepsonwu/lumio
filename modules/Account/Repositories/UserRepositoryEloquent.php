@@ -32,6 +32,6 @@ class UserRepositoryEloquent extends BaseRepository
 
     public function getByMobile($mobile)
     {
-        return $this->model()::aa();
+        return $this->model()::whereMobile($this->model->newQuery(), $mobile)->first();
     }
 }

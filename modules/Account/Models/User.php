@@ -2,10 +2,10 @@
 
 namespace Modules\Account\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Prettus\Repository\Contracts\Transformable;
+use Prettus\Repository\Database\Eloquent\Model;
 use Prettus\Repository\Traits\TransformableTrait;
-
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * @property int $id
@@ -25,19 +25,23 @@ class User extends Model implements Transformable
 {
     use TransformableTrait;
 
+    protected $table = "user";
+
     protected $fillable = [
         "id", "username", "avatar", "mobile", "gender", "password", "token", "created_at", "updated_at"
     ];
 
     public function toArray()
     {
-        return [
-            "id" => $this->id
-        ];
+        $result = parent::toArray();
+        unset($result['password'], $result['token'], $result['updated_at']);
+
+        return $result;
     }
 
-    public static function aa(){
-
+    public static function whereMobile(Builder $builder, $mobile)
+    {
+        return $builder->where("mobile", $mobile);
     }
 }
 

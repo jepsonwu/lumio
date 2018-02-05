@@ -65,7 +65,9 @@ class AuthController extends AuthBaseController
 //                'password' => ['bail', 'required', 'string'],
 //            ]
 //        );
-        $this->validate($request, []);
+        $this->validate($request, [
+            'mobile' => ['bail', 'required', 'mobile'],
+        ]);
         $user = $this->accountService->register($this->requestParams->getRegularParams());
         $this->saveLoginInfo($user);
 

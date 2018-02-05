@@ -15,6 +15,7 @@ use Modules\Account\Constants\AccountErrorConstant;
 use Modules\Account\Exceptions\UserCenterException;
 use Modules\Account\Constants\AccountBusinessConstant;
 use Log;
+use Modules\Account\Models\User;
 use Modules\Account\Repositories\UserRepositoryEloquent;
 
 class UserService extends BaseService
@@ -41,12 +42,11 @@ class UserService extends BaseService
 
     /**
      * @param $mobile
-     * @return \Modules\Account\Models\User
+     * @return \Illuminate\Database\Eloquent\Model|null|static|User
      */
-    public function getUserByMobile($mobile)
+    public function getByMobile($mobile)
     {
-        $user = $this->_userRepository->getUserByMobile($mobile);
-        return $user;
+        return $this->_userRepository->getByMobile($mobile);
     }
 
     public function getUserByToken($token)

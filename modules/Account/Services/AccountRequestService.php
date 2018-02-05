@@ -39,6 +39,9 @@ class AccountRequestService extends BaseService
 
     public function register($requestParams)
     {
+        $user = $this->_userService->getByMobile($requestParams['mobile']);
+        return $user;
+
         $this->_checkPasswordAvailable($requestParams['password']);
         $this->_checkSmsCaptcha($requestParams['mobile'], $requestParams);
 

@@ -17,7 +17,7 @@ class AuthBaseController extends ApiBaseController
     public function saveLoginInfo($authUserInfo)
     {
         if (isset($authUserInfo['_token'])) {
-            $this->addCookie('tg_auth', $authUserInfo['_token'], 2592000 - 1800);
+            $this->addCookie('_token', $authUserInfo['_token'], 2592000 - 1800);
         }
         if (isset($authUserInfo['_auth'])) {
             $this->addCookie('_aries', $authUserInfo['_auth'], 2592000 - 1800);
