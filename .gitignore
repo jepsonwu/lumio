@@ -1,0 +1,7 @@
+/.idea
+Homestead.json
+Homestead.yaml
+.env
+node_modules
+api
+_ide_helper.php

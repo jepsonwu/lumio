@@ -1,0 +1,51 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: topone4tvs
+ * Date: 2017/10/10
+ * Time: 10:24
+ */
+
+namespace Modules\Account\Constants;
+
+
+class AccountErrorConstant
+{
+    const ERR_ACCOUNT_USER_NOT_EXISTS = '20102|用户不存在';
+    const ERR_ACCOUNT_USER_ACCOUNT_PASSWORD_WRONG = '20103|账号或密码不正确';
+    const ERR_ACCOUNT_USER_PASSWORD_NOT_SET = '20104|密码未设置';
+    const ERR_ACCOUNT_USER_NAME_FORMAT_ERROR = '20105|账号格式错误';
+    const ERR_ACCOUNT_USER_LOGIN_TYPE_ERROR = '20106|登录类型错误';
+    const ERR_ACCOUNT_USER_PHONE_FORMAT_ERROR = '20107|手机号格式错误';
+    const ERR_ACCOUNT_PASSWORD_FORMAT_INVALID = '20108|密码格式有误';
+    const ERR_ACCOUNT_USER_NUMBER_FORMAT_ERROR = '20109|IN号格式不对';
+    const ERR_ACCOUNT_INVALID_SMS_CODE = '20110|验证码错误或者已过期';
+    const ERR_ACCOUNT_PHONE_ALREADY_REGISTERED = '20111|手机号已经被别人绑定了';
+    const ERR_ACCOUNT_REGISTER_FAILED = '20112|注册失败';
+    const ERR_ACCOUNT_SMS_CODE_SEND_FAILED = '20113|短信验证码发送失败';
+    const ERR_ACCOUNT_SMS_CODE_ALREADY_SENT = '20114|短信验证码已经发送';
+    const ERR_ACCOUNT_PASSWORD_ALREADY_SET = '20115|密码已经设置过了';
+    const ERR_ACCOUNT_PASSWORD_SET_FAILED = '20116|设置密码失败';
+    const ERR_ACCOUNT_PASSWORD_RESET_FAILED = '20117|重置密码失败';
+    const ERR_ACCOUNT_PASSWORD_CHANGE_FAILED = '20118|修改密码失败';
+    const ERR_ACCOUNT_SMS_CAPTCHA_TOO_FREQUENTLY = '20119|验证码发送过于频繁';
+    const ERR_ACCOUNT_VOICE_CODE_SEND_FAILED = '20120|语音验证码发送失败';
+    const ERR_ACCOUNT_FORCE_REGISTER_TOO_FREQUENTLY = '20121|强制注册请求过于频繁';
+    const ERR_ACCOUNT_THIS_THIRD_PARTY_ALREADY_BIND = '20123|该第三方账号已经被绑定';
+    const ERR_ACCOUNT_THIRD_PARTY_BIND_FAILED = '20124|第三方账号绑定失败';
+    const ERR_ACCOUNT_USER_THIRD_PARTY_UNBIND_FAILED = '20125|第三方账号解绑失败';
+    const ERR_ACCOUNT_USER_THIRD_PARTY_UNBIND_FOR_NO_PASSWORD = '20126|最后一个第三方账号，必须设置密码才能解绑';
+    const ERR_ACCOUNT_USER_ACCOUNT_BIND_EMPTY = '20127|用户的账号没有绑定任何第三方账号';
+    const ERR_ACCOUNT_TYPE_OF_THIRD_PARTY_ALREADY_BIND = '20128|该类型的第三方账号已经被绑定';
+    const ERR_ACCOUNT_USER_CHANGE_MOBILE_FAILED = '20129|更换/绑定手机号失败';
+
+    const ERR_ACCOUNT_AUTHORIZED_FAILED = '20197|身份验证失败';
+    const ERR_ACCOUNT_MOBILE_CHANGE_FAILED_FOR_SAME = '20198|号码未改变';
+    const ERR_ACCOUNT_UC_COMMON_EXCEPTION = '20199|用户中心异常';
+
+    const ERR_ACCOUNT_THIRD_PARTY_AUTH_INFO_GET_FAILED = '20201|第三方用户授权信息获取失败';
+    const ERR_ACCOUNT_OPEN_PLATFORM_USER_GET_FAILED = '20202|开放平台用户信息获取失败';
+    const ERR_ACCOUNT_THIRD_PARTY_REGISTER_FAILED = '20203|第三方授权注册失败';
+    const ERR_ACCOUNT_THIRD_PARTY_LOGIN_FAILED = '20204|第三方授权登录失败';
+
+}

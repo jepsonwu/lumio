@@ -1,0 +1,20 @@
+{
+  "name": "in-men",
+  "version": "1.0.0",
+  "description": "in-men api mock server",
+  "main": "apidoc-server.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "dependencies": {
+    "express-apidoc": "^0.0.2",
+    "express":"^4.15"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "INApp",
+  "version": "0.1.0",
+  "description": "IN APP 接口文档 1.0",
+  "title": "IN APP 接口文档",
+  "url" : "http://127.0.0.1:9997",
+  "sampleUrl" : "http://localhost:9997"
+}

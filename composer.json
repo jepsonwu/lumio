@@ -1,0 +1,103 @@
+{
+    "name": "laravel/lumen",
+    "description": "The Laravel Lumen Framework.",
+    "keywords": [
+        "framework",
+        "laravel",
+        "lumen"
+    ],
+    "license": "MIT",
+    "type": "project",
+    "require": {
+        "php": "^7.0",
+        "illuminate/console": "^5.4",
+        "nordsoftware/lumen-cors": "^2.1",
+        "laravel/lumen-framework": "5.4.*",
+        "vlucas/phpdotenv": "~2.2",
+        "behat/behat": "^3.3",
+        "jiuyan/request-sign": "dev-master",
+        "jiuyan/laravel-request-sign": "dev-master",
+        "jiuyan/lumen-modules": "dev-master",
+        "jiuyan/l5-repository": "dev-develop",
+        "jiuyan/lumen-expand-command": "dev-master",
+        "jiuyan/lumen-profiler": "dev-master",
+        "doctrine/annotations": "1.2",
+        "vladimir-yuldashev/laravel-queue-rabbitmq": "^5.4",
+        "jiuyan/dingo-api": "^1.0.1",
+        "Jiuyan/statsd": "^1.0",
+        "hashids/hashids": "^2.0",
+        "jiuyan/laravel-id-generator": "dev-master",
+        "jiuyan/qconf-client": "1.0.2.4",
+        "jiuyan/laravel-hashids": "dev-master",
+        "jiuyan/laravel-qconf-client": "dev-master",
+        "guzzlehttp/guzzle": "^6.3",
+        "league/pipeline": "^0.3.0",
+        "evaisse/php-json-schema-generator": "^2.0",
+        "league/json-reference": "^1.0",
+        "league/json-guard": "^1.0",
+        "barryvdh/laravel-ide-helper": "^2.4",
+        "jiuyan/common-component": "dev-master",
+        "jiuyan/captcha": "dev-master",
+        "jiuyan/tools": "dev-master",
+        "jiuyan/common-cache": "dev-master",
+        "cuckoo/thrift_client": "^2.0",
+        "laravel/socialite": "^3.0",
+        "socialiteproviders/weixin": "^4.0",
+        "jiuyan/lumio-banyandb": "v1.0",
+        "socialiteproviders/weibo": "^3.0",
+        "socialiteproviders/qq": "^3.0",
+        "jiuyan/socialite": "dev-master",
+        "jiuyan/lumio-sso": "dev-master"
+    },
+    "require-dev": {
+        "fzaninotto/faker": "~1.4",
+        "phpunit/phpunit": "~5.0",
+        "mockery/mockery": "^0.9.9"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Modules\\": "modules/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        },
+        "classmap": [
+            "database/"
+        ],
+        "files": [
+            "app/const.php"
+        ]
+    },
+    "repositories": [
+        {
+            "packagist.org": false
+        },
+        {
+            "type": "composer",
+            "url": "http://packagist.in66.cc"
+        },
+        {
+            "type": "composer",
+            "url": "https://packagist.phpcomposer.com"
+        }
+    ],
+    "scripts": {
+        "post-root-package-install": [
+            "php -r \"copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+        ],
+        "post-install-cmd": [
+        ],
+        "post-update-cmd": [
+        ]
+    },
+    "config": {
+        "secure-http": false
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
