@@ -93,6 +93,7 @@ $app->register(Jiuyan\Cuckoo\ThriftClient\ThriftServiceProvider::class);
 $app->register(Illuminate\Cache\CacheServiceProvider::class);
 //$app->register(\Jiuyan\Laravel\QConf\Providers\QConfClientServiceProvider::class);
 $app->register(\Illuminate\Cookie\CookieServiceProvider::class);
+$app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
 
 $app->singleton(\Illuminate\Contracts\Cookie\Factory::class, function ($app) {
     return $app['cookie'];
