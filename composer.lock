@@ -3482,7 +3482,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://files.phpcomposer.com/files/fruux/sabre-uri/ada354d83579565949d80b2e15593c2371225e61.zip",
+                "url": "https://files.phpcomposer.com/files/sabre-io/uri/ada354d83579565949d80b2e15593c2371225e61.zip",
                 "reference": "ada354d83579565949d80b2e15593c2371225e61",
                 "shasum": ""
             },
