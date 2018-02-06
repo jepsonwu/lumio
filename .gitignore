@@ -2,6 +2,6 @@
 Homestead.json
 Homestead.yaml
 .env
+doc/api
 node_modules
-api
 _ide_helper.php
