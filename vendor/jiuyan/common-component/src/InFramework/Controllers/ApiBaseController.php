@@ -61,9 +61,7 @@ class ApiBaseController extends Controller
     {
         $response = new Response();
         $responseRes = explode('|', $codeTpl);
-        if (is_object($data) && method_exists($data, 'toArray')) {
-            $data = $data->toArray();
-        }
+        $data instanceof Transformable && $data = $data->transform();
         $response->setContent(
             JsonTool::encode([
                 'succ' => $status,
