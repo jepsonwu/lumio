@@ -1,0 +1,35 @@
+{
+  "name": "jiuyan/laravel-hashids",
+  "description": "composer project template",
+  "authors": [
+    {
+      "name": "author",
+      "email": "author@In66.com"
+    }
+  ],
+  "require": {
+    "hashids/hashids": "^2.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "5.7"
+  },
+  "repositories": [
+    {
+      "packagist": false
+    },
+    {
+      "type": "composer",
+      "url": "http://packagist.in66.cc"
+    },
+    {
+      "type": "composer",
+      "url": "https://packagist.phpcomposer.com"
+    }
+  ],
+  "autoload":{
+    "psr-4": {"Jiuyan\\Laravel\\Tool\\": "src/main"}
+  },
+  "config":{
+    "secure-http":false
+  }
+}

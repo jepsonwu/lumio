@@ -1,0 +1,17 @@
+{
+    "name": "jiuyan/lumio-sso",
+    "description": "jiuyan-lumio-sso",
+    "authors": [
+      {
+        "name": "shizhu",
+        "email": "author@In66.com"
+      }
+    ],
+    "require": {
+    },
+    "autoload": {
+        "psr-4": {
+            "Jiuyan\\LumioSSO\\": "src"
+        }
+    }
+}

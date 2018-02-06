@@ -1,0 +1,18 @@
+{
+    "name": "jiuyan/common-cache",
+    "description": "jiuyan common cache component",
+    "authors": [
+        {
+            "name": "huasheng",
+            "email": "huasheng@in66.com"
+        }
+    ],
+    "require": {
+        "jiuyan/banyandb": "1.4.5"
+    },
+    "autoload":{
+        "psr-4": {
+            "Jiuyan\\CommonCache\\": "src"
+        }
+    }
+}

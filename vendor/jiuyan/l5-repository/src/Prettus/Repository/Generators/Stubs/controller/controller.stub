@@ -1,0 +1,97 @@
+<?php
+
+$NAMESPACE$
+
+use Illuminate\Http\Request;
+use Laravel\Lumen\Routing\Controller as BaseController;
+use Prettus\Validator\Contracts\ValidatorInterface;
+use Prettus\Validator\Exceptions\ValidatorException;
+use $MODULENAME$Http\Requests;
+use $MODULENAME$Http\Requests\$CLASS$CreateRequest;
+use $MODULENAME$Http\Requests\$CLASS$UpdateRequest;
+$SERVICE$
+$VALIDATOR$
+
+class $CONTROLLER$Controller extends ResourcesController
+{
+    /**
+     * @var $CLASS$Service
+     */
+    protected $service;
+
+    /**
+     * @var $CLASS$Validator
+     */
+    protected $validator;
+
+    public function __construct($CLASS$Service $service, $CLASS$Validator $validator)
+    {
+        $this->service = $service;
+        $this->validator  = $validator;
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  $CLASS$CreateRequest $request
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function store($CLASS$CreateRequest $request)
+    {
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int $id
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int $id
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  $CLASS$UpdateRequest $request
+     * @param  string            $id
+     *
+     * @return Response
+     */
+    public function update($CLASS$UpdateRequest $request, $id)
+    {
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int $id
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+    }
+}

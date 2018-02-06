@@ -1,0 +1,6 @@
+# !/bin/sh
+
+HOST="192.168.1.40"
+PORT="10600"
+
+python client -h $HOST -p $PORT

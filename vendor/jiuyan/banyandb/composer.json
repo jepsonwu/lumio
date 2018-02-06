@@ -1,0 +1,38 @@
+{
+    "name": "jiuyan/banyandb",
+    "description": "composer project template",
+    "authors": [
+        {
+            "name": "letian",
+            "email": "letian@In66.com"
+        }
+    ],
+    "require": {
+    },
+    "require-dev": {
+
+    },
+    "repositories": [
+        {
+            "packagist": false
+        },
+        {
+            "type": "composer",
+            "url": "http://packagist.in66.cc"
+
+        },
+        {
+            "type": "composer",
+            "url": "https://packagist.phpcomposer.com"
+        }
+    ],
+    "autoload":{
+        "psr-4": {
+            "BanyanDB\\": "src/"
+        }
+    },
+    "config":{
+        "secure-http":false
+    },
+    "prefer-stable": true
+}

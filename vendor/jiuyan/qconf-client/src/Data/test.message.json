@@ -1,0 +1,70 @@
+{
+    "message": {
+        "value": "1",
+        "nodes": {
+            "value": "1",
+            "config": {
+                "value": "",
+                "nodes": {
+                    "value": "",
+                    "app": {
+                        "value": "",
+                        "nodes": {
+                            "value": "",
+                            "statsd_host": {
+                                "value": "10.10.106.35",
+                                "nodes": []
+                            },
+                            "statsd_port": {
+                                "value": "8125",
+                                "nodes": []
+                            }
+                        }
+                    },
+                    "thrift": {
+                        "value": "",
+                        "nodes": {
+                            "value": "",
+                            "daemonize": {
+                                "value": "0",
+                                "nodes": []
+                            },
+                            "dispatch_mode": {
+                                "value": "3",
+                                "nodes": []
+                            },
+                            "heartbeat_check_interval": {
+                                "value": "120",
+                                "nodes": []
+                            },
+                            "heartbeat_idle_time": {
+                                "value": "300",
+                                "nodes": []
+                            },
+                            "log_file": {
+                                "value": ".\/log\/swoole.log",
+                                "nodes": []
+                            },
+                            "open_length_check": {
+                                "value": "true",
+                                "nodes": []
+                            },
+                            "package_max_length": {
+                                "value": "8192000",
+                                "nodes": []
+                            },
+                            "port": {
+                                "value": "8092",
+                                "nodes": []
+                            },
+                            "worker_num": {
+                                "value": "126",
+                                "nodes": []
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

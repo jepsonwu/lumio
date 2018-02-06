@@ -1,0 +1,117 @@
+#!/usr/bin/env php
+<?php
+
+$path = [];
+array_unshift($path, "autoload.php");
+array_unshift($path, "vendor");
+
+do{
+      array_unshift($path, "..");
+      $file = implode("/", $path);
+}while(!file_exists(__DIR__ . '/' . $file));
+
+include __DIR__ . '/' . $file;
+
+
+
+/**
+ * Created by PhpStorm.
+ * User: xinghuo
+ * Date: 2017/6/5
+ * Time: 上午11:50
+ */
+use Jiuyan\Qconf\Client\QihooQconf;
+
+class Main
+{
+    public function check()
+    {
+        return class_exists('QConf', false);
+    }
+
+    public function makeNode($key, $value, $nodes = [])
+    {
+        return ["$key" => [
+            'value' => $value,
+            "nodes" => $nodes
+        ]];
+    }
+    public function makeNodeOnly($key, $value, $nodes = [])
+    {
+        return ['value' => $value,
+            "nodes" => $nodes];
+    }
+    public function buildPath($level){
+        $path = '/' . implode('/', $level);
+        return $path;
+    }
+    public function makeTree(&$tree, $level, QihooQconf $qi)
+    {
+        $path = $this->buildPath($level);
+        $keys = $qi->getBatchKeys($path, '', 0);
+        if (!$keys){
+            return ;
+        }
+
+        foreach ($keys as $key) {
+            $tree['value'] = $qi->getConf($path, '', 0);
+            $value = $qi->getConf($path.'/'.$key, '', 0);
+            $tree[$key] = $this->makeNodeOnly($key, $value);
+            array_push($level, $key);
+            $this->makeTree($tree[$key]['nodes'], $level, $qi);
+            array_pop($level);
+
+        }
+    }
+
+    public function run($argv)
+    {
+        array_shift($argv);
+        foreach ($argv as $arg) {
+            list($key, $value) = explode('=', $arg);
+            $key = trim($key, '-');
+            $output[$key] = $value;
+        }
+        if (isset($output['help']) || !count($argv)) {
+            die("usage: \r\n   php QMake  --root=path --idc=test --output=/tmp");
+        }
+        $qi = new QihooQconf();
+        if (!isset($output['idc'])) {
+            die("idc must set ");
+        }
+        if (!isset($output['root'])) {
+            die("root must set ");
+        }
+        if (!isset($output['output'])) {
+                    die("output must set ");
+        }
+        $qi->setIdc($output['idc']);
+
+        $buildPath = $this->buildPath([$output['root']]);
+        $root = $this->makeNode($output['root'], $qi->getConf($buildPath), []);
+        $level = [];
+        array_push($level, $output['root']);
+        $this->makeTree($root[$output['root']]['nodes'], $level, $qi);
+        $json = json_encode($root, JSON_PRETTY_PRINT);
+        echo ($json);
+        $outputPath = __DIR__ . '/../Data';
+        if (isset( $output['output'] )) {
+            $outputPath = $output['output'];
+        }
+        $path = $outputPath . '/qconf-' . $output['idc'] . '-' . $output['root'] . '.json';
+        echo $path;
+
+        file_put_contents($path, $json);
+
+        $path = $outputPath . '/qconf-' . $output['idc'] . '-' . $output['root'] . '.php';
+
+        file_put_contents($path, '<?php return ' . var_export($root,1) .' ;');
+    }
+}
+
+$main = new Main();
+if (!$main->check()) {
+    echo "请先按照QConf扩展!";
+} else {
+    $main->run($argv);
+}
