@@ -31,7 +31,7 @@ class UserInternalService extends BaseService implements AuthenticateContract
 
     public function getUserById($userId)
     {
-        return $this->userService->getUserById($userId);
+        return $this->userService->getById($userId);
     }
 
     public function getUserByToken($token)

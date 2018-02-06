@@ -48,7 +48,7 @@ class UserService extends BaseService
     public function getUserByToken($token)
     {
         $user = $this->_userRepository->getByToken($token);
-        $user->token_expires < time() && $user = [];//todo exception
+        $user && $user->token_expires < time() && $user = [];
 
         return $user;
     }

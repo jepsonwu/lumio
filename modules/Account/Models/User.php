@@ -24,19 +24,17 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class User extends Model implements Transformable
 {
-    use TransformableTrait;
-
     protected $table = "user";
 
     protected $fillable = [
         "id", "username", "avatar", "mobile", "gender", "password", "token", "token_expires", "created_at", "updated_at"
     ];
 
-    public function toArray()
+    public function transform()
     {
         $result = parent::toArray();
-        unset($result['password'], $result['updated_at']);
 
+        unset($result['password'], $result['updated_at']);
         return $result;
     }
 
