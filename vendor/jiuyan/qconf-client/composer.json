@@ -1,0 +1,18 @@
+{
+    "name": "jiuyan/qconf-client",
+    "authors": [
+        {
+            "name": "xinghuo",
+            "email": "xinghuo@In66.com"
+        }
+    ],
+    "bin": [
+        "bin/QMake"
+    ],
+    "autoload": {
+        "psr-4": {
+            "Jiuyan\\Qconf\\Client\\":"./src"
+        }
+    },
+    "require": {}
+}

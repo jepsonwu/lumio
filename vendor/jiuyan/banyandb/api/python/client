@@ -1,0 +1,439 @@
+#!/usr/bin/python
+#coding=utf-8
+
+import os
+import sys
+import signal
+import readline
+import getopt
+import re
+import shlex
+import datetime
+sys.path.append("python")
+from banyan_api import BanyanClient as DBClient
+
+cmd_description = {
+'info':'''
+使用：info
+说明：查看agent 或者 chunkserver的一些基本信息。
+    total_calls，当前接收到的请求的个数，用来统计QPS
+    total_latency， 所有请求的总延时
+    data_dbsize, data目录的估计大小
+    meta_dbsize，meta目录的估计大小
+    dump_works，chunkserver独有，显示当前都有那些表在做dump。
+    bcopy_limit，chunkserver独有，不用了，忽略这个选项
+    bcopy_send，chunkserver独有，全量拷贝时用来限速，单位Mb/s，用dbset命令设置
+    dump_speed，chunkserver独有，dump时用来限速，单位Mb/s， 用dbset命令设置
+    sdrop_limit，chunkserver独有，drop数据时用来限速，单位个/s，即每秒删除多少个key，用dbset命令设置
+    sdrop_sleep，chunkserver独有，drop数据时用来限度，和sdrop_limit配合使用，单位ms，删除sdrop_limit个key后，睡眠多少毫秒，用dbset命令设置。
+''',
+
+'show':'''
+使用：show ns 或者 show tables test 或者 show slices test api_test
+说明：用于查看当前都有那些库表
+      show ns，列出所有的库名。
+      show tables test，列出test库下面所有的表。
+      show slices test api_test，列出test库 api_test表下面所有的分片信息。
+''',
+
+'connect':'''
+    使用：connect 127.0.0.1:20010 
+    说明：连接agent，chunkserver 或者scheduler。只有先建立连接才能进行后续的操作。
+''',
+
+'select':'''
+    使用：select test api_test（选择test库，api_test表）
+    说明：选择某个库表，用来指定后续请求的数据发往那个库表，数据的设置和查询需要先选择库表。
+''',
+
+'dbcompact':'''
+    使用：dbcompact
+    说明：手动触发leveldb compaction。leveldb会根据一定的策略自动进行compact，但有时候需要告诉leveldb立即触发，使用此命令。
+''',
+
+'dbrecord':'''
+    使用：dbrecord
+    说明：chunkserver独有，显示当前chunkserver里面的详细数据统。某个库表里面总共有多少条数据，以及每种数据类型各有多少条等。
+''',
+
+'dbscan':'''
+    使用：dbscan
+    说明：chunkserver独有，对当前chunkserver进行全库扫描，统计各个库表里面的数据量，结果用dbrecord显示出来。
+''',
+
+'dbset':''''
+    使用：dbset [sdrop_limit/sdrop_sleep/bcopy_send/dump_speed] value
+    说明：chunkserver独有，设置内部的各种限速变量。sdrop_limit范围(0,200000],sdrop_sleep范围(0,10000],bcopy_send范围(0,240],dump_speed范围(0,100]。
+''',
+
+'dbstop':'''
+    使用：dbstop zk_task, 或者 dbstop dumptask test api_test 1 (库名，表名，slice id)
+    说明：chunkserver独有，停止一些内部任务。在drop或者dump数据的时候如果磁盘io太高，可以选择用这个命令停止任务。dbstop zk_task ,停止drop任务；dbstop dumptask test api_test 1，停止api_test表的dump任务。
+''',
+
+'zk_slice_find_key':'''
+    使用：zk_slice_find_key test api_test 0 50 (库名，表名，slice id， 百分比)
+    说明：需要数据分片时使用，用来查找分裂的key，目前后端是写死的对半分。
+''',
+
+'zk_slice_split':'''
+    使用：zk_slice_split test api_test 0 aaaa （库名，表名，slice id， 分裂的key)
+    说明：对某个数据片进行分裂。当单个实例的数据很大时需要，对库进行拆分，数据迁移。
+''',
+
+'zk_slice_list':'''
+    使用：zk_slice_list test api_test （库名，表名）
+    说明：用来查看某个库表下面的所有分片信息。
+''',
+
+'zk_slice_list':'''
+    使用：zk_slice_list_chunk 127.0.0.1:20001（chunkserver ip）
+    说明：用来查看某个chunkserver下面的所有分片信息。
+''',
+
+'zk_node_ls':'''
+    使用：zk_node_ls /（zookeeper上的节点路径）
+    说明：列出zookeeper上的某个路径的所有子节点。目前banyandb在zookeeper上会创建如下几个节点：/chunks，/chunkconfigs，/agents，/namespaces。
+''',
+
+'zk_node_get':'''
+    使用：zk_node_get /namespaces （zookeeper上的节点路径）
+    说明：获取zookeeper上某个节点的value。
+''',
+
+'zk_ns_table_add':'''
+    使用：zk_ns_table_add test api_test (库名，表名)
+    说明：添加一个库表。
+''',
+
+'zk_slice_add_master':'''
+    使用：zk_slice_add_master test api_test 127.0.0.1:20001 （库名，表名，chunkserver ip）
+    说明：为test库api_test表添加主chunkserver。
+''',
+
+'zk_slice_add_slave':'''
+    使用：zk_slice_add_slave test api_test 1 127.0.0.1:20002 (库名， 表名，slice id，chunkserver ip)
+    说明：为test库api_test表添加一个从chunkserver。
+''',
+
+'zk_slave_to_master':'''
+    使用：zk_slave_to_master test api_test 1 127.0.0.1:20002 （库名，表名，slice id， 从chunkserver ip）
+    说明：对test库api_test表进行主从切换。
+''',
+
+'zk_slice_delete':'''
+    使用：zk_slice_delete test api_test 1 127.0.0.1:20001 (库名，表名，slice id， 要移除的chunkserver ip)
+    说明：从路由表里面删除一个chunkserver，仅仅只是路由的删除，这个表的数据还是存在的。
+''',
+
+'zk_slice_drop':'''
+    使用：zk_slice_drop test api_test 1 127.0.0.1:20001 （库名，表名，slice id， 要删除的表所在的chunkserver ip）
+    说明：删除127.0.0.1:20001这个chunkserver上 test库api_test表的数据，必须事先用zk_slice_delete删除过路由才行。
+''',
+
+'zk_ns_table_delete':'''
+    使用：zk_ns_table_delete test api_test （库名，表名）
+    说明：删除test库api_test表的路由信息，只有api_test 表是空的，该命令才会成功,要删除的表不是空的，则不允许删除。
+''',
+
+'zk_slice_set':'''
+    使用：zk_slice_set test api_test 1 read_option [read_priority_master/read_priority_slave/read_balance] (库名，表名，slice id，设置选项，选项value)
+    说明：设置某个库表的数据读取策略，优先读主，优先读从，负载均衡等。
+'''
+}
+
+CMD_DB = ['set', 'setx', 'setnx', 'expire', 'ttl', 'get', 'getset', 'del', 'incr', 'exists', 'getbit', 'setbit', 'bitcount', 'countbit', 'substr', 'strlen', 'keys', 'rkeys', 'scan', 'rscan', 'multi_set', 'multi_get', 'multi_del']\
+        + ['hset', 'hget', 'hdel', 'hincr', 'hexists', 'hsize', 'hlist', 'hrlist', 'hkeys', 'hgetall', 'hscan', 'hrscan', 'hclear', 'multi_hset', 'multi_hget', 'multi_hdel']\
+        + ['zset', 'zget', 'zdel', 'zincr', 'zexists', 'zsize', 'zlist', 'zrlist', 'zkeys', 'zscan', 'zrscan', 'zrank', 'zrrank', 'zrange', 'zrrange', 'zclear', 'zcount', 'zsum', 'zavg', 'zremrangebyrank', 'zremrangebyscore', 'zpop_front', 'zpop_back', 'multi_zset', 'multi_zget', 'multi_zdel']\
+        + ['vset', 'vget', 'vdel', 'vincr', 'vexists', 'vsize', 'vlist', 'vrlist', 'vkeys', 'vscan', 'vrscan', 'vrank', 'vrrank', 'vrange', 'vrrange', 'vclear', 'vcount', 'vsum', 'vavg', 'vremrangebyrank', 'vremrangebyscore', 'vpop_front', 'vpop_back', 'multi_vset', 'multi_vget', 'multi_vdel', 'vset_score', 'vset_value']\
+        + ['qpush_front', 'qpush_back', 'qpop_front', 'qpop_back', 'qpush', 'qpop', 'qfront', 'qback', 'qsize', 'qclear', 'qget', 'qset', 'qrange', 'qslice', 'qtrim_front', 'qtrim_back', 'qlist', 'qrlist']
+
+CMD_Others = ['zk_slice_find_key', 'zk_slice_split', 'zk_slice_list', 'zk_slice_list_chunk', 'zk_node_ls', 'zk_node_get', 'zk_ns_table_add', 'zk_slave_to_master', 'zk_task_get', 'zk_slice_add_slave', 'zk_slice_add_master', 'zk_slice_drop', 'zk_slice_delete', 'zk_slice_set', 'chunk_slice_add_slave', 'route_slice_add_slave', 'zk_ns_table_delete', "show"]\
+            + ['connect', 'select']\
+            + ['info', 'slice_info', 'leveldb', 'dbsize', 'dbcompact', 'dbrecord', 'dbscan', 'slice_dbsize', 'cmdinfo', 'ping', 'quit', 'bseqget', 'dbset', 'dbstop']
+
+CMD = CMD_DB + CMD_Others
+
+def completer(text, state):
+    options = [x for x in CMD if x.startswith(text)]
+    try:
+        return options[state]
+    except IndexError:
+        return None
+
+def welcome():
+    print "┌────────────────────────────────────────────────────────┐"
+    print "│    BanyanDb (cli) - BanyanDB command line tool.        │"
+    print "│          Copyright (c) 2016 Jiuyan Inc.                │"
+    print "│               Welcome BanyanDB !                       │"
+#   print "│                                                        │"
+    print "└────────────────────────────────────────────────────────┘"
+    print ""
+
+def usage():
+    print ""
+    print "Usage: client [-h] [HOST] [-p] [PORT]"
+    print ""
+    print "Options"
+    print "  -h 10.10.105.5     # BanyanDB server host ip address"
+    print "  -p 25001           # BanyanDB server port"
+    print "  --help             # show help infomation like this"
+    print ""
+def commandlist(argv):
+    if len(argv) >= 2:
+        cmd = argv[1]
+        if cmd in CMD_DB:
+            print "using like ssdb cmd (http://ssdb.io/docs/zh_cn/commands/index.html)"
+        elif cmd in CMD_Others:
+            print cmd_description.get(cmd,"no description for this cmd")
+        else:
+            print "Unknown cmd"
+    else:
+        print "-----Support Command in client of current version----"
+        print "Commands:"
+        out = ""
+        count = 0
+        for cmd in CMD:
+            out = out + "%-20s" %(cmd)
+            count = count + 1
+            if count == 5:
+                out = out + "\n"
+                count = 0
+        print out
+        print "Use 'help cmd' to get more information"
+
+def sig_handler(a, b):
+    raise SystemExit('\nBye!')
+
+g_host = ""
+g_port = ""
+g_tips = ""
+g_ns   = ""
+g_tab  = ""
+g_myClient = None
+
+def settips():
+    global g_tips
+    if g_myClient != None:
+        g_tips = "[BanyanDB " + g_host + ":" + g_port + "]>>> "
+    else:
+        g_tips = "[BanyanDB not connected]>>> "
+
+def init(argv):     #parse cmd line from user input
+    global g_host
+    global g_port
+    global g_myClient
+    global g_ns
+    global g_tab
+    opt = ""
+    for arg in argv[1:]:
+        if opt == "" and arg.startswith("-"):
+            opt = arg
+            if opt == "--help":
+                usage()
+                sys.exit(0)
+        else:   #get the argment's value 
+            if opt == "-h" or opt == "--host":
+                g_host = arg
+                opt = ""
+                continue
+            elif opt == "-p" or opt == "--port":
+                g_port = arg
+                opt = ""
+                continue
+            else:   #LIKE ./client 127.0.0.1 9999 or others
+                ip_regx = re.compile("^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
+                port_regx = re.compile("^[0-9]+$")
+                if ip_regx.match(arg) and g_host == "":
+                    g_host = arg
+                    continue
+                elif port_regx.match(arg) and g_port == "":
+                    g_port = arg
+                    continue
+                else:
+                    print "'" + arg + "' can not be recognized."
+                    continue
+    if len(g_host) > 0 and len(g_port) > 0:
+        agent = [g_host + ":" + g_port]
+        try:
+            g_myClient = DBClient(agent, "", "")
+        except Exception, err:
+            print err
+    settips()
+    welcome()
+    print "  %-8s %-10s   %-8s %-10s" % ("host: ", g_host, "port: ", g_port)
+    print "  %-8s %-11s   %-8s %-10s" % ("ns: ", g_ns, "tab: ", g_tab)
+    print "  NOTE: By using 'help' to get help info."
+    print ""
+
+def send_cmd(argv):
+    global g_myClient
+    global g_host
+    global g_port
+    global g_ns
+    global g_tab
+    cmd = ""
+    argv = shlex.shlex(argv, posix = True)
+    argv.whitespace = " "
+    argv.whitespace_split = True
+    argv = list(argv)
+    cmd = argv[0].lower()
+    if cmd in ("select"):
+        argvlen = len(argv)
+        if argvlen == 1:
+            print "current ns: " + g_ns + "  tab: " + g_tab
+            return
+        elif argvlen < 3:
+            print "arguments error. Usage: select [ns] [table]"
+            return
+        else:
+            g_ns = argv[1].lower()
+            g_tab = argv[2].lower()
+            agent = [g_host + ":" + g_port]
+#            print agent
+            try:
+                g_myClient.change_namespace(g_ns)
+                g_myClient.change_table(g_tab)
+                print "Current ns: " + g_ns + "  tab: " + g_tab
+            except Exception, err:
+                print "Cann't connect the ns or table"
+                return
+    elif cmd in ("help"):
+        commandlist(argv)
+    elif cmd in ("connect"):
+        argvlen = len(argv)
+        if argvlen != 2:
+            print "Usage: connect [ip:port]    # change DBServer host"
+            return
+        else:
+            if len(argv[1].split(":")) != 2:
+                print "IP address format error [ip:port]"
+                return
+            g_host = argv[1].split(":")[0]
+            g_port = argv[1].split(":")[1]
+            agent = [g_host + ":" + g_port]
+            try:
+                cli = DBClient(agent, g_ns, g_tab)
+                if g_myClient != None:
+                    g_myClient.close()
+                g_myClient = cli
+                settips()
+            except Exception, err:
+                print "Cann't connect db server"
+                return
+    elif not g_myClient  == None:
+        if cmd in CMD_DB and (g_ns == '' or g_tab == ''):
+            print "please select ns and tab first. Usage: select [ns] [table]"
+            return
+        params = argv[1:]
+        stime = datetime.datetime.now() # calculate cost time
+#        print params
+        res = g_myClient.request(cmd, params)
+        ts = datetime.datetime.now() - stime
+        tc = (ts.seconds + ts.microseconds/1000000.) * 1000.
+        if res.is_ok == True:
+#            print " DEBUG: return value type = " + res.val_type
+            print "[ok]"
+            if res.val_type == "bin":
+                print res.val
+            elif res.val_type == "int":
+                if cmd in ("exists", "hexists"):
+                    print res.val == 1
+                elif cmd in ("hsize", "zsize", "qsize", "strlen", "zsum", "zcount"):
+                    print res.val
+                else:
+                    print "'" + cmd + "' succeed!"
+            elif res.val_type == "list":
+                if cmd in ("keys", "rkeys", "hkeys", "hrkeys", "zkeys", "zrkeys", "vkeys", "vrkeys", \
+                        "zlist", "vlist", "zrlist", "vrlist", "hlist", "qlist", "hrlist", "qrlist", \
+                        "qpop", "qpop_front", "qslice", "qlist" ):
+                    printkeys(res.val, "key")
+#                elif cmd in ("info"):
+#                    printkv(res.val)
+                elif cmd in ("vget", "vscan", "vrscan", "vrange", "vrrange", "multi_vget"):
+                    printksv(res.val)
+                else:
+                    printkv(res.val)
+            elif res.val_type == "map":
+                printmap(res.val)
+            elif res.val_type == "listd":
+                printkeys(res.val, "name")
+            else:
+                print res.val
+        elif res.is_not_found == True:
+            print "[not_found]"
+        elif res.is_buffer == True:
+            print "[buffer]"
+        else:
+            print "[error]"
+            print res
+        print "(" + str(tc) + " ms)"
+    else:
+        print "please connect agent/chunkserver/scheduler first"
+
+def printkeys(res, colname):
+    print " %15s" % (colname)
+    print "----------------"
+    for i in range(len(res)):
+        print " %15s" % (res[i])
+    print str(len(res)) + " result(s)"
+
+def printkv(res):
+    print " %-15s %-15s" % ("key", "value")
+    print "------------------------------"
+    try:
+        for i in range(0, len(res), 2):
+            print " %-15s : %-15s" % (res[i], res[i+1])
+#           print type(res[i]), type(res[i+1])
+    except Exception, err:
+        print err
+    print str(len(res)/2) + " result(s)"
+
+def printksv(res):
+    print " %-15s %-15s %-15s" % ("key", "score", "value")
+    print "-------------------------------"
+    try:
+        for i in range(0, len(res), 3):
+            print " %-15s : %-15s %-15s" % (res[i], res[i+1], res[i+2])
+    except Exception, err:
+        print err
+    print str(len(res)/3) + " result(s)"
+
+def printmap(res):
+    print " %-15s %-15s" % ("key", "value")
+    print "------------------------------"
+    for key in res.keys():
+        print " %-15s : %-15s" % (key, res[key])
+    print str(len(res.keys())) + " result(s)"
+
+def main(argv):
+    os.system("clear")
+    signal.signal(signal.SIGINT, sig_handler)
+    signal.signal(signal.SIGTERM, sig_handler)
+    global g_tips
+    init(argv)
+    while True:
+        try:
+            cmd = ""
+            try:
+                cmd = raw_input(g_tips)
+            except EOFError:
+                print ""
+            if cmd == "":
+                continue
+            cmd = cmd.strip()
+            if cmd in ("quit", "q", "exit"):
+                print "Bye!"
+                break
+            if cmd in ("usage"):
+                usage()
+                continue
+            send_cmd(cmd)                  
+        except Exception, err:
+            print err
+
+if __name__ == "__main__":
+    readline.set_completer(completer)
+    readline.parse_and_bind("tab: complete")
+    main(sys.argv)
+

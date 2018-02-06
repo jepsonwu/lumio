@@ -1,0 +1,94 @@
+{
+    "sms": {
+        "value": "",
+        "nodes": {
+            "value": "",
+            "agent": {
+                "value": "",
+                "nodes": {
+                    "value": "",
+                    "account": {
+                        "value": "",
+                        "nodes": {
+                            "value": "",
+                            "HCloud": {
+                                "value": "user=18989863314;pwd=abc123456;url=http:\/\/sms.haotingyun.com\/v2\/sms\/single_send.json",
+                                "nodes": []
+                            },
+                            "Montnets": {
+                                "value": "user=send01;pwd=123456;url=http:\/\/122.144.173.66:5102\/mwgate\/wmgw.asmx",
+                                "nodes": []
+                            },
+                            "XinYiChen": {
+                                "value": "user=admin;pwd=4a3db8fdb340de54c7f7b1d6282a39cd;url=http:\/\/113.108.68.228:8001\/sendSMS.action",
+                                "nodes": []
+                            },
+                            "ZhuTong": {
+                                "value": "user=jiuqikejiyzm;pwd=kPLLe3;productid=71451;url=http:\/\/www.yzmsms.cn\/sendSmsYZM.do",
+                                "nodes": []
+                            }
+                        }
+                    },
+                    "channel": {
+                        "value": "Montnets;ZhuTong;XinYiChen;HCloud",
+                        "nodes": []
+                    },
+                    "ratio": {
+                        "value": "Montnets=40;ZhuTong=20;XinYiChen=30;HCloud=10",
+                        "nodes": []
+                    }
+                }
+            },
+            "agent_promo": {
+                "value": "",
+                "nodes": {
+                    "value": "",
+                    "account": {
+                        "value": "",
+                        "nodes": {
+                            "value": "",
+                            "Montnets": {
+                                "value": "user=send02;pwd=123456;url=http:\/\/122.144.173.66:5102\/mwgate\/wmgw.asmx",
+                                "nodes": []
+                            },
+                            "ZhuTong": {
+                                "value": "user=jiuqikejiyx;pwd=n4Rk56;productid=160225;url=http:\/\/www.api.zthysms.com\/sendSms.do",
+                                "nodes": []
+                            }
+                        }
+                    },
+                    "channel": {
+                        "value": "Montnets;ZhuTong",
+                        "nodes": []
+                    },
+                    "ratio": {
+                        "value": "Montnets=55;ZhuTong=45",
+                        "nodes": []
+                    }
+                }
+            },
+            "cache": {
+                "value": "host=127.0.0.1;port=11411&host=127.0.0.1;port=11412&host=127.0.0.1;port=11413",
+                "nodes": []
+            },
+            "queue": {
+                "value": "host=10.10.106.28;port=5672;user=itugomq;pass=server1mqphp;vhost=\/;debug=0;connection_timeout=1;read_write_timeout=5",
+                "nodes": []
+            },
+            "template": {
+                "value": "",
+                "nodes": {
+                    "value": "",
+                    "in": {
+                        "value": "\u624b\u673a\u9a8c\u8bc1\u7801\uff1acode\uff0c\u8bf7\u52ff\u5c06\u9a8c\u8bc1\u7801\u544a\u77e5\u4ed6\u4eba\u3002",
+                        "nodes": []
+                    },
+                    "promo": {
+                        "value": "\u4f60\u7684\u597d\u53cbname\u5728in\u91cc\u5173\u6ce8\u4e86\u4f60\uff0c\u9a6c\u4e0a\u53bb\u770b\u770b\u3002url",
+                        "nodes": []
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,19 @@
+<?php
+
+$NAMESPACE$
+
+use Prettus\Repository\Services\BaseService;
+$REPOSITORY$
+
+class $CLASS$Service extends BaseService
+{
+    /**
+     * @var $CLASS$Repository
+     */
+    protected $repository;
+
+    public function __construct($CLASS$Repository $repository)
+    {
+        $this->repository = $repository;
+    }
+}

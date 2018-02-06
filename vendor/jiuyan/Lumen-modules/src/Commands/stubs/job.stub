@@ -1,0 +1,30 @@
+<?php
+
+namespace $NAMESPACE$;
+
+use Jiuyan\Common\Component\InFramework\Jobs\BaseJob;
+
+class $CLASS$ extends BaseJob
+{
+    //队列连接名称
+    protected $_connection = '';
+
+    //队列名称
+    protected $_queueName = '';
+
+    /**
+     * Create a new job instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        //TODO:: 可以注入一些所需的服务实例
+        parent::__construct();
+    }
+
+    public function run()
+    {
+        //TODO:: 编写业务处理逻辑
+    }
+}

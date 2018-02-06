@@ -1,0 +1,2 @@
+ 		$this->app->singleton($REPOSITORY$, $ELOQUENT$);
+ 		$PLACEHOLDER$
