@@ -2,6 +2,9 @@
 
 namespace Modules\Account\Models;
 
+use App\Components\BootstrapHelper\ErrorTrait;
+use App\Components\BootstrapHelper\IModelAccess;
+use App\Components\BootstrapHelper\ModelAccess;
 use Prettus\Repository\Contracts\Transformable;
 use Prettus\Repository\Database\Eloquent\Model;
 use Prettus\Repository\Traits\TransformableTrait;
@@ -22,8 +25,12 @@ use Illuminate\Database\Eloquent\Builder;
  * Class User
  * @package Modules\Account\Models
  */
-class User extends Model implements Transformable
+class User extends Model implements Transformable, IModelAccess
 {
+    use ModelAccess;//todo 好像没啥用
+
+    use ErrorTrait;
+
     protected $table = "user";
 
     protected $fillable = [

@@ -28,9 +28,9 @@
                 </a>
             </li>
             <li class=" ">
-                <a href="/admin/ticket">
+                <a href="/admin/demo">
                     <i class="icon-home"></i>
-                    <span class="title">工单列表</span>
+                    <span class="title">demo</span>
                 </a>
             </li>
         </ul>

@@ -48,7 +48,8 @@
         "socialiteproviders/qq": "^3.0",
         "jiuyan/socialite": "dev-master",
         "jiuyan/lumio-sso": "dev-master",
-        "league/plates": "3.3"
+        "league/plates": "3.3",
+        "doctrine/dbal": "2.5"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

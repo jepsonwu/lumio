@@ -90,6 +90,7 @@ return array(
     'Domnikl\\Statsd\\' => array($vendorDir . '/jiuyan/statsd/lib'),
     'Doctrine\\Instantiator\\' => array($vendorDir . '/doctrine/instantiator/src/Doctrine/Instantiator'),
     'Doctrine\\Common\\Inflector\\' => array($vendorDir . '/doctrine/inflector/lib/Doctrine/Common/Inflector'),
+    'Doctrine\\Common\\Cache\\' => array($vendorDir . '/doctrine/cache/lib/Doctrine/Common/Cache'),
     'Dingo\\Blueprint\\' => array($vendorDir . '/dingo/blueprint/src'),
     'Dingo\\Api\\' => array($vendorDir . '/jiuyan/dingo-api/src'),
     'DeepCopy\\' => array($vendorDir . '/myclabs/deep-copy/src/DeepCopy'),
