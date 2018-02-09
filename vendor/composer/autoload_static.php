@@ -105,6 +105,7 @@ class ComposerStaticInit48522e9b2c76f5178f331ea98be276a6
         ),
         'L' => 
         array (
+            'League\\Plates\\' => 14,
             'League\\Pipeline\\' => 16,
             'League\\OAuth1\\' => 14,
             'League\\JsonReference\\' => 21,
@@ -357,6 +358,10 @@ class ComposerStaticInit48522e9b2c76f5178f331ea98be276a6
         'Modules\\' => 
         array (
             0 => __DIR__ . '/../..' . '/modules',
+        ),
+        'League\\Plates\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/league/plates/src',
         ),
         'League\\Pipeline\\' => 
         array (

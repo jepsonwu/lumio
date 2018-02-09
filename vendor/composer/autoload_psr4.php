@@ -49,6 +49,7 @@ return array(
     'Nord\\Lumen\\Cors\\' => array($vendorDir . '/nordsoftware/lumen-cors/src'),
     'Monolog\\' => array($vendorDir . '/monolog/monolog/src/Monolog'),
     'Modules\\' => array($baseDir . '/modules'),
+    'League\\Plates\\' => array($vendorDir . '/league/plates/src'),
     'League\\Pipeline\\' => array($vendorDir . '/league/pipeline/src'),
     'League\\OAuth1\\' => array($vendorDir . '/league/oauth1-client/src'),
     'League\\JsonReference\\' => array($vendorDir . '/league/json-reference/src'),
