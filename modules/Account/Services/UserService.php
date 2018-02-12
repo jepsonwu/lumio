@@ -8,7 +8,10 @@
 
 namespace Modules\Account\Services;
 
+use App\Constants\GlobalDBConstant;
 use Jiuyan\Common\Component\InFramework\Services\BaseService;
+use Jiuyan\Tools\Business\EncryptTool;
+use Modules\Account\Constants\AccountBanyanDBConstant;
 use Modules\Account\Models\User;
 use Modules\Account\Repositories\UserRepositoryEloquent;
 
@@ -53,11 +56,21 @@ class UserService extends BaseService
         return $user;
     }
 
+    /**
+     * @param $attributes
+     * @return mixed|User
+     * @throws \Prettus\Validator\Exceptions\ValidatorException
+     */
     public function create($attributes)
     {
         return $this->_userRepository->create([
             "mobile" => $attributes['mobile'],
             "password" => $attributes['password'],
+            "gender" => User::GENDER_UNKNOWN,
+            "role" => User::ROLE_NORMAL,
+            "open_status" => GlobalDBConstant::DB_FALSE,
+            "invite_code" => EncryptTool::encryptId(time() . rand(10, 99)),
+            "invited_user_id" => $attributes['invited_user_id'],
             "token" => $this->generateToken($attributes['mobile']),
             "token_expires" => time() + self::TOKEN_EXPIRES,
             "created_at" => time()

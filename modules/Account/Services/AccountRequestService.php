@@ -42,13 +42,19 @@ class AccountRequestService extends BaseService
 
     public function register($requestParams)
     {
-        $this->_checkPasswordAvailable($requestParams['password']);
-        $this->_checkSmsCaptcha($requestParams['mobile'], $requestParams['code']);
+        $this->_checkPasswordAvailable($requestParams['password'], $requestParams['confirm_password']);
+        $this->_checkSmsCaptcha($requestParams['mobile'], $requestParams['captcha']);
         $this->_userService->getByMobile($requestParams['mobile'])
         && ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_USER_EXISTS);
 
+        $inviteUser = $requestParams['invite_code'] ? $this->_getInviteUser($requestParams['invite_code']) : 0;
+        $requestParams['invited_user_id'] = $inviteUser ? $inviteUser : 0;
+
         $user = $this->_userService->create($requestParams);
         $user || ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_REGISTER_FAILED);
+
+        AccountBanyanDBConstant::commonUserInviteCodeMap()->set($user->invite_code, $user->id);
+        //todo event 赠送积分
 
         return $user;
     }
@@ -97,12 +103,13 @@ class AccountRequestService extends BaseService
         }
     }
 
-    private function _checkPasswordAvailable($password)
+    private function _checkPasswordAvailable($password, $confirmPassword)
     {
-        if ($password &&
-            (!preg_match(AccountBusinessConstant::COMMON_REGULAR_PASSWORD_FORMAT, $password, $pwdMatches) || !$pwdMatches)) {
+        if ((!preg_match(AccountBusinessConstant::COMMON_REGULAR_PASSWORD_FORMAT, $password, $pwdMatches) || !$pwdMatches)) {
             ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_PASSWORD_FORMAT_INVALID);
         }
+
+        $password == $confirmPassword || ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_PASSWORD_CONFIRM_FAILED);
     }
 
     private function _checkUserByMobile($mobile)
@@ -116,5 +123,12 @@ class AccountRequestService extends BaseService
     private function _checkPassword(User $user, $password)
     {
         $user->password == $password || ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_USER_ACCOUNT_PASSWORD_WRONG);
+    }
+
+    private function _getInviteUser($inviteCode)
+    {
+        $userId = AccountBanyanDBConstant::commonUserInviteCodeMap()->get($inviteCode);
+        $userId || ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_INVITE_USER_NOT_FOUND);
+        return $userId;
     }
 }

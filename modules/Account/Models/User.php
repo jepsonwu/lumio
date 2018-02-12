@@ -7,7 +7,6 @@ use App\Components\BootstrapHelper\IModelAccess;
 use App\Components\BootstrapHelper\ModelAccess;
 use Prettus\Repository\Contracts\Transformable;
 use Prettus\Repository\Database\Eloquent\Model;
-use Prettus\Repository\Traits\TransformableTrait;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -16,6 +15,15 @@ use Illuminate\Database\Eloquent\Builder;
  * @property string $avatar
  * @property string $mobile
  * @property int $gender
+ * @property string $qq
+ * @property string $email
+ * @property int $invited_user_id
+ * @property string $invite_code
+ * @property int $role
+ * @property int $level
+ * @property int $open_status
+ * @property string $taobao_account
+ * @property string $jd_account
  * @property string $password
  * @property string $token
  * @property string $token_expires
@@ -33,8 +41,17 @@ class User extends Model implements Transformable, IModelAccess
 
     protected $table = "user";
 
+    const GENDER_FEMALE = 0;
+    const GENDER_MALE = 1;
+    const GENDER_UNKNOWN = 2;
+
+    const ROLE_NORMAL = 0;
+    const ROLE_BUYER = 1;
+    const ROLE_SELLER = 2;
+
     protected $fillable = [
-        "id", "username", "avatar", "mobile", "gender", "password", "token", "token_expires", "created_at", "updated_at"
+        "id", "username", "avatar", "mobile", "gender", "qq", "email", "invited_user_id", "invite_code", "role", "level",
+        "open_status", "taobao_account", "jd_account", "password", "token", "token_expires", "created_at", "updated_at"
     ];
 
     public function transform()
@@ -55,11 +72,31 @@ class User extends Model implements Transformable, IModelAccess
         return $builder->where("token", $token);
     }
 
+    public static function whereRoleBuyer(Builder $builder)
+    {
+        return $builder->where("role", self::ROLE_BUYER);
+    }
+
+    public static function whereRoleSeller(Builder $builder)
+    {
+        return $builder->where("role", self::ROLE_SELLER);
+    }
+
     public function changePassword($password)
     {
         return $this->update([
             "password" => $password
         ]);
+    }
+
+    public function isBuyer()
+    {
+        return $this->role == self::ROLE_BUYER;
+    }
+
+    public function isSeller()
+    {
+        return $this->role == self::ROLE_SELLER;
     }
 }
 

@@ -3,6 +3,7 @@
 namespace Modules\Account\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Jiuyan\Tools\Business\EncryptTool;
 use Modules\Account\Constants\AccountBanyanDBConstant;
 use Modules\Account\Services\AccountRequestService;
 use Auth;
@@ -55,15 +56,42 @@ class AuthController extends AuthBaseController
         return $this->success([]);
     }
 
-
+    /**
+     *
+     *
+     * @api {GET} /api/account/v1/register 注册
+     * @apiSampleRequest /api/account/v1/register
+     *
+     * @apiVersion 1.0.0
+     *
+     * @apiGroup account
+     * @apiName register
+     *
+     * @apiParam {string} mobile
+     * @apiParam {int} captcha 验证码
+     * @apiParam {string} password
+     * @apiParam {string} confirm_password
+     * @apiParam {string} invite_code 邀请码
+     *
+     * @apiError  20113
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *{"succ":true,"data":[],"code":"0","msg":"","time":"1517818507"}
+     *
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
     public function register(Request $request)
     {
         $this->validate(
             $request,
             [
                 'mobile' => ['bail', 'required', 'mobile'],
-                'code' => 'bail|required|integer',
-                'password' => ['bail', 'required', 'string'],//长度
+                'captcha' => 'bail|required|integer',
+                'password' => ['bail', 'required', 'string'],//todo 长度
+                'confirm_password' => ['bail', 'required', 'string'],
+                'invite_code' => ['bail', 'string']
             ]
         );
 
