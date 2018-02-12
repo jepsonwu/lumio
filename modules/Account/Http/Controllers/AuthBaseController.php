@@ -17,11 +17,11 @@ class AuthBaseController extends ApiBaseController
 {
     public function saveLoginInfo($authUserInfo)
     {
-        if (isset($authUserInfo['_token'])) {
-            $this->addCookie('_token', $authUserInfo['token'], UserService::TOKEN_EXPIRES);
+        if (isset($authUserInfo['token'])) {
+            $this->addCookie('_token', $authUserInfo['token'], UserService::TOKEN_EXPIRES, '.lumio.com');
         }
-        if (isset($authUserInfo['_auth'])) {
-            $this->addCookie('_aries', $authUserInfo['_auth'], 2592000 - 1800);
+        if (isset($authUserInfo['auth'])) {
+            $this->addCookie('_aries', $authUserInfo['auth'], 2592000 - 1800, '.lumio.com');
         }
     }
 }

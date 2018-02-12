@@ -58,7 +58,7 @@ class User extends Model implements Transformable, IModelAccess
     {
         $result = parent::toArray();
 
-        unset($result['password'], $result['updated_at']);
+        unset($result['password'], $result['updated_at'], $result['invited_user_id'], $result['token_expires']);
         return $result;
     }
 

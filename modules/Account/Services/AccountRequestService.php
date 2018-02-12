@@ -74,20 +74,21 @@ class AccountRequestService extends BaseService
 
     }
 
-    public function changePassword(User $user, $password, $newPassword)
+    public function changePassword(User $user, $password, $newPassword, $newConfirmPassword)
     {
         $password == $newPassword && ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_PASSWORD_SAME_NEW_PASSWORD);
         $this->_checkPassword($user, $password);
+        $this->_checkPasswordAvailable($newPassword, $newConfirmPassword);
 
         $result = $this->_userService->changePassword($user, $newPassword);
         $result || ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_PASSWORD_CHANGE_FAILED);
         return true;
     }
 
-    public function resetPassword($mobile, $password, $captcha)
+    public function resetPassword($mobile, $password, $confirmPassword, $captcha)
     {
         $user = $this->_checkUserByMobile($mobile);
-        $this->_checkPasswordAvailable($password);
+        $this->_checkPasswordAvailable($password, $confirmPassword);
         $this->_checkSmsCaptcha($mobile, $captcha);
 
         $result = $this->_userService->changePassword($user, $password);

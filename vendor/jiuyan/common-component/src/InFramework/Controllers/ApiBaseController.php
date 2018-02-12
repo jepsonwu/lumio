@@ -8,6 +8,7 @@ use Jiuyan\Common\Component\InFramework\Components\RequestParamsComponent;
 use Jiuyan\Common\Component\InFramework\Exceptions\ApiExceptions;
 use Jiuyan\Tools\Business\JsonTool;
 use Laravel\Lumen\Routing\Controller;
+use Prettus\Repository\Contracts\Transformable;
 
 class ApiBaseController extends Controller
 {
@@ -61,6 +62,7 @@ class ApiBaseController extends Controller
     {
         $response = new Response();
         $responseRes = explode('|', $codeTpl);
+        $data instanceof Transformable && $data = $data->transform();
         if (is_object($data) && method_exists($data, 'toArray')) {
             $data = $data->toArray();
         }
