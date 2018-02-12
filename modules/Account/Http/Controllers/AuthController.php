@@ -140,6 +140,25 @@ class AuthController extends AuthBaseController
         return $this->success($user);
     }
 
+    /**
+     *
+     *
+     * @api {POST} /api/account/v1/logout 退出
+     * @apiSampleRequest /api/account/v1/logout
+     *
+     * @apiVersion 1.0.0
+     *
+     * @apiGroup account
+     * @apiName logout
+     *
+     * @apiError  20113
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *{"succ":true,"data":[],"code":"0","msg":"","time":"1518425196"}
+     *
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
     public function logout()
     {
         $this->addCookie('_token', AuthHelper::user()->token, -1, '.lumio.com');//todo optimize

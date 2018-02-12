@@ -63,8 +63,8 @@ class AccountRequestService extends BaseService
     {
         $user = $this->_checkUserByMobile($mobile);
         $this->_checkPassword($user, $password);
-        $user = $this->_userService->updateToken($user);
-        $user === false && ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_LOGIN_FAILED);
+        $result = $this->_userService->updateToken($user);
+        $result === false && ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_LOGIN_FAILED);
 
         return $user;
     }

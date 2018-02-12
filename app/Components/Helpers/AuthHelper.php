@@ -3,6 +3,7 @@
 namespace App\Components\Helpers;
 
 use Modules\Account\Models\User;
+use Auth;
 
 class AuthHelper
 {
@@ -11,6 +12,6 @@ class AuthHelper
      */
     public static function user()
     {
-        return \Auth::user();
+        return Auth::guard()->user();
     }
 }

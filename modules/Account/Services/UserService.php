@@ -9,11 +9,13 @@
 namespace Modules\Account\Services;
 
 use App\Constants\GlobalDBConstant;
+use Jiuyan\Common\Component\InFramework\Components\ExceptionResponseComponent;
 use Jiuyan\Common\Component\InFramework\Services\BaseService;
 use Jiuyan\Tools\Business\EncryptTool;
-use Modules\Account\Constants\AccountBanyanDBConstant;
+use Modules\Account\Constants\AccountErrorConstant;
 use Modules\Account\Models\User;
 use Modules\Account\Repositories\UserRepositoryEloquent;
+use Exception;
 
 class UserService extends BaseService
 {
@@ -36,6 +38,23 @@ class UserService extends BaseService
     public function getById($userId)
     {
         $user = $this->_userRepository->find($userId);
+        return $user;
+    }
+
+    /**
+     * @param $userId
+     * @return User
+     * @throws \Jiuyan\Common\Component\InFramework\Exceptions\BusinessException
+     */
+    public function isValidById($userId)
+    {
+        $user = null;
+        try {
+            $user = $this->getById($userId);
+        } catch (Exception $e) {
+            ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_USER_NOT_EXISTS);
+        }
+
         return $user;
     }
 
@@ -75,6 +94,30 @@ class UserService extends BaseService
             "token_expires" => time() + self::TOKEN_EXPIRES,
             "created_at" => time()
         ]);
+    }
+
+    /**
+     * @param $userId
+     * @param $attributes
+     * @return mixed|User
+     * @throws \Prettus\Validator\Exceptions\ValidatorException
+     */
+    public function update($userId, $attributes)
+    {
+        $user = $this->_userRepository->update([
+            "username" => "",
+            "avatar" => "",
+            "gender" => "",
+            "qq" => "",
+            "email" => "",
+            "open_status" => "",
+            "taobao_account" => "",
+            "jd_account" => ""
+        ], $userId);
+
+        //todo 升级role
+
+        return $user;
     }
 
     public function updateToken(User $user)

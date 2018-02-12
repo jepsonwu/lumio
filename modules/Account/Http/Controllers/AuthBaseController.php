@@ -8,9 +8,7 @@
 
 namespace Modules\Account\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Jiuyan\Common\Component\InFramework\Controllers\ApiBaseController;
-use Modules\Account\Services\AccountRequestService;
 use Modules\Account\Services\UserService;
 
 class AuthBaseController extends ApiBaseController
