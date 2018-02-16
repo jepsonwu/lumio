@@ -48,4 +48,14 @@ class AccountRepositoryEloquent extends BaseRepository
         $this->model->whereUserId($builder, $userId)->whereValid($builder);
         return $builder->get();
     }
+
+    public function updateAccount(Account $account, $attributes)
+    {
+        return $account->update($attributes);
+    }
+
+    public function deleteAccount(Account $account)
+    {
+        return $account->deleteAccount();
+    }
 }

@@ -63,5 +63,12 @@ class Account extends Model implements Transformable, IModelAccess
         $builder->where("account_status", GlobalDBConstant::DB_TRUE);
         return $this;
     }
+
+    public function deleteAccount()
+    {
+        return $this->update([
+            "account_status" => GlobalDBConstant::DB_FALSE
+        ]);
+    }
 }
 

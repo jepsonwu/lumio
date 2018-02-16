@@ -81,7 +81,16 @@ class UserController extends ApiBaseController
      *
      * @apiGroup user
      * @apiName my-detail
-     **
+     *
+     * @apiParam {string} username
+     * @apiParam {string} avatar
+     * @apiParam {int} gender 0-女，1-男，2-未知
+     * @apiParam {string} qq
+     * @apiParam {string} email
+     * @apiParam {int} open_status 0-否，1-是
+     * @apiParam {string} taobao_account
+     * @apiParam {string} jd_account
+     *
      * @apiError  20113
      *
      * @apiSuccessExample {json} Success-Response:

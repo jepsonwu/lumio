@@ -26,11 +26,13 @@ class AccountController extends ApiBaseController
      *
      * @apiGroup user-fund
      * @apiName list
-     **
+     *
+     *
+     *
      * @apiError  20113
      *
      * @apiSuccessExample {json} Success-Response:
-     *
+     * {"succ":true,"data":[{"id":"4","user_id":"10","real_name":"\u5434\u5065\u5e73","id_card":"3602221991078362","bank_card":"234234343413134","bank":"\u4e2d\u56fd\u94f6\u884c","bankfiliale":"\u676d\u5dde\u4e5d\u5821\u652f\u884c","account_status":"1","created_at":"1518760738","updated_at":"2018-02-16 13:58:58"}],"code":"0","msg":"","time":"1518760783"}
      *
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
@@ -51,11 +53,17 @@ class AccountController extends ApiBaseController
      *
      * @apiGroup user-fund
      * @apiName create
-     **
+     *
+     * @apiParam {string} real_name 真实姓名
+     * @apiParam {string} id_card 身份证号码
+     * @apiParam {string} bank_card 银行卡
+     * @apiParam {string} bank 银行
+     * @apiParam {string} bankfiliale 支行
+     *
      * @apiError  20113
      *
      * @apiSuccessExample {json} Success-Response:
-     *
+     * {"succ":true,"data":{"real_name":"\u5434\u5065\u5e73","id_card":"3602221991078362","bank_card":"234234343413134","bank":"\u4e2d\u56fd\u94f6\u884c","bankfiliale":"\u676d\u5dde\u4e5d\u5821\u652f\u884c","user_id":"10","created_at":"1518760738","id":"4"},"code":"0","msg":"","time":"1518760738"}
      *
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
@@ -86,18 +94,32 @@ class AccountController extends ApiBaseController
      *
      * @apiGroup user-fund
      * @apiName update
-     **
+     *
+     * @apiParam {string} real_name 真实姓名
+     * @apiParam {string} id_card 身份证号码
+     * @apiParam {string} bank_card 银行卡
+     * @apiParam {string} bank 银行
+     * @apiParam {string} bankfiliale 支行
+     *
      * @apiError  20113
      *
      * @apiSuccessExample {json} Success-Response:
-     *
+     *{"succ":true,"data":{"real_name":"\u5434\u5065\u5e73","id_card":"3602221991078362","bank_card":"234234343413134","bank":"\u4e2d\u56fd\u94f6\u884c","bankfiliale":"\u676d\u5dde\u4e5d\u5821\u652f\u884c","user_id":"10","created_at":"1518760738","id":"4"},"code":"0","msg":"","time":"1518760738"}
      *
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function update(Request $request, $id)
     {
-        return $this->success([]);
+        $this->validate($request, [
+            'real_name' => ['bail', 'string', 'required', 'between:1,50'],
+            'id_card' => ['bail', 'string', 'required', 'between:1,50'],
+            'bank_card' => ['bail', 'string', 'required', 'between:1,50'],
+            'bank' => ['bail', 'string', 'required', 'between:1,50'],
+            'bankfiliale' => ['bail', 'string', 'required', 'between:1,50'],
+        ]);
+
+        return $this->success($this->accountService->update($id, $this->requestParams->getRegularParams()));
     }
 
     /**
@@ -110,17 +132,19 @@ class AccountController extends ApiBaseController
      *
      * @apiGroup user-fund
      * @apiName delete
-     **
+     *
      * @apiError  20113
      *
      * @apiSuccessExample {json} Success-Response:
-     *
+     * {"succ":true,"data":[],"code":"0","msg":"","time":"1518761055"}
      *
      * @param Request $request
+     * @param $id
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function delete(Request $request, $id)
     {
+        $this->accountService->delete($id);
         return $this->success([]);
     }
 }

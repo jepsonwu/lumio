@@ -90,7 +90,7 @@ class ApiBaseController extends Controller
         if ($data instanceof Collection) {
             $data = $data->each(function ($item) {
                 return $this->formatDataItem($item);
-            });
+            })->toArray();
         } elseif (is_array($data)) {
             $data = array_map(function ($item) {
                 return $this->formatDataItem($item);
@@ -98,12 +98,14 @@ class ApiBaseController extends Controller
         } else {
             $data = $this->formatDataItem($data);
         }
+
+        return $data;
     }
 
     protected function formatDataItem($item)
     {
         if ($item instanceof Transformable) {
-            $item = $data->transform();
+            $item = $item->transform();
         } elseif (is_object($item) && method_exists($item, 'toArray')) {
             $item = $item->toArray();
         }
