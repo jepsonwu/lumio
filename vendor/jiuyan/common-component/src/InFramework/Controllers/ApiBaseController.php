@@ -4,6 +4,7 @@ namespace Jiuyan\Common\Component\InFramework\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
 use Jiuyan\Common\Component\InFramework\Components\RequestParamsComponent;
 use Jiuyan\Common\Component\InFramework\Exceptions\ApiExceptions;
 use Jiuyan\Tools\Business\JsonTool;
@@ -62,10 +63,8 @@ class ApiBaseController extends Controller
     {
         $response = new Response();
         $responseRes = explode('|', $codeTpl);
-        $data instanceof Transformable && $data = $data->transform();
-        if (is_object($data) && method_exists($data, 'toArray')) {
-            $data = $data->toArray();
-        }
+        $data = $this->formatResultData($data);
+
         $response->setContent(
             JsonTool::encode([
                 'succ' => $status,
@@ -84,6 +83,32 @@ class ApiBaseController extends Controller
             }
         }
         return $response;
+    }
+
+    protected function formatResultData($data)
+    {
+        if ($data instanceof Collection) {
+            $data = $data->each(function ($item) {
+                return $this->formatDataItem($item);
+            });
+        } elseif (is_array($data)) {
+            $data = array_map(function ($item) {
+                return $this->formatDataItem($item);
+            }, $data);
+        } else {
+            $data = $this->formatDataItem($data);
+        }
+    }
+
+    protected function formatDataItem($item)
+    {
+        if ($item instanceof Transformable) {
+            $item = $data->transform();
+        } elseif (is_object($item) && method_exists($item, 'toArray')) {
+            $item = $item->toArray();
+        }
+
+        return $item;
     }
 
     /**

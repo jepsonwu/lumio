@@ -1,0 +1,16 @@
+{
+    "name": "UserFund",
+    "alias": "userfund",
+    "description": "",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\UserFund\\Providers\\UserFundServiceProvider"
+    ],
+    "aliases": {},
+    "files": [
+        "start.php"
+    ],
+    "requires": []
+}
