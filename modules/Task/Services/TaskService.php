@@ -2,63 +2,55 @@
 
 namespace Modules\Seller\Services;
 
-use App\Constants\GlobalDBConstant;
 use Jiuyan\Common\Component\InFramework\Components\ExceptionResponseComponent;
 use Jiuyan\Common\Component\InFramework\Services\BaseService;
 use Modules\Seller\Constants\SellerErrorConstant;
 use Modules\Seller\Models\Goods;
-use Modules\Seller\Repositories\GoodsRepositoryEloquent;
-use Modules\Seller\Constants\SellerBanyanDBConstant;
+use Modules\Task\Models\Task;
+use Modules\Task\Repositories\TaskRepositoryEloquent;
 
-class GoodsService extends BaseService
+class TaskService extends BaseService
 {
-    protected $_goodsRepository;
+    protected $_taskRepository;
+    protected $_sellerInternalService;//todo implements
 
-    const BANYAN_SELLER_STAT_GOODS_NUMBER_KEY = "goods_number";
-
-    public function __construct(GoodsRepositoryEloquent $goodsRepositoryEloquent)
+    public function __construct(
+        TaskRepositoryEloquent $taskRepositoryEloquent,
+        SellerInternalService $sellerInternalService
+    )
     {
-        $this->_goodsRepository = $goodsRepositoryEloquent;
+        $this->_taskRepository = $taskRepositoryEloquent;
+        $this->_sellerInternalService = $sellerInternalService;
         $this->_requestParamsComponent = app('RequestCommonParams');
     }
 
     public function create($userId, $attributes)
     {
-        //todo is valid store id
+        $this->isAllowCreate($userId);
 
-        //todo add price image
-
+        $goods = $this->_sellerInternalService->isValidGoods($attributes['goods_id']);
         $attributes['user_id'] = $userId;
+        $attributes['store_id'] = $goods->store_id;
+        $attributes['goods_id'] = $goods->id;
+        $attributes['goods_name'] = $goods->goods_name;
+        $attributes['goods_price'] = $goods->goods_price;
+        $attributes['goods_image'] = $goods->goods_image;
+        $attributes['finished_order_number'] = 0;
+        $attributes['doing_order_number'] = 0;
+        $attributes['task_status'] = Task::STATUS_WAITING;
         $attributes['created_at'] = time();
-        $attributes['goods_status'] = GlobalDBConstant::DB_TRUE;
 
-        $goods = $this->_goodsRepository->create($attributes);
-        $goods || ExceptionResponseComponent::business(SellerErrorConstant::ERR_GOODS_CREATE_FAILED);
+        $task = $this->_taskRepository->create($attributes);
+        $task || ExceptionResponseComponent::business(SellerErrorConstant::ERR_GOODS_CREATE_FAILED);
 
-        $this->incUserGoodsNumber($userId);
-
-        return $goods;
+        return $task;
     }
 
-    protected function getUserGoodsNumber($userId)
+    public function isAllowCreate($userId)
     {
-        return (int)SellerBanyanDBConstant::commonSellerStat($userId)->get(self::BANYAN_SELLER_STAT_GOODS_NUMBER_KEY);
-    }
+        //todo is seller
 
-    protected function incUserGoodsNumber($userId)
-    {
-        SellerBanyanDBConstant::commonSellerStat($userId)->inc(self::BANYAN_SELLER_STAT_GOODS_NUMBER_KEY);
-    }
-
-    protected function decUserGoodsNumber($userId)
-    {
-        SellerBanyanDBConstant::commonSellerStat($userId)->inc(self::BANYAN_SELLER_STAT_GOODS_NUMBER_KEY, -1);
-    }
-
-    public function checkDeployGoods($userId)
-    {
-        $this->getUserGoodsNumber($userId) < 1
-        && ExceptionResponseComponent::business(SellerErrorConstant::ERR_GOODS_NO_DEPLOY);
+        $this->_sellerInternalService->isFinishedDeploy($userId);
     }
 
     public function list($userId)
@@ -84,8 +76,6 @@ class GoodsService extends BaseService
         //todo 权限
 
         //todo 事物 删除商品
-
-        $this->decUserGoodsNumber($goods->user_id);
 
         return true;
     }

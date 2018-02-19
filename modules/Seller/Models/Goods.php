@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Builder;
  * @property string $goods_image
  * @property string $goods_price
  * @property string $goods_keywords
+ * @property string $goods_name
  * @property int $goods_status
  * @property int $created_at
  * @property string $updated_at
@@ -42,7 +43,7 @@ class Goods extends Model implements Transformable, IModelAccess
 
     protected $fillable = [
         "id", "user_id", "store_id", "goods_url", "goods_image", "goods_price", "goods_keywords",
-        "goods_status", "created_at", "updated_at"
+        "goods_status", "goods_name", "created_at", "updated_at"
     ];
 
     public function transform()

@@ -1,16 +1,16 @@
 <?php
-namespace Modules\Account\Constants;
+
+namespace Modules\Seller\Constants;
 
 use Jiuyan\Lumio\BanyanDB\BanyanDBFactory;
 
-class AccountBanyanDBConstant
+class SellerBanyanDBConstant
 {
     const NAMESPACE_COMMON = "common";
 
     const TABLE_COMMON_COMMON = "common";
 
-    const COMMON_DEMO = "demo";
-    const COMMON_USER_INVITE_CODE_MAP = "user_invite_code_map";
+    const COMMON_SELLER_STAT = "seller_stat";
 
     /**
      *
@@ -29,13 +29,8 @@ class AccountBanyanDBConstant
         return BanyanDBFactory::getInstance(self::NAMESPACE_COMMON, self::TABLE_COMMON_COMMON, $name, $type);
     }
 
-    public static function commonDemo()
+    public static function commonSellerStat($userId)
     {
-        return self::common(self::COMMON_DEMO, BanyanDBFactory::HASH_STRUCTURE);
-    }
-
-    public static function commonUserInviteCodeMap()
-    {
-        return self::common(self::getName(self::COMMON_USER_INVITE_CODE_MAP), BanyanDBFactory::HASH_STRUCTURE);
+        return self::common(self::getName(self::COMMON_SELLER_STAT, $userId), BanyanDBFactory::HASH_STRUCTURE);
     }
 }

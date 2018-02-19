@@ -2,8 +2,8 @@
 
 namespace Modules\Seller\Repositories;
 
+use App\Validators\GlobalValidator;
 use Modules\Seller\Models\Store;
-use Modules\Seller\Validators\StoreValidator;
 use Prettus\Repository\Eloquent\BaseRepository;
 
 /**
@@ -24,7 +24,7 @@ class StoreRepositoryEloquent extends BaseRepository
 
     public function validator()
     {
-        return StoreValidator::class;
+        return GlobalValidator::class;
     }
 
     /**

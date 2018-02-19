@@ -1,11 +1,11 @@
 <?php
 
-namespace Modules\Seller\Validators;
+namespace App\Validators;
 
 use \Prettus\Validator\Contracts\ValidatorInterface;
 use \Prettus\Validator\LaravelValidator;
 
-class StoreValidator extends LaravelValidator
+class GlobalValidator extends LaravelValidator
 {
 
     protected $rules = [

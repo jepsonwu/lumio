@@ -47,6 +47,7 @@ class GoodsController extends ApiBaseController
     {
         $this->validate($request, [
             'store_id' => ['bail', 'required', 'int'],
+            'goods_name' => ['bail', 'string', 'required', 'between:1,200'],
             'goods_url' => ['bail', 'string', 'required', 'between:1,500'],
             'goods_keywords' => ['bail', 'string', 'required', 'between:1,500'],
         ]);
@@ -59,6 +60,7 @@ class GoodsController extends ApiBaseController
     {
         $this->validate($request, [
             'store_id' => ['bail', 'required', 'int'],
+            'goods_name' => ['bail', 'string', 'required', 'between:1,200'],
             'goods_url' => ['bail', 'string', 'required', 'between:1,500'],
             'goods_keywords' => ['bail', 'string', 'required', 'between:1,500'],
         ]);
