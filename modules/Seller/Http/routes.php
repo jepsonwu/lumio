@@ -11,3 +11,14 @@ Route::version('v1', [
     Route::delete('/{id}', 'StoreController@delete');
 });
 
+Route::version('v1', [
+    'prefix' => '/api/seller/goods',
+    'namespace' => 'Modules\Seller\Http\Controllers',
+    'middleware' => ['jiuyan.api.auth']
+], function () {
+    Route::get('/', 'GoodsController@list');
+    Route::post('/', 'GoodsController@create');
+    Route::put('/{id}', 'GoodsController@update');
+    Route::delete('/{id}', 'GoodsController@delete');
+});
+

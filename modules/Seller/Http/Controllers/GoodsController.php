@@ -1,19 +1,19 @@
 <?php
 
-namespace Modules\UserFund\Http\Controllers;
+namespace Modules\Seller\Http\Controllers;
 
 use App\Components\Helpers\AuthHelper;
 use Illuminate\Http\Request;
 use Jiuyan\Common\Component\InFramework\Controllers\ApiBaseController;
-use Modules\UserFund\Services\WalletService;
+use Modules\Seller\Services\GoodsService;
 
-class WalletController extends ApiBaseController
+class GoodsController extends ApiBaseController
 {
-    protected $walletService;
+    protected $goodsService;
 
-    public function __construct(WalletService $walletService)
+    public function __construct(GoodsService $goodsService)
     {
-        $this->walletService = $walletService;
+        $this->goodsService = $goodsService;
     }
 
     /**
@@ -39,30 +39,38 @@ class WalletController extends ApiBaseController
      */
     public function list(Request $request)
     {
-        $result = $this->walletService->list(AuthHelper::user()->id);
+        $result = $this->goodsService->list(AuthHelper::user()->id);
         return $this->success($result);
     }
 
-    public function recharge()
+    public function create(Request $request)
     {
+        $this->validate($request, [
+            'store_id' => ['bail', 'required', 'int'],
+            'goods_url' => ['bail', 'string', 'required', 'between:1,500'],
+            'goods_keywords' => ['bail', 'string', 'required', 'between:1,500'],
+        ]);
+
+        $store = $this->goodsService->create(AuthHelper::user()->id, $this->requestParams->getRegularParams());
+        return $this->success($store);
     }
 
-    public function updateRecharge()
+    public function update(Request $request, $id)
     {
+        $this->validate($request, [
+            'store_id' => ['bail', 'required', 'int'],
+            'goods_url' => ['bail', 'string', 'required', 'between:1,500'],
+            'goods_keywords' => ['bail', 'string', 'required', 'between:1,500'],
+        ]);
+
+        $store = $this->goodsService->update($id, $this->requestParams->getRegularParams());
+        return $this->success($store);
     }
 
-    public function deleteRecharge()
+    public function delete(Request $request, $id)
     {
+        $this->goodsService->delete($id);
 
-    }
-
-    public function withdraw()
-    {
-
-    }
-
-    public function deleteWithdraw()
-    {
-
+        return $this->success([]);
     }
 }
