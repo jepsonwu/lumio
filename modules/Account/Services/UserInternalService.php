@@ -56,6 +56,19 @@ class UserInternalService extends BaseService implements AuthenticateContract
     {
         $this->mock = $mock;
     }
+
+    public function isSeller($userId)
+    {
+        $user = $this->userService->isValidById($userId);
+
+        return $this->userService->isSeller($user);
+    }
+
+    public function isBuyer($userId)
+    {
+        $user = $this->userService->isValidById($userId);
+        return $this->userService->isBuyer($user);
+    }
 }
 
 

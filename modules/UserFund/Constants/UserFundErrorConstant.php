@@ -11,10 +11,12 @@ class UserFundErrorConstant
     const ERR_ACCOUNT_UPDATE_FAILED = '21104|修改银行卡失败';
     const ERR_ACCOUNT_DELETE_FAILED = '21105|删除银行卡失败';
     const ERR_ACCOUNT_INVALID = '21106|无效的账户';
+    const ERR_ACCOUNT_NO_DEPLOY = '21107|未添加银行卡';
+    const ERR_ACCOUNT_OPERATE_ILLEGAL = '21108|非法操作';
 
-    const ERR_WALLET_RECHARGE_FAILED = "21107|充值失败";
-    const ERR_WALLET_WITHDRAW_FAILED = "21108|提现失败";
-    const ERR_WALLET_INVALID_RECORD = "21109|无效的资金记录";
-    const ERR_WALLET_VERIFY_RECHARGE_FAILED = "21110|审核充值失败";
-    const ERR_WALLET_VERIFY_WITHDRAW_FAILED = "21111|审核提现失败";
+    const ERR_WALLET_RECHARGE_FAILED = "21201|充值失败";
+    const ERR_WALLET_WITHDRAW_FAILED = "21202|提现失败";
+    const ERR_WALLET_INVALID_RECORD = "21203|无效的资金记录";
+    const ERR_WALLET_VERIFY_RECHARGE_FAILED = "21204|审核充值失败";
+    const ERR_WALLET_VERIFY_WITHDRAW_FAILED = "21205|审核提现失败";
 }

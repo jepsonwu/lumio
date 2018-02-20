@@ -23,4 +23,5 @@ class SellerErrorConstant
     const ERR_GOODS_DELETE_FAILED = '22203|商品删除失败';
     const ERR_GOODS_INVALID = '22204|无效的商品';
     const ERR_GOODS_NO_DEPLOY = '22205|未添加商品';
+    const ERR_GOODS_OPERATE_ILLEGAL = '22206|非法操作';
 }

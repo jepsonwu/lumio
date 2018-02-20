@@ -156,4 +156,12 @@ class StoreService extends BaseService
 
         return $store;
     }
+
+    public function isValidMyStore($storeId, $userId)
+    {
+        $store = $this->isValidStore($storeId);
+        $this->isAllowOperate($userId, $store);
+
+        return $store;
+    }
 }

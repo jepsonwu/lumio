@@ -5,6 +5,7 @@ namespace Modules\UserFund\Services;
 use App\Constants\GlobalDBConstant;
 use Jiuyan\Common\Component\InFramework\Components\ExceptionResponseComponent;
 use Jiuyan\Common\Component\InFramework\Services\BaseService;
+use Modules\UserFund\Constants\UserFundBanyanDBConstant;
 use Modules\UserFund\Constants\UserFundErrorConstant;
 use Modules\UserFund\Models\Account;
 use Modules\UserFund\Repositories\AccountRepositoryEloquent;
@@ -12,6 +13,8 @@ use Modules\UserFund\Repositories\AccountRepositoryEloquent;
 class AccountService extends BaseService
 {
     protected $_accountRepository;
+
+    const BANYAN_USER_FUND_STAT_ACCOUNT_NUMBER_KEY = "account_number";
 
     public function __construct(AccountRepositoryEloquent $accountRepositoryEloquent)
     {
@@ -38,9 +41,31 @@ class AccountService extends BaseService
         $account = $this->_accountRepository->create($attributes);
         $account || ExceptionResponseComponent::business(UserFundErrorConstant::ERR_ACCOUNT_CREATE_FAILED);
 
+        $this->incUserAccountNumber($userId);
         //todo 权限判断
 
         return $account;
+    }
+
+    protected function getUserAccountNumber($userId)
+    {
+        return (int)UserFundBanyanDBConstant::commonUserFundStat($userId)->get(self::BANYAN_USER_FUND_STAT_ACCOUNT_NUMBER_KEY);
+    }
+
+    protected function incUserAccountNumber($userId)
+    {
+        UserFundBanyanDBConstant::commonUserFundStat($userId)->inc(self::BANYAN_USER_FUND_STAT_ACCOUNT_NUMBER_KEY);
+    }
+
+    protected function decUserAccountNumber($userId)
+    {
+        UserFundBanyanDBConstant::commonUserFundStat($userId)->inc(self::BANYAN_USER_FUND_STAT_ACCOUNT_NUMBER_KEY, -1);
+    }
+
+    public function checkDeployAccount($userId)
+    {
+        $this->getUserAccountNumber($userId) < 1
+        && ExceptionResponseComponent::business(UserFundErrorConstant::ERR_ACCOUNT_NO_DEPLOY);
     }
 
     protected function isAllowCreateBankCard($userId)
@@ -60,9 +85,10 @@ class AccountService extends BaseService
         return $this->_accountRepository->getByUserId($userId);
     }
 
-    public function update($id, $attributes)
+    public function update($userId, $accountId, $attributes)
     {
-        $account = $this->isValidAccount($id);
+        $account = $this->isValidAccount($accountId);
+        $this->isAllowUpdate($userId, $account);
         $account->bank_card == $attributes['bank_card']
         || $this->isExistsBankCard($attributes['bank_card']);
 
@@ -72,16 +98,35 @@ class AccountService extends BaseService
         return $account;
     }
 
-    public function delete($id)
+    protected function isAllowUpdate($userId, Account $account)
     {
-        $account = $this->isValidAccount($id);
+        $this->isAllowOperate($userId, $account);
+    }
+
+    //todo package
+    protected function isAllowOperate($userId, Account $account)
+    {
+        $userId == $account->user_id
+        || ExceptionResponseComponent::business(UserFundErrorConstant::ERR_ACCOUNT_OPERATE_ILLEGAL);
+    }
+
+    public function delete($userId, $accountId)
+    {
+        $account = $this->isValidAccount($accountId);
+        $this->isAllowDelete($userId, $account);
 
         $result = $this->_accountRepository->deleteAccount($account);
         $result || ExceptionResponseComponent::business(UserFundErrorConstant::ERR_ACCOUNT_DELETE_FAILED);
 
+        $this->decUserAccountNumber($userId);
         //todo 权限
 
         return true;
+    }
+
+    protected function isAllowDelete($userId, Account $account)
+    {
+        $this->isAllowOperate($userId, $account);
     }
 
     /**

@@ -119,7 +119,12 @@ class AccountController extends ApiBaseController
             'bankfiliale' => ['bail', 'string', 'required', 'between:1,50'],
         ]);
 
-        return $this->success($this->accountService->update($id, $this->requestParams->getRegularParams()));
+        $account = $this->accountService->update(
+            AuthHelper::user()->id,
+            $id,
+            $this->requestParams->getRegularParams()
+        );
+        return $this->success($account);
     }
 
     /**
@@ -144,7 +149,7 @@ class AccountController extends ApiBaseController
      */
     public function delete(Request $request, $id)
     {
-        $this->accountService->delete($id);
+        $this->accountService->delete(AuthHelper::user()->id, $id);
         return $this->success([]);
     }
 }

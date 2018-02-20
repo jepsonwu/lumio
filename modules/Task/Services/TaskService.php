@@ -4,23 +4,30 @@ namespace Modules\Seller\Services;
 
 use Jiuyan\Common\Component\InFramework\Components\ExceptionResponseComponent;
 use Jiuyan\Common\Component\InFramework\Services\BaseService;
+use Modules\Account\Services\UserInternalService;
 use Modules\Seller\Constants\SellerErrorConstant;
-use Modules\Seller\Models\Goods;
 use Modules\Task\Models\Task;
 use Modules\Task\Repositories\TaskRepositoryEloquent;
+use Modules\UserFund\Services\UserFundInternalService;
 
 class TaskService extends BaseService
 {
     protected $_taskRepository;
     protected $_sellerInternalService;//todo implements
+    protected $_userInternalService;
+    protected $_userFundInternalService;
 
     public function __construct(
         TaskRepositoryEloquent $taskRepositoryEloquent,
-        SellerInternalService $sellerInternalService
+        SellerInternalService $sellerInternalService,
+        UserInternalService $userInternalService,
+        UserFundInternalService $userFundInternalService
     )
     {
         $this->_taskRepository = $taskRepositoryEloquent;
         $this->_sellerInternalService = $sellerInternalService;
+        $this->_userInternalService = $userInternalService;
+        $this->_userFundInternalService = $userFundInternalService;
         $this->_requestParamsComponent = app('RequestCommonParams');
     }
 
@@ -28,7 +35,7 @@ class TaskService extends BaseService
     {
         $this->isAllowCreate($userId);
 
-        $goods = $this->_sellerInternalService->isValidGoods($attributes['goods_id']);
+        $goods = $this->_sellerInternalService->isValidMyGoods($userId, $attributes['goods_id']);
         $attributes['user_id'] = $userId;
         $attributes['store_id'] = $goods->store_id;
         $attributes['goods_id'] = $goods->id;
@@ -48,50 +55,26 @@ class TaskService extends BaseService
 
     public function isAllowCreate($userId)
     {
-        //todo is seller
+        if (!$this->_userInternalService->isSeller($userId)) {
+            $this->_userFundInternalService->isFinishedDeployAccount($userId);
+            $this->_userFundInternalService->isFinishedDeployWallet($userId);//todo optimize
+        }
 
         $this->_sellerInternalService->isFinishedDeploy($userId);
     }
 
     public function list($userId)
     {
-        return $this->_goodsRepository->getByUserId($userId);
+        return $this->_taskRepository->getByUserId($userId);
     }
 
-    public function update($id, $attributes)
+    public function update($userId, $taskId, $totalOrderNumber)
     {
-        $this->isValidGoods($id);
-        $goods = $this->_goodsRepository->update($attributes, $id);
-        $goods || ExceptionResponseComponent::business(SellerErrorConstant::ERR_GOODS_UPDATE_FAILED);
 
-        return $goods;
     }
 
-    public function delete($id)
+    public function close($id)
     {
-        $goods = $this->isValidGoods($id);
-        $result = $this->_goodsRepository->deleteGoods($goods);
-        $result || ExceptionResponseComponent::business(SellerErrorConstant::ERR_GOODS_DELETE_FAILED);
 
-        //todo 权限
-
-        //todo 事物 删除商品
-
-        return true;
-    }
-
-    public function isValidGoods($id)
-    {
-        /**@var Goods $goods * */
-        $goods = $this->_goodsRepository->find($id);
-        (!$goods || !$goods->isValid())
-        && ExceptionResponseComponent::business(SellerErrorConstant::ERR_GOODS_INVALID);
-
-        return $goods;
-    }
-
-    protected function isAllowDelete()
-    {
-        //todo 当前有任务
     }
 }

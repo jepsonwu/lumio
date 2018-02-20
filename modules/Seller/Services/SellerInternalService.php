@@ -20,6 +20,11 @@ class SellerInternalService extends BaseService
         return $this->goodsService->isValidGoods($goodsId);
     }
 
+    public function isValidMyGoods($userId, $goodsId)
+    {
+        return $this->goodsService->isValidMyGoods($userId, $goodsId);
+    }
+
     public function isFinishedDeploy($userId)
     {
         $this->storeService->checkDeployStore($userId);

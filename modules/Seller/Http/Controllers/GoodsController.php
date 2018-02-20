@@ -65,13 +65,13 @@ class GoodsController extends ApiBaseController
             'goods_keywords' => ['bail', 'string', 'required', 'between:1,500'],
         ]);
 
-        $store = $this->goodsService->update($id, $this->requestParams->getRegularParams());
+        $store = $this->goodsService->update(AuthHelper::user()->id, $id, $this->requestParams->getRegularParams());
         return $this->success($store);
     }
 
     public function delete(Request $request, $id)
     {
-        $this->goodsService->delete($id);
+        $this->goodsService->delete(AuthHelper::user()->id, $id);
 
         return $this->success([]);
     }

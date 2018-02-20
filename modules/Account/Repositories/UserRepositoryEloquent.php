@@ -48,4 +48,14 @@ class UserRepositoryEloquent extends BaseRepository
     {
         return $user->changePassword($password);
     }
+
+    public function isBuyer(User $user)
+    {
+        return $user->isBuyer();
+    }
+
+    public function isSeller(User $user)
+    {
+        return $user->isSeller();
+    }
 }

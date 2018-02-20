@@ -138,4 +138,14 @@ class UserService extends BaseService
     {
         return $this->_userRepository->changePassword($user, $newPassword);
     }
+
+    public function isBuyer(User $user)
+    {
+        return $this->_userRepository->isBuyer($user);
+    }
+
+    public function isSeller(User $user)
+    {
+        return $this->_userRepository->isSeller($user);
+    }
 }
