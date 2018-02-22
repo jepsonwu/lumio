@@ -50,11 +50,19 @@ class Fund extends Model implements Transformable, IModelAccess
         return $this;
     }
 
-    public function prepareWithdraw($amount)
+    public function lockAmount($amount)
     {
         return $this->update([
             "amount" => $this->amount - $amount,
             "locked" => $this->locked + $amount
+        ]);
+    }
+
+    public function unlockAmount($amount)
+    {
+        return $this->update([
+            "locked" => $this->locked - $amount,
+            "amount" => $this->amount + $amount,
         ]);
     }
 
@@ -63,14 +71,6 @@ class Fund extends Model implements Transformable, IModelAccess
         return $this->update([
             "locked" => $this->locked - $amount,
             "total_withdraw" => $this->total_withdraw + $amount
-        ]);
-    }
-
-    public function cancelWithdraw($amount)
-    {
-        return $this->update([
-            "locked" => $this->locked - $amount,
-            "amount" => $this->amount + $amount,
         ]);
     }
 
@@ -90,27 +90,11 @@ class Fund extends Model implements Transformable, IModelAccess
         ]);
     }
 
-    public function preparePay($amount)
-    {
-        return $this->update([
-            "amount" => $this->amount - $amount,
-            "locked" => $this->locked + $amount
-        ]);
-    }
-
     public function pay($amount)
     {
         return $this->update([
             "locked" => $this->locked - $amount,
             "total_pay" => $this->total_pay + $amount
-        ]);
-    }
-
-    public function cancelPay($amount)
-    {
-        return $this->update([
-            "locked" => $this->locked - $amount,
-            "amount" => $this->amount + $amount,
         ]);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Modules\Seller\Services;
 
+use Illuminate\Support\Collection;
 use Jiuyan\Common\Component\InFramework\Components\ExceptionResponseComponent;
 use Jiuyan\Common\Component\InFramework\Services\BaseService;
 use Jiuyan\Common\Component\InFramework\Traits\DBTrait;
@@ -43,9 +44,12 @@ class TaskService extends BaseService
         $amount = $goods->goods_price * $attributes['total_order_number'];
         $this->checkBalance($userId, $amount);
 
-//        $this->doingTransaction(function (){
-//
-//        },);
+        //todo 如果要完全分模块 需要考虑分布式事务
+        $this->doingTransaction(function () {
+
+        }, new Collection([
+            $this->_taskRepository
+        ]), TaskErrorConstant::ERR_TASK_CREATE_FAILED);
         $task = $this->rawCreate($userId, $goods);
 
         //锁定余额

@@ -8,6 +8,7 @@ use Jiuyan\Common\Component\InFramework\Services\BaseService;
 use Jiuyan\Common\Component\InFramework\Traits\DBTrait;
 use Jiuyan\Common\Component\InFramework\Traits\ExceptionTrait;
 use Modules\UserFund\Constants\UserFundErrorConstant;
+use Modules\UserFund\Models\Fund;
 use Modules\UserFund\Models\FundRecord;
 
 class WalletService extends BaseService
@@ -81,6 +82,9 @@ class WalletService extends BaseService
         //todo is valid captcha
 
         return $this->doingTransaction(function () use ($userId, $amount) {
+            //todo check balance select for update
+
+
             $result = $this->_fundRecordService->prepareWithdraw(
                 $userId,
                 $amount,
@@ -161,6 +165,34 @@ class WalletService extends BaseService
             $this->_fundRecordService->getRepository(),
             $this->_fundService->getRepository()
         ]), UserFundErrorConstant::ERR_WALLET_VERIFY_WITHDRAW_FAILED);
+    }
+
+    public function checkBalance($userId, $amount, $forUpdate = false)
+    {
+        $fund = $this->_fundService->getByUserId($userId, $forUpdate);
+        $this->_fundService->checkBalance($fund, $amount)
+        || ExceptionResponseComponent::business(UserFundErrorConstant::ERR_WALLET_INSUFFICIENT_BALANCE);
+
+        return $fund;
+    }
+
+    public function checkLocked($userId, $amount, $forUpdate = false)
+    {
+        $fund = $this->_fundService->getByUserId($userId, $forUpdate);
+        $this->_fundService->checkLocked($fund, $amount)
+        || ExceptionResponseComponent::business(UserFundErrorConstant::ERR_WALLET_INSUFFICIENT_LOCKED);
+
+        return $fund;
+    }
+
+    public function lock(Fund $fund, $amount)
+    {
+        return $fund->lockAmount($amount);
+    }
+
+    public function unlock(Fund $fund, $amount)
+    {
+        return $fund->unlockAmount($amount);
     }
 
     public function earn()

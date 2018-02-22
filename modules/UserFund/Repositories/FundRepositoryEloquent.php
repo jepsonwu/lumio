@@ -54,7 +54,7 @@ class FundRepositoryEloquent extends BaseRepository
 
     public function prepareWithdraw(Fund $fund, $amount)
     {
-        return $fund->prepareWithdraw($amount);
+        return $fund->lockAmount($amount);
     }
 
     public function withdraw(Fund $fund, $amount)
@@ -64,7 +64,7 @@ class FundRepositoryEloquent extends BaseRepository
 
     public function cancelWithdraw(Fund $fund, $amount)
     {
-        return $fund->cancelWithdraw($amount);
+        return $fund->unlockAmount($amount);
     }
 
     public function recharge(Fund $fund, $amount)
@@ -79,7 +79,7 @@ class FundRepositoryEloquent extends BaseRepository
 
     public function preparePay(Fund $fund, $amount)
     {
-        return $fund->preparePay($amount);
+        return $fund->lockAmount($amount);
     }
 
     public function pay(Fund $fund, $amount)
@@ -89,6 +89,6 @@ class FundRepositoryEloquent extends BaseRepository
 
     public function cancelPay(Fund $fund, $amount)
     {
-        return $fund->cancelPay($amount);
+        return $fund->unlockAmount($amount);
     }
 }

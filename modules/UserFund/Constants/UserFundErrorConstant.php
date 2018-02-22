@@ -19,4 +19,6 @@ class UserFundErrorConstant
     const ERR_WALLET_INVALID_RECORD = "21203|无效的资金记录";
     const ERR_WALLET_VERIFY_RECHARGE_FAILED = "21204|审核充值失败";
     const ERR_WALLET_VERIFY_WITHDRAW_FAILED = "21205|审核提现失败";
+    const ERR_WALLET_INSUFFICIENT_BALANCE = "21206|余额不足";
+    const ERR_WALLET_INSUFFICIENT_LOCKED = "21207|意外错误";
 }

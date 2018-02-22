@@ -24,8 +24,9 @@ class FundService extends BaseService
      * @return \Illuminate\Database\Eloquent\Model|mixed|Fund|null|static|Fund
      * @throws \Jiuyan\Common\Component\InFramework\Exceptions\DBException
      */
-    public function getByUserId($userId)
+    public function getByUserId($userId, $forUpdate = false)
     {
+        //todo select for update
         $fund = $this->_fundRepository->getByUserId($userId);
         $fund || $fund = $this->_fundRepository->createFund($userId);
         $this->throwDBException($fund, "创建资金账户失败,user_id:{$userId}");
@@ -51,6 +52,16 @@ class FundService extends BaseService
     public function cancelWithdraw(Fund $fund, $amount)
     {
         return $this->_fundRepository->cancelWithdraw($fund, $amount);
+    }
+
+    public function checkBalance(Fund $fund, $amount)
+    {
+        return $fund->amount >= $amount;
+    }
+
+    public function checkLocked(Fund $fund, $amount)
+    {
+        return $fund->locked >= $amount;
     }
 
     /**
