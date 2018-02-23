@@ -14,7 +14,7 @@ use Modules\UserFund\Services\UserFundInternalService;
 
 class TaskService extends BaseService
 {
-    protected $_sellerInternalService;//todo implements
+    protected $_sellerInternalService;
     protected $_userInternalService;
     protected $_userFundInternalService;
 
@@ -32,6 +32,18 @@ class TaskService extends BaseService
         $this->_requestParamsComponent = app('RequestCommonParams');
     }
 
+    /**
+     * 1.校验余额
+     * 2.创建任务
+     * 3.锁定账户金额
+     * 4.todo 如果要完全分模块 需要考虑分布式事务
+     *
+     * @param $userId
+     * @param $attributes
+     * @return mixed
+     * @throws \Exception
+     * @throws \Jiuyan\Common\Component\InFramework\Exceptions\BusinessException
+     */
     public function create($userId, $attributes)
     {
         $this->isAllowCreate($userId);
@@ -40,7 +52,6 @@ class TaskService extends BaseService
         $amount = $goods->goods_price * $attributes['total_order_number'];
         $this->checkBalance($userId, $amount);
 
-        //todo 如果要完全分模块 需要考虑分布式事务
         $task = $this->doingTransaction(function () use ($userId, $goods, $amount) {
             $task = $this->rawCreate($userId, $goods);
 
@@ -63,6 +74,7 @@ class TaskService extends BaseService
         $attributes['goods_image'] = $goods->goods_image;
         $attributes['finished_order_number'] = 0;
         $attributes['doing_order_number'] = 0;
+        $attributes['waiting_order_number'] = 0;
         $attributes['task_status'] = Task::STATUS_WAITING;
         $attributes['created_at'] = time();
 
@@ -92,16 +104,52 @@ class TaskService extends BaseService
         return $this->getRepository()->getByUserId($userId);
     }
 
+
+    /**
+     * 1.只能修改总订单数、搜索关键字 增加考虑余额 减少考虑当前正在执行的任务
+     * 2.修改数量
+     * 3.锁定、解锁余额
+     * @param $userId
+     * @param $taskId
+     * @param $totalOrderNumber
+     * @return Task
+     * @throws \Exception
+     * @throws \Jiuyan\Common\Component\InFramework\Exceptions\BusinessException
+     */
     public function update($userId, $taskId, $totalOrderNumber)
     {
         $task = $this->isValidTask($taskId);
-        $this->isAllowUpdate($userId, $task);
+        if ($task->total_order_number == $totalOrderNumber) {
+            return $task;
+        }
 
-        $attributes['total_order_number'] = $totalOrderNumber;
-        $task = $this->getRepository()->update($attributes, $taskId);
-        $task || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_UPDATE_FAILED);
+        $incOrderNumber = $totalOrderNumber - $task->total_order_number;
+        $this->isAllowUpdate($userId, $task, $incOrderNumber);
+
+        $this->doingTransaction(function () use ($userId, $task, $incOrderNumber) {
+            $this->rawUpdate($task->id, $incOrderNumber + $task->total_order_number);
+
+            $amount = $task->goods_price * $incOrderNumber;
+            if ($incOrderNumber > 0) {
+                $result = $this->_userFundInternalService->lock($userId, $amount);
+            } else {
+                $result = $this->_userFundInternalService->unlock($userId, -$amount);;
+            }
+
+            $this->throwDBException($result, "修改操作余额失败");
+        }, new Collection(
+            array_merge([$this->getRepository()], $this->_userFundInternalService->getRepository())
+        ), TaskErrorConstant::ERR_TASK_UPDATE_FAILED);
+
 
         return $task;
+    }
+
+    protected function rawUpdate($taskId, $totalOrderNumber)
+    {
+        $attributes['total_order_number'] = $totalOrderNumber;
+        $task = $this->getRepository()->update($attributes, $taskId);
+        $this->throwDBException($task, "修改失败");
     }
 
     public function isValidTask($taskId)
@@ -113,9 +161,21 @@ class TaskService extends BaseService
         return $task;
     }
 
-    protected function isAllowUpdate($userId, Task $task)
+    protected function isAllowUpdate($userId, Task $task, $incOrderNumber)
     {
         $this->isAllowOperate($userId, $task);
+
+        if (!($task->isWaiting() || $task->isDoing())) {
+            ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_DISALLOW_UPDATE);
+        }
+
+        if ($incOrderNumber > 0) {
+            $this->checkBalance($userId, $task->goods_price * $incOrderNumber);
+        } else {
+            if (($task->waiting_order_number + $task->doing_order_number) > $incOrderNumber) {
+                ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_DISALLOW_UPDATE);
+            }
+        }
     }
 
     protected function isAllowOperate($userId, Task $task)
@@ -124,20 +184,74 @@ class TaskService extends BaseService
         || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_OPERATE_ILLEGAL);
     }
 
+    /**
+     * 1.只能删除 等待中、执行中 并且没有未完成的执行任务
+     * 2.删除任务
+     * 3.退款
+     * 4.todo 脚本执行，关闭过期任务
+     *
+     * @param $userId
+     * @param $taskId
+     * @return bool
+     * @throws \Exception
+     * @throws \Jiuyan\Common\Component\InFramework\Exceptions\BusinessException
+     */
     public function close($userId, $taskId)
     {
         $task = $this->isValidTask($taskId);
         $this->isAllowClose($userId, $task);
 
-        $result = $this->getRepository()->closeTask($task);
-        $result || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_CLOSE_FAILED);
+        $this->doingTransaction(function () use ($userId, $task) {
+            $this->rawClose($task);
+
+            $this->throwDBException(
+                $this->_userFundInternalService->unlock($userId, $this->getRefundAmount($task))
+                , "解锁余额失败"
+            );
+        }, new Collection(
+            array_merge([$this->getRepository()], $this->_userFundInternalService->getRepository())
+        ), TaskErrorConstant::ERR_TASK_CLOSE_FAILED);
 
         return true;
+    }
+
+    protected function getRefundAmount(Task $task)
+    {
+        return $task->goods_price * ($task->total_order_number - $task->finished_order_number);
+    }
+
+    protected function rawClose(Task $task)
+    {
+        $result = $this->getRepository()->closeTask($task);
+        $this->throwDBException($result, "关闭任务失败");
     }
 
     protected function isAllowClose($userId, Task $task)
     {
         $this->isAllowOperate($userId, $task);
+
+        if (!(
+            ($task->isWaiting() || $task->isDoing())
+            && $task->waiting_order_number < 1
+            && $task->doing_order_number < 1
+        )) {
+            ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_DISALLOW_CLOSE);
+        }
+    }
+
+    public function incWaitingOrder(Task $task)
+    {
+        return $this->getRepository()->incWaitingOrder($task);
+    }
+
+    public function incDoingOrder(Task $task)
+    {
+        return $this->getRepository()->incDoingOrder($task);
+    }
+
+    public function incDoneOrder(Task $task)
+    {
+        return $this->getRepository()->incFinishedOrder($task);
     }
 
     /**

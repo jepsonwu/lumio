@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Builder;
  * @property int $total_order_number
  * @property int $finished_order_number
  * @property int $doing_order_number
+ * @property int $waiting_order_number
  * @property int $platform
  * @property int $task_status
  * @property int $created_at
@@ -48,7 +49,7 @@ class Task extends Model implements Transformable, IModelAccess
     protected $fillable = [
         "id", "user_id", "store_id", "goods_id", "goods_name", "goods_price", "goods_image",
         "goods_keyword", "total_order_number", "finished_order_number", "doing_order_number",
-        "platform", "task_status", "created_at", "updated_at"
+        "waiting_order_number", "platform", "task_status", "created_at", "updated_at"
     ];
 
     public function transform()
@@ -65,33 +66,37 @@ class Task extends Model implements Transformable, IModelAccess
         return $this;
     }
 
-    public function incFinishedOrderNumber()
+    public function incWaitingOrder()
     {
-        return $this->increment("finished_order_number");
+        $attributes = [
+            "waiting_order_number" => $this->waiting_order_number + 1
+        ];
+        $this->isWaiting() && $attributes['task_status'] = self::STATUS_DOING;
+
+        return $this->update($attributes);
     }
 
-    public function incDoingOrderNumber()
+    public function incDoingOrder()
     {
-        return $this->increment("doing_order_number");
+        $attributes = [
+            "doing_order_number" => $this->doing_order_number + 1,
+            "waiting_order_number" => $this->waiting_order_number - 1
+        ];
+
+        return $this->update($attributes);
     }
 
-    public function decDoingOrderNumber()
+    public function incFinishedOrder()
     {
-        return $this->increment("doing_order_number", -1);
-    }
+        $attributes = [
+            "finished_order_number" => $this->finished_order_number + 1,
+            "doing_order_number" => $this->doing_order_number - 1
+        ];
 
-    public function doingTask()
-    {
-        return $this->update([
-            "task_status" => self::STATUS_DOING
-        ]);
-    }
+        $attributes['finished_order_number'] == $this->total_order_number
+        && $attributes['task_status'] = self::STATUS_DONE;
 
-    public function doneTask()
-    {
-        return $this->update([
-            "task_status" => self::STATUS_DONE
-        ]);
+        return $this->update($attributes);
     }
 
     public function closeTask()
@@ -99,6 +104,26 @@ class Task extends Model implements Transformable, IModelAccess
         return $this->update([
             "task_status" => self::STATUS_CLOSE
         ]);
+    }
+
+    public function isWaiting()
+    {
+        return $this->task_status == self::STATUS_WAITING;
+    }
+
+    public function isDoing()
+    {
+        return $this->task_status == self::STATUS_DOING;
+    }
+
+    public function isDone()
+    {
+        return $this->task_status == self::STATUS_DONE;
+    }
+
+    public function isClose()
+    {
+        return $this->task_status == self::STATUS_CLOSE;
     }
 }
 

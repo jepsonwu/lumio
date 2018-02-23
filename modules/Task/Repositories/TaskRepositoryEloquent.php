@@ -38,29 +38,19 @@ class TaskRepositoryEloquent extends BaseRepository
         return $builder->get();
     }
 
-    public function incFinishedOrderNumber(Task $task)
+    public function incWaitingOrder(Task $task)
     {
-        return $task->incFinishedOrderNumber();
+        return $task->incWaitingOrder();
     }
 
-    public function incDoingOrderNumber(Task $task)
+    public function incDoingOrder(Task $task)
     {
-        return $task->incDoingOrderNumber();
+        return $task->incDoingOrder();
     }
 
-    public function decDoingOrderNumber(Task $task)
+    public function incFinishedOrder(Task $task)
     {
-        return $task->decDoingOrderNumber();
-    }
-
-    public function doingTask(Task $task)
-    {
-        return $task->doingTask();
-    }
-
-    public function doneTask(Task $task)
-    {
-        return $task->doneTask();
+        return $task->incFinishedOrder();
     }
 
     public function closeTask(Task $task)
