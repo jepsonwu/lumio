@@ -12,13 +12,11 @@ use Modules\UserFund\Repositories\AccountRepositoryEloquent;
 
 class AccountService extends BaseService
 {
-    protected $_accountRepository;
-
     const BANYAN_USER_FUND_STAT_ACCOUNT_NUMBER_KEY = "account_number";
 
     public function __construct(AccountRepositoryEloquent $accountRepositoryEloquent)
     {
-        $this->_accountRepository = $accountRepositoryEloquent;
+        $this->setRepository($accountRepositoryEloquent);
         $this->_requestParamsComponent = app('RequestCommonParams');
     }
 
@@ -38,7 +36,7 @@ class AccountService extends BaseService
         $attributes['created_at'] = time();
         $attributes['account_status'] = GlobalDBConstant::DB_TRUE;
 
-        $account = $this->_accountRepository->create($attributes);
+        $account = $this->getRepository()->create($attributes);
         $account || ExceptionResponseComponent::business(UserFundErrorConstant::ERR_ACCOUNT_CREATE_FAILED);
 
         $this->incUserAccountNumber($userId);
@@ -70,19 +68,19 @@ class AccountService extends BaseService
 
     protected function isAllowCreateBankCard($userId)
     {
-        $this->_accountRepository->getByUserId($userId)->count()
+        $this->getRepository()->getByUserId($userId)->count()
         && ExceptionResponseComponent::business(UserFundErrorConstant::ERR_ACCOUNT_IS_NOT_ALLOW_CREATE);
     }
 
     protected function isExistsBankCard($bankCard)
     {
-        $this->_accountRepository->getByBankCard($bankCard)
+        $this->getRepository()->getByBankCard($bankCard)
         && ExceptionResponseComponent::business(UserFundErrorConstant::ERR_ACCOUNT_HAS_BEEN_EXISTS);
     }
 
     public function list($userId)
     {
-        return $this->_accountRepository->getByUserId($userId);
+        return $this->getRepository()->getByUserId($userId);
     }
 
     public function update($userId, $accountId, $attributes)
@@ -92,7 +90,7 @@ class AccountService extends BaseService
         $account->bank_card == $attributes['bank_card']
         || $this->isExistsBankCard($attributes['bank_card']);
 
-        $result = $this->_accountRepository->updateAccount($account, $attributes);
+        $result = $this->getRepository()->updateAccount($account, $attributes);
         $result || ExceptionResponseComponent::business(UserFundErrorConstant::ERR_ACCOUNT_UPDATE_FAILED);
 
         return $account;
@@ -115,7 +113,7 @@ class AccountService extends BaseService
         $account = $this->isValidAccount($accountId);
         $this->isAllowDelete($userId, $account);
 
-        $result = $this->_accountRepository->deleteAccount($account);
+        $result = $this->getRepository()->deleteAccount($account);
         $result || ExceptionResponseComponent::business(UserFundErrorConstant::ERR_ACCOUNT_DELETE_FAILED);
 
         $this->decUserAccountNumber($userId);
@@ -136,9 +134,17 @@ class AccountService extends BaseService
      */
     public function isValidAccount($id)
     {
-        $account = $this->_accountRepository->find($id);
+        $account = $this->getRepository()->find($id);
         $account || ExceptionResponseComponent::business(UserFundErrorConstant::ERR_ACCOUNT_INVALID);
 
         return $account;
+    }
+
+    /**
+     * @return mixed|AccountRepositoryEloquent
+     */
+    public function getRepository()
+    {
+        return parent::getRepository();
     }
 }

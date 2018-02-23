@@ -9,11 +9,19 @@
 namespace Jiuyan\Common\Component\InFramework\Services;
 
 use Jiuyan\Common\Component\InFramework\Components\RequestParamsComponent;
+use Jiuyan\Common\Component\InFramework\Contracts\ServiceRepositoryDependenceContract;
 use Jiuyan\Common\Component\InFramework\Events\BaseEvent;
 use Jiuyan\Common\Component\InFramework\Exceptions\ServiceException;
+use Jiuyan\Common\Component\InFramework\Traits\DBTrait;
+use Jiuyan\Common\Component\InFramework\Traits\ExceptionTrait;
+use Jiuyan\Common\Component\InFramework\Traits\ServiceRepositoryDependenceTrait;
 
-class BaseService
+class BaseService implements ServiceRepositoryDependenceContract
 {
+    use ServiceRepositoryDependenceTrait;
+    use DBTrait;
+    use ExceptionTrait;
+
     /**
      * @var RequestParamsComponent
      */
@@ -36,5 +44,5 @@ class BaseService
         $eventHandle->setRequestCommonParams(RequestParamsComponent::getAllCommonParams());
         $eventHandle->setRequestGeneralParams($requestParams);
         event($eventHandle);
-    } 
+    }
 }

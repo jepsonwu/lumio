@@ -1048,6 +1048,7 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         });
     }
 
+    //todo bug 传递 repository方法并不靠谱
     public function beginTransaction(Collection $inTransactionRepository)
     {
         $this->model->beginTransaction();

@@ -5,8 +5,6 @@ namespace Modules\UserFund\Services;
 use Illuminate\Support\Collection;
 use Jiuyan\Common\Component\InFramework\Components\ExceptionResponseComponent;
 use Jiuyan\Common\Component\InFramework\Services\BaseService;
-use Jiuyan\Common\Component\InFramework\Traits\DBTrait;
-use Jiuyan\Common\Component\InFramework\Traits\ExceptionTrait;
 use Modules\UserFund\Constants\UserFundErrorConstant;
 use Modules\UserFund\Models\Fund;
 use Modules\UserFund\Models\FundRecord;
@@ -14,9 +12,6 @@ use Modules\UserFund\Models\FundRecord;
 class WalletService extends BaseService
 {
     const WITHDRAW_COMMISSION_PERCENT = 10;//万分之几
-
-    use ExceptionTrait;
-    use DBTrait;
 
     protected $_fundService;
     protected $_fundRecordService;

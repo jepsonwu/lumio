@@ -12,7 +12,6 @@ use Modules\Seller\Constants\SellerBanyanDBConstant;
 
 class GoodsService extends BaseService
 {
-    protected $_goodsRepository;
     protected $_storeService;
 
     const BANYAN_SELLER_STAT_GOODS_NUMBER_KEY = "goods_number";
@@ -22,7 +21,7 @@ class GoodsService extends BaseService
         StoreService $storeService
     )
     {
-        $this->_goodsRepository = $goodsRepositoryEloquent;
+        $this->setRepository($goodsRepositoryEloquent);
         $this->_storeService = $storeService;
         $this->_requestParamsComponent = app('RequestCommonParams');
     }
@@ -37,7 +36,7 @@ class GoodsService extends BaseService
         $attributes['created_at'] = time();
         $attributes['goods_status'] = GlobalDBConstant::DB_TRUE;
 
-        $goods = $this->_goodsRepository->create($attributes);
+        $goods = $this->getRepository()->create($attributes);
         $goods || ExceptionResponseComponent::business(SellerErrorConstant::ERR_GOODS_CREATE_FAILED);
 
         $this->incUserGoodsNumber($userId);
@@ -68,7 +67,7 @@ class GoodsService extends BaseService
 
     public function list($userId)
     {
-        return $this->_goodsRepository->getByUserId($userId);
+        return $this->getRepository()->getByUserId($userId);
     }
 
     public function update($userId, $goodsId, $attributes)
@@ -76,7 +75,7 @@ class GoodsService extends BaseService
         $goods = $this->isValidGoods($goodsId);
         $this->isAllowUpdate($userId, $goods);
 
-        $goods = $this->_goodsRepository->update($attributes, $goodsId);
+        $goods = $this->getRepository()->update($attributes, $goodsId);
         $goods || ExceptionResponseComponent::business(SellerErrorConstant::ERR_GOODS_UPDATE_FAILED);
 
         return $goods;
@@ -98,7 +97,7 @@ class GoodsService extends BaseService
         $goods = $this->isValidGoods($goodsId);
         $this->isAllowDelete($userId, $goods);
 
-        $result = $this->_goodsRepository->deleteGoods($goods);
+        $result = $this->getRepository()->deleteGoods($goods);
         $result || ExceptionResponseComponent::business(SellerErrorConstant::ERR_GOODS_DELETE_FAILED);
 
         //todo 权限
@@ -119,7 +118,7 @@ class GoodsService extends BaseService
     public function isValidGoods($id)
     {
         /**@var Goods $goods * */
-        $goods = $this->_goodsRepository->find($id);
+        $goods = $this->getRepository()->find($id);
         (!$goods || !$goods->isValid())
         && ExceptionResponseComponent::business(SellerErrorConstant::ERR_GOODS_INVALID);
 
@@ -132,5 +131,13 @@ class GoodsService extends BaseService
         $this->isAllowOperate($userId, $goods);
 
         return $goods;
+    }
+
+    /**
+     * @return mixed|GoodsRepositoryEloquent
+     */
+    public function getRepository()
+    {
+        return parent::getRepository();
     }
 }

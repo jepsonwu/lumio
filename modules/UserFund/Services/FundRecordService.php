@@ -10,22 +10,20 @@ use Modules\UserFund\Repositories\FundRecordRepositoryEloquent;
 
 class FundRecordService extends BaseService
 {
-    protected $_fundRecordRepository;
-
     public function __construct(FundRecordRepositoryEloquent $fundRecordRepositoryEloquent)
     {
-        $this->_fundRecordRepository = $fundRecordRepositoryEloquent;
+        $this->setRepository($fundRecordRepositoryEloquent);
         $this->_requestParamsComponent = app('RequestCommonParams');
     }
 
     public function prepareRecharge($userId, $amount, $remarks)
     {
-        return $this->_fundRecordRepository->prepareRecharge($userId, $amount, $remarks);
+        return $this->getRepository()->prepareRecharge($userId, $amount, $remarks);
     }
 
     public function prepareWithdraw($userId, $amount, $commission, $remarks)
     {
-        return $this->_fundRecordRepository->prepareWithdraw($userId, $amount, $commission, $remarks);
+        return $this->getRepository()->prepareWithdraw($userId, $amount, $commission, $remarks);
     }
 
     /**
@@ -35,7 +33,7 @@ class FundRecordService extends BaseService
      */
     public function isValidRecord($id)
     {
-        $record = $this->_fundRecordRepository->find($id);
+        $record = $this->getRepository()->find($id);
         $record || ExceptionResponseComponent::business(UserFundErrorConstant::ERR_WALLET_INVALID_RECORD);
 
         return $record;
@@ -43,29 +41,29 @@ class FundRecordService extends BaseService
 
     public function pass(FundRecord $record)
     {
-        return $this->_fundRecordRepository->pass($record);
+        return $this->getRepository()->pass($record);
     }
 
     public function fail(FundRecord $record)
     {
-        return $this->_fundRecordRepository->fail($record);
+        return $this->getRepository()->fail($record);
     }
 
     public function close(FundRecord $record)
     {
-        return $this->_fundRecordRepository->close($record);
+        return $this->getRepository()->close($record);
     }
 
     public function list($conditions)
     {
-        return $this->_fundRecordRepository->paginateWithWhere($conditions);
+        return $this->getRepository()->paginateWithWhere($conditions);
     }
 
     /**
-     * @return FundRecordRepositoryEloquent
+     * @return mixed|FundRecordRepositoryEloquent
      */
     public function getRepository()
     {
-        return $this->_fundRecordRepository;
+        return parent::getRepository();
     }
 }

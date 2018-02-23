@@ -26,13 +26,13 @@ class UserFundInternalService extends BaseService
 
     }
 
-    //todo 需要处理code码
+    //todo 分模块 需要处理code码
     public function checkBalance($userId, $amount)
     {
         return $this->walletService->checkBalance($userId, $amount);
     }
 
-    //todo 完全分模块中 所有对外的方法 不能传递对象
+    //完全分模块中 所有对外的方法 不能传递对象
     public function lock($userId, $amount)
     {
         $fund = $this->walletService->checkBalance($userId, $amount, true);
@@ -43,5 +43,10 @@ class UserFundInternalService extends BaseService
     {
         $fund = $this->walletService->checkLocked($userId, $amount, true);
         return $this->walletService->unlock($fund, $amount);
+    }
+
+    public function getRepository()
+    {
+        return [$this->accountService->getRepository(), $this->walletService->getRepository()];
     }
 }

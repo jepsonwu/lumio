@@ -9,13 +9,9 @@ use Modules\UserFund\Repositories\FundRepositoryEloquent;
 
 class FundService extends BaseService
 {
-    use ExceptionTrait;
-
-    protected $_fundRepository;
-
     public function __construct(FundRepositoryEloquent $fundRepositoryEloquent)
     {
-        $this->_fundRepository = $fundRepositoryEloquent;
+        $this->setRepository($fundRepositoryEloquent);
         $this->_requestParamsComponent = app('RequestCommonParams');
     }
 
@@ -27,8 +23,8 @@ class FundService extends BaseService
     public function getByUserId($userId, $forUpdate = false)
     {
         //todo select for update
-        $fund = $this->_fundRepository->getByUserId($userId);
-        $fund || $fund = $this->_fundRepository->createFund($userId);
+        $fund = $this->getRepository()->getByUserId($userId);
+        $fund || $fund = $this->getRepository()->createFund($userId);
         $this->throwDBException($fund, "创建资金账户失败,user_id:{$userId}");
 
         return $fund;
@@ -36,22 +32,22 @@ class FundService extends BaseService
 
     public function recharge(Fund $fund, $amount)
     {
-        return $this->_fundRepository->recharge($fund, $amount);
+        return $this->getRepository()->recharge($fund, $amount);
     }
 
     public function prepareWithdraw(Fund $fund, $amount)
     {
-        return $this->_fundRepository->prepareWithdraw($fund, $amount);
+        return $this->getRepository()->prepareWithdraw($fund, $amount);
     }
 
     public function withdraw(Fund $fund, $amount)
     {
-        return $this->_fundRepository->withdraw($fund, $amount);
+        return $this->getRepository()->withdraw($fund, $amount);
     }
 
     public function cancelWithdraw(Fund $fund, $amount)
     {
-        return $this->_fundRepository->cancelWithdraw($fund, $amount);
+        return $this->getRepository()->cancelWithdraw($fund, $amount);
     }
 
     public function checkBalance(Fund $fund, $amount)
@@ -69,6 +65,6 @@ class FundService extends BaseService
      */
     public function getRepository()
     {
-        return $this->_fundRepository;
+        return parent::getRepository();
     }
 }

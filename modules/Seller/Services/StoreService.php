@@ -12,15 +12,13 @@ use Modules\Seller\Repositories\StoreRepositoryEloquent;
 
 class StoreService extends BaseService
 {
-    protected $_storeRepository;
-
     const MAX_STORE_NUMBER = 10;
 
     const BANYAN_SELLER_STAT_STORE_NUMBER_KEY = "store_number";
 
     public function __construct(StoreRepositoryEloquent $storeRepositoryEloquent)
     {
-        $this->_storeRepository = $storeRepositoryEloquent;
+        $this->setRepository($storeRepositoryEloquent);
         $this->_requestParamsComponent = app('RequestCommonParams');
     }
 
@@ -33,7 +31,7 @@ class StoreService extends BaseService
         $attributes['verify_status'] = Store::VERIFY_STATUS_WAITING;
         $attributes['store_status'] = GlobalDBConstant::DB_TRUE;
 
-        $store = $this->_storeRepository->create($attributes);
+        $store = $this->getRepository()->create($attributes);
         $store || ExceptionResponseComponent::business(SellerErrorConstant::ERR_STORE_CREATE_FAILED);
 
         return $store;
@@ -71,7 +69,7 @@ class StoreService extends BaseService
         $store = $this->isValidStore($id);
         $this->isAllowVerify($store);
 
-        $result = $this->_storeRepository->pass($store);
+        $result = $this->getRepository()->pass($store);
         $result || ExceptionResponseComponent::business(SellerErrorConstant::ERR_STORE_VERIFY_FAILED);
 
         $this->incUserStoreNumber($store->user_id);
@@ -90,7 +88,7 @@ class StoreService extends BaseService
         $store = $this->isValidStore($id);
         $this->isAllowVerify($store);
 
-        $result = $this->_storeRepository->fail($store);
+        $result = $this->getRepository()->fail($store);
         $result || ExceptionResponseComponent::business(SellerErrorConstant::ERR_STORE_VERIFY_FAILED);
 
         return true;
@@ -98,14 +96,14 @@ class StoreService extends BaseService
 
     public function list($userId)
     {
-        return $this->_storeRepository->getByUserId($userId);
+        return $this->getRepository()->getByUserId($userId);
     }
 
     public function update($userId, $storeId, $attributes)
     {
         $store = $this->isValidStore($storeId);
         $this->isAllowUpdate($userId, $store);
-        $store = $this->_storeRepository->update($attributes, $storeId);
+        $store = $this->getRepository()->update($attributes, $storeId);
         $store || ExceptionResponseComponent::business(SellerErrorConstant::ERR_STORE_UPDATE_FAILED);
 
         return $store;
@@ -129,7 +127,7 @@ class StoreService extends BaseService
     {
         $store = $this->isValidStore($storeId);
         $this->isAllowDelete($userId, $store);
-        $result = $this->_storeRepository->deleteStore($store);
+        $result = $this->getRepository()->deleteStore($store);
         $result || ExceptionResponseComponent::business(SellerErrorConstant::ERR_STORE_DELETE_FAILED);
 
         //todo 权限
@@ -150,7 +148,7 @@ class StoreService extends BaseService
     public function isValidStore($id)
     {
         /**@var Store $store * */
-        $store = $this->_storeRepository->find($id);
+        $store = $this->getRepository()->find($id);
         (!$store || !$store->isValid())
         && ExceptionResponseComponent::business(SellerErrorConstant::ERR_STORE_INVALID);
 
@@ -163,5 +161,13 @@ class StoreService extends BaseService
         $this->isAllowOperate($userId, $store);
 
         return $store;
+    }
+
+    /**
+     * @return mixed|StoreRepositoryEloquent
+     */
+    public function getRepository()
+    {
+        return parent::getRepository();
     }
 }

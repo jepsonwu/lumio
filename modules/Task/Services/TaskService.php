@@ -5,7 +5,6 @@ namespace Modules\Seller\Services;
 use Illuminate\Support\Collection;
 use Jiuyan\Common\Component\InFramework\Components\ExceptionResponseComponent;
 use Jiuyan\Common\Component\InFramework\Services\BaseService;
-use Jiuyan\Common\Component\InFramework\Traits\DBTrait;
 use Modules\Account\Services\UserInternalService;
 use Modules\Seller\Models\Goods;
 use Modules\Task\Constants\TaskErrorConstant;
@@ -15,9 +14,6 @@ use Modules\UserFund\Services\UserFundInternalService;
 
 class TaskService extends BaseService
 {
-    use DBTrait;
-
-    protected $_taskRepository;
     protected $_sellerInternalService;//todo implements
     protected $_userInternalService;
     protected $_userFundInternalService;
@@ -29,7 +25,7 @@ class TaskService extends BaseService
         UserFundInternalService $userFundInternalService
     )
     {
-        $this->_taskRepository = $taskRepositoryEloquent;
+        $this->setRepository($taskRepositoryEloquent);
         $this->_sellerInternalService = $sellerInternalService;
         $this->_userInternalService = $userInternalService;
         $this->_userFundInternalService = $userFundInternalService;
@@ -45,14 +41,15 @@ class TaskService extends BaseService
         $this->checkBalance($userId, $amount);
 
         //todo 如果要完全分模块 需要考虑分布式事务
-        $this->doingTransaction(function () {
+        $task = $this->doingTransaction(function () use ($userId, $goods, $amount) {
+            $task = $this->rawCreate($userId, $goods);
 
-        }, new Collection([
-            $this->_taskRepository
-        ]), TaskErrorConstant::ERR_TASK_CREATE_FAILED);
-        $task = $this->rawCreate($userId, $goods);
+            $this->throwDBException($this->_userFundInternalService->lock($userId, $amount), "锁定余额失败");
+            return $task;
+        }, new Collection(
+            array_merge([$this->getRepository()], $this->_userFundInternalService->getRepository())
+        ), TaskErrorConstant::ERR_TASK_CREATE_FAILED);
 
-        //锁定余额
         return $task;
     }
 
@@ -69,8 +66,8 @@ class TaskService extends BaseService
         $attributes['task_status'] = Task::STATUS_WAITING;
         $attributes['created_at'] = time();
 
-        $task = $this->_taskRepository->create($attributes);
-        $task || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_CREATE_FAILED);
+        $task = $this->getRepository()->create($attributes);
+        $this->throwDBException($task, "创建任务失败");
 
         return $task;
     }
@@ -87,12 +84,12 @@ class TaskService extends BaseService
 
     protected function checkBalance($userId, $amount)
     {
-
+        return $this->_userFundInternalService->checkBalance($userId, $amount);
     }
 
     public function list($userId)
     {
-        return $this->_taskRepository->getByUserId($userId);
+        return $this->getRepository()->getByUserId($userId);
     }
 
     public function update($userId, $taskId, $totalOrderNumber)
@@ -101,7 +98,7 @@ class TaskService extends BaseService
         $this->isAllowUpdate($userId, $task);
 
         $attributes['total_order_number'] = $totalOrderNumber;
-        $task = $this->_taskRepository->update($attributes, $taskId);
+        $task = $this->getRepository()->update($attributes, $taskId);
         $task || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_UPDATE_FAILED);
 
         return $task;
@@ -110,7 +107,7 @@ class TaskService extends BaseService
     public function isValidTask($taskId)
     {
         /**@var Task $task * */
-        $task = $this->_taskRepository->find($taskId);
+        $task = $this->getRepository()->find($taskId);
         $task || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_INVALID);
 
         return $task;
@@ -132,7 +129,7 @@ class TaskService extends BaseService
         $task = $this->isValidTask($taskId);
         $this->isAllowClose($userId, $task);
 
-        $result = $this->_taskRepository->closeTask($task);
+        $result = $this->getRepository()->closeTask($task);
         $result || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_CLOSE_FAILED);
 
         return true;
@@ -141,5 +138,13 @@ class TaskService extends BaseService
     protected function isAllowClose($userId, Task $task)
     {
         $this->isAllowOperate($userId, $task);
+    }
+
+    /**
+     * @return mixed|TaskRepositoryEloquent
+     */
+    public function getRepository()
+    {
+        return parent::getRepository();
     }
 }
