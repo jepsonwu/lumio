@@ -148,4 +148,20 @@ class UserService extends BaseService
     {
         return $this->_userRepository->isSeller($user);
     }
+
+    public function isDeployTaobaoAccount(User $user)
+    {
+        $user->taobao_account
+        || ExceptionResponseComponent::business(AccountErrorConstant::ERR_USER_NO_DEPLOY_TAOBAO_ACCOUNT);
+
+        return true;
+    }
+
+    public function isDeployJdAccount(User $user)
+    {
+        $user->jd_account
+        || ExceptionResponseComponent::business(AccountErrorConstant::ERR_USER_NO_DEPLOY_JD_ACCOUNT);
+
+        return true;
+    }
 }

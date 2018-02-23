@@ -15,6 +15,18 @@ class SellerInternalService extends BaseService
         $this->goodsService = $goodsService;
     }
 
+    public function isTaobaoStore($storeId)
+    {
+        $store = $this->storeService->isValidStore($storeId);
+        return $this->storeService->isTaobao($store);
+    }
+
+    public function isJdStore($storeId)
+    {
+        $store = $this->storeService->isValidStore($storeId);
+        return $this->storeService->isJd($store);
+    }
+
     public function isValidGoods($goodsId)
     {
         return $this->goodsService->isValidGoods($goodsId);

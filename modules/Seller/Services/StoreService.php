@@ -163,6 +163,16 @@ class StoreService extends BaseService
         return $store;
     }
 
+    public function isTaobao(Store $store)
+    {
+        return $store->isTaobao();
+    }
+
+    public function isJd(Store $store)
+    {
+        return $store->isJd();
+    }
+
     /**
      * @return mixed|StoreRepositoryEloquent
      */

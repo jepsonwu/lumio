@@ -161,6 +161,15 @@ class TaskService extends BaseService
         return $task;
     }
 
+    public function isValidApplyTask($taskId)
+    {
+        $task = $this->isValidTask($taskId);
+        ($task->isWaiting() || $task->isDoing())
+        || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_DISALLOW_APPLY);
+
+        return $task;
+    }
+
     protected function isAllowUpdate($userId, Task $task, $incOrderNumber)
     {
         $this->isAllowOperate($userId, $task);

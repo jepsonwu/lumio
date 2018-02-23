@@ -52,4 +52,14 @@ class StoreRepositoryEloquent extends BaseRepository
     {
         return $store->fail();
     }
+
+    public function isTaobao(Store $store)
+    {
+        return $store->isTaobao();
+    }
+
+    public function isJd(Store $store)
+    {
+        return $store->isJd();
+    }
 }

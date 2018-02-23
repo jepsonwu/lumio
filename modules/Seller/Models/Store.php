@@ -101,5 +101,15 @@ class Store extends Model implements Transformable, IModelAccess
             "verify_status" => self::VERIFY_STATUS_FAILED
         ]);
     }
+
+    public function isTaobao()
+    {
+        return $this->store_type == self::TYPE_TAOBAO;
+    }
+
+    public function isJd()
+    {
+        return $this->store_type == self::TYPE_JD;
+    }
 }
 
