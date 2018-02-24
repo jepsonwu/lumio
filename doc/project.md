@@ -25,7 +25,7 @@
   total_order_number finished_order_number doing_order_number platform[1-pc,2-mobile] task_status[1-waiting，2-doing，3-done，4-close] created_at updated_at
 
 ### 任务订单 task_order
-- id user_id task_id order_id price order_status[1-waiting,2-doing,3-done,4-close] created_at   updated_at
+- id user_id task_id task_user_id order_id price order_status[1-waiting,2-doing,3-done,4-close] created_at   updated_at
 
 ### 统计 user_stat
 - user_id 

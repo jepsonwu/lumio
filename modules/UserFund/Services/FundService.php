@@ -60,6 +60,17 @@ class FundService extends BaseService
         return $fund->locked >= $amount;
     }
 
+    public function earn(Fund $fund, $amount)
+    {
+        return $this->getRepository()->earn($fund, $amount);
+    }
+
+    public function pay(Fund $fund, $amount)
+    {
+        return $this->getRepository()->pay($fund, $amount);
+    }
+
+
     /**
      * @return FundRepositoryEloquent
      */

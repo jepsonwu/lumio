@@ -190,14 +190,37 @@ class WalletService extends BaseService
         return $fund->unlockAmount($amount);
     }
 
-    public function earn()
+    public function earn($userId, $amount, $commission, $remarks)
     {
+        $fund = $this->_fundService->getByUserId($userId, true);
+        $this->throwDBException(
+            $this->_fundRecordService->earn($userId, $amount, $commission, $remarks),
+            "创建赚取记录失败"
+        );
 
+        $this->throwDBException(
+            $this->_fundService->earn($fund, $amount),
+            "赚取资金失败"
+        );
+
+        return true;
     }
 
-    public function pay()
+    public function pay($userId, $amount, $remarks)
     {
+        $fund = $this->_fundService->getByUserId($userId, true);
 
+        $this->throwDBException(
+            $this->_fundRecordService->pay($userId, $amount, $remarks),
+            "创建支付记录失败"
+        );
+
+        $this->throwDBException(
+            $this->_fundService->pay($fund, $amount),
+            "支付资金失败"
+        );
+
+        return true;
     }
 
     public function info($userId)

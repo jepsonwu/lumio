@@ -27,6 +27,11 @@ class SellerInternalService extends BaseService
         return $this->storeService->isJd($store);
     }
 
+    public function isValidStore($storeId)
+    {
+        return $this->storeService->isValidStore($storeId);
+    }
+
     public function isValidGoods($goodsId)
     {
         return $this->goodsService->isValidGoods($goodsId);

@@ -37,4 +37,19 @@ class TaskOrderRepositoryEloquent extends BaseRepository
         $this->model->whereUserId($builder, $userId);
         return $builder->get();
     }
+
+    public function doing(TaskOrder $taskOrder, $orderId)
+    {
+        return $taskOrder->doing($orderId);
+    }
+
+    public function done(TaskOrder $taskOrder)
+    {
+        return $taskOrder->done();
+    }
+
+    public function close(TaskOrder $taskOrder)
+    {
+        return $taskOrder->close();
+    }
 }

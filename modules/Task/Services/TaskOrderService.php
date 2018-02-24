@@ -3,6 +3,7 @@
 namespace Modules\Seller\Services;
 
 use Illuminate\Support\Collection;
+use Jiuyan\Common\Component\InFramework\Components\ExceptionResponseComponent;
 use Jiuyan\Common\Component\InFramework\Services\BaseService;
 use Modules\Task\Constants\TaskErrorConstant;
 use Modules\Task\Models\Task;
@@ -13,6 +14,8 @@ use Modules\UserFund\Services\UserFundInternalService;
 
 class TaskOrderService extends BaseService
 {
+    const COMMISSION_PERCENT = 10;//万分之几
+
     protected $_taskService;
     protected $_userInternalService;
     protected $_userFundInternalService;
@@ -45,11 +48,11 @@ class TaskOrderService extends BaseService
         $this->isAllowApply($userId, $task);
 
         return $this->doingTransaction(function () use ($userId, $task) {
-            $taskOrder = $this->rawCreate($userId, $task->id);
+            $taskOrder = $this->rawCreate($userId, $task);
 
             $this->throwDBException(
                 $this->_taskService->incWaitingOrder($task),
-                "增加任务表等待订单失败"
+                "增加任务表订单失败"
             );
 
             return $taskOrder;
@@ -61,16 +64,17 @@ class TaskOrderService extends BaseService
 
     /**
      * @param $userId
-     * @param $taskId
+     * @param Task $task
      * @return mixed|TaskOrder
      * @throws \Jiuyan\Common\Component\InFramework\Exceptions\DBException
      * @throws \Prettus\Validator\Exceptions\ValidatorException
      */
-    protected function rawCreate($userId, $taskId)
+    protected function rawCreate($userId, Task $task)
     {
         $attributes = [
             "user_id" => $userId,
-            "task_id" => $taskId,
+            "task_id" => $task->id,
+            "task_user_id" => $task->user_id,
             "order_status" => TaskOrder::STATUS_WAITING,
             "created_at" => time()
         ];
@@ -103,24 +107,95 @@ class TaskOrderService extends BaseService
 
     }
 
-    public function confirm($userId, $taskId, $storeAccount)
+    public function confirm($userId, $taskOrderId, $storeAccount)
     {
-        
+        $taskOrder = $this->isValidTaskOrder($taskOrderId);
+        $this->isAllowOperate($userId, $taskOrder);
+
+        $task = $this->_taskService->isValidTask($taskOrder->task_id);
+        $store = $this->_sellerInternalService->isValidStore($task->store_id);
+
+        $store->store_account == $storeAccount
+        || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_CONFIRM_FAILED);
+
+        return true;
     }
 
-    public function doing($userId, $taskId, $orderId)
+    protected function isAllowOperate($userId, TaskOrder $taskOrder)
     {
-
+        $userId == $taskOrder->user_id
+        || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_OPERATE_ILLEGAL);
     }
 
-    public function done($userId, $taskId)
+    public function doing($userId, $taskOrderId, $orderId)
     {
+        $taskOrder = $this->isValidTaskOrder($taskOrderId);
+        $this->isAllowOperate($userId, $taskOrder);
 
+        $result = $this->getRepository()->doing($taskOrder, $orderId);
+        $result || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_DOING_FAILED);
+
+        return true;
     }
 
-    public function close($userId, $taskId)
+    public function done($userId, $taskOrderId)
     {
+        $taskOrder = $this->isValidTaskOrder($taskOrderId);
+        $task = $this->_taskService->isValidTask($taskOrder->task_id);
+        $this->isAllowDoneOperate($userId, $taskOrder);
 
+        return $this->doingTransaction(function () use ($userId, $taskOrder, $task) {
+            $this->throwDBException($this->getRepository()->done($taskOrder), "完成任务失败");
+
+            $this->throwDBException(
+                $this->_taskService->incDoneOrder($task),
+                "增加完成任务失败"
+            );
+
+            $this->_userFundInternalService->pay($userId, $task->goods_price, "");
+
+            $this->_userFundInternalService->earn(
+                $taskOrder->user_id,
+                $task->goods_price,
+                $this->makeCommission($task->goods_price),
+                ""
+            );
+
+            return true;
+        }, new Collection([
+            $this->getRepository(),
+            $this->_taskService->getRepository()
+        ]), TaskErrorConstant::ERR_TASK_ORDER_DONE_FAILED);
+    }
+
+    protected function makeCommission($amount)
+    {
+        return self::COMMISSION_PERCENT * $amount / 10000;
+    }
+
+    protected function isAllowDoneOperate($userId, TaskOrder $taskOrder)
+    {
+        $userId == $taskOrder->task_user_id
+        || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_OPERATE_ILLEGAL);
+    }
+
+    public function close($userId, $taskOrderId)
+    {
+        $taskOrder = $this->isValidTaskOrder($taskOrderId);
+        $this->isAllowOperate($userId, $taskOrder);
+    }
+
+    /**
+     * @param $taskId
+     * @return Collection|mixed|\Prettus\Repository\Database\Eloquent\Model|TaskOrder
+     * @throws \Jiuyan\Common\Component\InFramework\Exceptions\BusinessException
+     */
+    public function isValidTaskOrder($taskId)
+    {
+        $taskOrder = $this->getRepository()->find($taskId);
+        $taskOrder || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_INVALID);
+
+        return $taskOrder;
     }
 
     /**

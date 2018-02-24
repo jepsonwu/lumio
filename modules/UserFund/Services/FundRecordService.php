@@ -39,6 +39,16 @@ class FundRecordService extends BaseService
         return $record;
     }
 
+    public function pay($userId, $amount, $remarks)
+    {
+        return $this->getRepository()->pay($userId, $amount, $remarks);
+    }
+
+    public function earn($userId, $amount, $commission, $remarks)
+    {
+        return $this->getRepository()->earn($userId, $amount, $commission, $remarks);
+    }
+
     public function pass(FundRecord $record)
     {
         return $this->getRepository()->pass($record);

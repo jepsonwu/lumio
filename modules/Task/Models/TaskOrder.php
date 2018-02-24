@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
  * @property int $id
  * @property int $user_id
  * @property int $task_id
+ * @property int $task_user_id
  * @property string $order_id
  * @property int $order_status
  * @property int $created_at
@@ -35,7 +36,7 @@ class TaskOrder extends Model implements Transformable, IModelAccess
     protected $table = "task";
 
     protected $fillable = [
-        "id", "user_id", "task_id", "order_id", "order_status", "created_at", "updated_at"
+        "id", "user_id", "task_id", "task_user_id", "order_id", "order_status", "created_at", "updated_at"
     ];
 
     public function transform()
@@ -58,7 +59,28 @@ class TaskOrder extends Model implements Transformable, IModelAccess
         return $this;
     }
 
-    public function closeTaskOrder()
+    public function whereTaskUserId(Builder &$builder, $taskUserId)
+    {
+        $builder->where("task_user_id", $taskUserId);
+        return $this;
+    }
+
+    public function doing($orderId)
+    {
+        return $this->update([
+            "order_status" => self::STATUS_DOING,
+            "order_id" => $orderId
+        ]);
+    }
+
+    public function done()
+    {
+        return $this->update([
+            "order_status" => self::STATUS_DONE
+        ]);
+    }
+
+    public function close()
     {
         return $this->update([
             "order_status" => self::STATUS_CLOSE
