@@ -22,6 +22,8 @@ class BaseService implements ServiceRepositoryDependenceContract
     use DBTrait;
     use ExceptionTrait;
 
+    protected $_allowCallRepositoryMethods = [];
+
     /**
      * @var RequestParamsComponent
      */
@@ -44,5 +46,12 @@ class BaseService implements ServiceRepositoryDependenceContract
         $eventHandle->setRequestCommonParams(RequestParamsComponent::getAllCommonParams());
         $eventHandle->setRequestGeneralParams($requestParams);
         event($eventHandle);
+    }
+
+    public function __call($name, $arguments)
+    {
+        if (in_array($name, $this->_allowCallRepositoryMethods)) {
+            return call_user_func_array([$this->getRepository(), $name], $arguments);
+        }
     }
 }
