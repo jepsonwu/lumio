@@ -14,30 +14,17 @@ use Jiuyan\Captcha\Providers\CaptchaServiceProvider;
 use Jiuyan\Common\Component\InFramework\Providers\InFrameworkProvider;
 use Jiuyan\Lumio\BanyanDB\BanyanDBFactory;
 use Jiuyan\Lumio\BanyanDB\Providers\BanyanDBServiceProvider;
-use Modules\User\Contracts\UserExtensionsInternalServiceContract;
-use Modules\User\Contracts\UserSatelliteInternalServiceContract;
-use Modules\User\Contracts\UserTaskInternalServiceContract;
-use Modules\User\Services\Internal\UserExtensionsInternalService;
-use Modules\User\Services\Internal\UserTaskInternalService;
-use Modules\User\Services\UserSatelliteInternalService;
 use Modules\Account\Services\UserInternalService;
 
 class RequestMacroGlobalProvider extends ServiceProvider
 {
     public function register()
     {
-        /**
-         * TODO:: 暂时关闭session，避免发生冲突
-         */
-        $this->app->configure('session');
-        $this->app->instance(SessionManager::class, $this->app['session']);
-
         $this->registerSession();
         $this->registerSystem();
         $this->registerIdHelper();
         $this->registerBanyanDB();
         $this->registerAuth();
-        $this->registerInternalService();
     }
 
     protected function registerSession()
@@ -89,17 +76,5 @@ class RequestMacroGlobalProvider extends ServiceProvider
             $handler = app(Handler::class);
             return $handler->render(app('request'), $exception);
         });
-    }
-
-    protected function registerInternalService()
-    {
-        $this->registerUserInternalService();
-    }
-
-    protected function registerUserInternalService()
-    {
-        $this->app->singleton(UserTaskInternalServiceContract::class, UserTaskInternalService::class);
-        $this->app->singleton(UserExtensionsInternalServiceContract::class, UserExtensionsInternalService::class);
-        $this->app->singleton(UserSatelliteInternalServiceContract::class, UserSatelliteInternalService::class);
     }
 }
