@@ -467,6 +467,16 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         return $this->parserResult($model);
     }
 
+    public function findForUpdate($id, $columns = ['*'])
+    {
+        $this->applyCriteria();
+        $this->applyScope();
+        $model = $this->model->whereKey($id)->lockForUpdate()->first($columns);
+        $this->resetModel();
+
+        return $this->parserResult($model);
+    }
+
     /**
      * Find data by field and value
      *

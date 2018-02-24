@@ -43,9 +43,19 @@ class TaskRepositoryEloquent extends BaseRepository
         return $task->incWaitingOrder();
     }
 
+    public function decWaitingOrder(Task $task)
+    {
+        return $task->decWaitingOrder();
+    }
+
     public function incDoingOrder(Task $task)
     {
         return $task->incDoingOrder();
+    }
+
+    public function decDoingOrder(Task $task)
+    {
+        return $task->decDoingOrder();
     }
 
     public function incFinishedOrder(Task $task)

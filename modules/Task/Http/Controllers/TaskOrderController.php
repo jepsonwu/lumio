@@ -53,13 +53,13 @@ class TaskOrderController extends ApiBaseController
         return $this->success($taskOrder);
     }
 
-    public function isAllowApply(Request $request)
+    public function checkPermission(Request $request)
     {
         $this->validate($request, [
             'task_id' => ['bail', 'required', 'integer'],
         ]);
 
-        $this->taskOrderService->checkApply(AuthHelper::user()->id, $request->input("task_id"));
+        $this->taskOrderService->checkPermission(AuthHelper::user()->id, $request->input("task_id"));
 
         return $this->success([]);
     }

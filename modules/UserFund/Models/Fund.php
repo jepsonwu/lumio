@@ -30,6 +30,7 @@ class Fund extends Model implements Transformable, IModelAccess
     use ErrorTrait;
 
     protected $table = "user_fund";
+    protected $primaryKey = "user_id";
 
     protected $fillable = [
         "user_id", "amount", "locked", "total_earn", "total_pay", "total_withdraw", "total_recharge",

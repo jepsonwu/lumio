@@ -87,6 +87,11 @@ class TaskOrder extends Model implements Transformable, IModelAccess
         ]);
     }
 
+    public function isAllowClose()
+    {
+        return $this->isWaiting() || $this->isDoing();
+    }
+
     public function isWaiting()
     {
         return $this->order_status == self::STATUS_WAITING;

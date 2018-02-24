@@ -5,6 +5,7 @@ namespace Modules\Account\Models;
 use App\Components\BootstrapHelper\ErrorTrait;
 use App\Components\BootstrapHelper\IModelAccess;
 use App\Components\BootstrapHelper\ModelAccess;
+use App\Constants\GlobalDBConstant;
 use Prettus\Repository\Contracts\Transformable;
 use Prettus\Repository\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
@@ -97,6 +98,11 @@ class User extends Model implements Transformable, IModelAccess
     public function isSeller()
     {
         return $this->role == self::ROLE_SELLER;
+    }
+
+    public function isAutoApplyTask()
+    {
+        return $this->open_status == GlobalDBConstant::DB_TRUE;
     }
 }
 

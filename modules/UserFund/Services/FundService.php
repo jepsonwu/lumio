@@ -17,13 +17,15 @@ class FundService extends BaseService
 
     /**
      * @param $userId
+     * @param bool $forUpdate
      * @return \Illuminate\Database\Eloquent\Model|mixed|Fund|null|static|Fund
      * @throws \Jiuyan\Common\Component\InFramework\Exceptions\DBException
      */
     public function getByUserId($userId, $forUpdate = false)
     {
-        //todo select for update
-        $fund = $this->getRepository()->getByUserId($userId);
+        $fund = $forUpdate
+            ? $this->getRepository()->findForUpdate($userId)
+            : $this->getRepository()->getByUserId($userId);
         $fund || $fund = $this->getRepository()->createFund($userId);
         $this->throwDBException($fund, "创建资金账户失败,user_id:{$userId}");
 

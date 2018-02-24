@@ -76,6 +76,11 @@ class Task extends Model implements Transformable, IModelAccess
         return $this->update($attributes);
     }
 
+    public function decWaitingOrder()
+    {
+        return $this->decrement("waiting_order_number");
+    }
+
     public function incDoingOrder()
     {
         $attributes = [
@@ -84,6 +89,11 @@ class Task extends Model implements Transformable, IModelAccess
         ];
 
         return $this->update($attributes);
+    }
+
+    public function decDoingOrder()
+    {
+        return $this->decrement("doing_order_number");
     }
 
     public function incFinishedOrder()
@@ -104,6 +114,19 @@ class Task extends Model implements Transformable, IModelAccess
         return $this->update([
             "task_status" => self::STATUS_CLOSE
         ]);
+    }
+
+    public function isAllowApply()
+    {
+        return ($this->isWaiting() || $this->isDoing()) && $this->hasAvailableTotalOrderNumber();
+    }
+
+    public function hasAvailableTotalOrderNumber()
+    {
+        return $this->finished_order_number >
+            (
+                $this->waiting_order_number + $this->doing_order_number + $this->finished_order_number
+            );
     }
 
     public function isWaiting()

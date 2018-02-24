@@ -152,10 +152,17 @@ class TaskService extends BaseService
         $this->throwDBException($task, "修改失败");
     }
 
-    public function isValidTask($taskId)
+    /**
+     * @param $taskId
+     * @param bool $forUpdate
+     * @return Collection|mixed|\Prettus\Repository\Database\Eloquent\Model|Task
+     * @throws \Jiuyan\Common\Component\InFramework\Exceptions\BusinessException
+     */
+    public function isValidTask($taskId, $forUpdate = false)
     {
-        /**@var Task $task * */
-        $task = $this->getRepository()->find($taskId);
+        $task = $forUpdate
+            ? $this->getRepository()->findForUpdate($taskId)
+            : $this->getRepository()->find($taskId);
         $task || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_INVALID);
 
         return $task;
@@ -163,9 +170,17 @@ class TaskService extends BaseService
 
     public function isValidApplyTask($taskId)
     {
-        $task = $this->isValidTask($taskId);
-        ($task->isWaiting() || $task->isDoing())
+        $task = $this->isValidTask($taskId, true);
+        $task->isAllowApply()
         || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_DISALLOW_APPLY);
+
+        return $task;
+    }
+
+    public function isMyValidApplyTask($userId, $taskId)
+    {
+        $task = $this->isValidApplyTask($taskId);
+        $this->isAllowOperate($userId, $task);
 
         return $task;
     }
@@ -253,9 +268,19 @@ class TaskService extends BaseService
         return $this->getRepository()->incWaitingOrder($task);
     }
 
+    public function decWaitingOrder(Task $task)
+    {
+        return $this->getRepository()->decWaitingOrder($task);
+    }
+
     public function incDoingOrder(Task $task)
     {
         return $this->getRepository()->incDoingOrder($task);
+    }
+
+    public function decDoingOrder(Task $task)
+    {
+        return $this->getRepository()->decDoingOrder($task);
     }
 
     public function incDoneOrder(Task $task)

@@ -81,6 +81,12 @@ class UserInternalService extends BaseService implements AuthenticateContract
         $user = $this->userService->isValidById($userId);
         return $this->userService->isDeployJdAccount($user);
     }
+
+    public function isAutoApplyTask($userId)
+    {
+        $user = $this->userService->isValidById($userId);
+        return $this->userService->isAutoApplyTask($user);
+    }
 }
 
 

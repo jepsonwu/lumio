@@ -44,10 +44,10 @@ class TaskOrderService extends BaseService
 
     public function apply($userId, $taskId)
     {
-        $task = $this->_taskService->isValidApplyTask($taskId);
-        $this->isAllowApply($userId, $task);
+        $this->checkPermission($userId, $taskId);
 
-        return $this->doingTransaction(function () use ($userId, $task) {
+        return $this->doingTransaction(function () use ($userId, $taskId) {
+            $task = $this->_taskService->isValidApplyTask($taskId);
             $taskOrder = $this->rawCreate($userId, $task);
 
             $this->throwDBException(
@@ -84,27 +84,45 @@ class TaskOrderService extends BaseService
         return $taskOrder;
     }
 
-    public function checkApply($userId, $taskId)
+    public function checkPermission($userId, $taskId)
     {
-        $task = $this->_taskService->isValidApplyTask($taskId);
-
-        return $this->isAllowApply($userId, $task);
-    }
-
-    public function isAllowApply($userId, Task $task)
-    {
-        if (!$this->_userInternalService->isBuyer($userId)) {
-            $this->_sellerInternalService->isTaobaoStore($task->store_id)
-                ? $this->_userInternalService->isDeployTaobaoAccount($userId)
-                : $this->_userInternalService->isDeployJdAccount($userId);
-
-            $this->_userFundInternalService->isFinishedDeployAccount($userId);
+        if ($this->_userInternalService->isBuyer($userId)) {
+            return true;
         }
+
+        $task = $this->_taskService->isValidTask($taskId);
+        $this->_sellerInternalService->isTaobaoStore($task->store_id)
+            ? $this->_userInternalService->isDeployTaobaoAccount($userId)
+            : $this->_userInternalService->isDeployJdAccount($userId);
+
+        return true;
     }
 
     public function assign($currentUserId, $userId, $taskId)
     {
+        $this->checkPermission($userId, $taskId);
+        $this->isAllowAssign($userId);
 
+        return $this->doingTransaction(function () use ($currentUserId, $userId, $taskId) {
+            $task = $this->_taskService->isMyValidApplyTask($currentUserId, $taskId);
+            $taskOrder = $this->rawCreate($userId, $task);
+
+            $this->throwDBException(
+                $this->_taskService->incWaitingOrder($task),
+                "增加任务表订单失败"
+            );
+
+            return $taskOrder;
+        }, new Collection([
+            $this->getRepository(),
+            $this->_taskService->getRepository()
+        ]), TaskErrorConstant::ERR_TASK_ORDER_ASSIGN_FAILED);
+    }
+
+    protected function isAllowAssign($userId)
+    {
+        $this->_userInternalService->isAutoApplyTask($userId)
+        || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_DISALLOW_ASSIGN_USER);
     }
 
     public function confirm($userId, $taskOrderId, $storeAccount)
@@ -130,22 +148,45 @@ class TaskOrderService extends BaseService
     public function doing($userId, $taskOrderId, $orderId)
     {
         $taskOrder = $this->isValidTaskOrder($taskOrderId);
+        $this->isAllowDoing($userId, $taskOrder);
+
+        return $this->doingTransaction(function () use ($taskOrder, $orderId) {
+            $task = $this->_taskService->isValidTask($taskOrder->task_id, true);
+            $this->throwDBException(
+                $this->getRepository()->doing($taskOrder, $orderId),
+                "做任务失败"
+            );
+
+            $this->throwDBException(
+                $this->_taskService->incDoingOrder($task),
+                "增加任务表订单失败"
+            );
+
+            return true;
+        }, new Collection([
+            $this->getRepository(),
+            $this->_taskService->getRepository()
+        ]), TaskErrorConstant::ERR_TASK_ORDER_DOING_FAILED);
+    }
+
+    protected function isAllowDoing($userId, TaskOrder $taskOrder)
+    {
         $this->isAllowOperate($userId, $taskOrder);
-
-        $result = $this->getRepository()->doing($taskOrder, $orderId);
-        $result || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_DOING_FAILED);
-
-        return true;
+        $taskOrder->isWaiting()
+        || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_DISALLOW_DOING);
     }
 
     public function done($userId, $taskOrderId)
     {
         $taskOrder = $this->isValidTaskOrder($taskOrderId);
-        $task = $this->_taskService->isValidTask($taskOrder->task_id);
-        $this->isAllowDoneOperate($userId, $taskOrder);
+        $this->isAllowDone($userId, $taskOrder);
 
-        return $this->doingTransaction(function () use ($userId, $taskOrder, $task) {
-            $this->throwDBException($this->getRepository()->done($taskOrder), "完成任务失败");
+        return $this->doingTransaction(function () use ($userId, $taskOrder) {
+            $task = $this->_taskService->isValidTask($taskOrder->task_id, true);
+            $this->throwDBException(
+                $this->getRepository()->done($taskOrder),
+                "完成任务失败"
+            );
 
             $this->throwDBException(
                 $this->_taskService->incDoneOrder($task),
@@ -168,6 +209,13 @@ class TaskOrderService extends BaseService
         ]), TaskErrorConstant::ERR_TASK_ORDER_DONE_FAILED);
     }
 
+    protected function isAllowDone($userId, TaskOrder $taskOrder)
+    {
+        $this->isAllowDoneOperate($userId, $taskOrder);
+        $taskOrder->isDoing()
+        || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_DISALLOW_DONE);
+    }
+
     protected function makeCommission($amount)
     {
         return self::COMMISSION_PERCENT * $amount / 10000;
@@ -183,6 +231,36 @@ class TaskOrderService extends BaseService
     {
         $taskOrder = $this->isValidTaskOrder($taskOrderId);
         $this->isAllowOperate($userId, $taskOrder);
+        $this->isAllowClose($taskOrder);
+
+
+        return $this->doingTransaction(function () use ($userId, $taskOrder) {
+            $task = $this->_taskService->isValidTask($taskOrder->task_id, true);
+            $this->throwDBException(
+                $this->getRepository()->close($taskOrder),
+                "完成任务失败"
+            );
+
+            $this->throwDBException(
+                (
+                $taskOrder->isWaiting()
+                    ? $this->_taskService->decWaitingOrder($task)
+                    : $this->_taskService->decDoingOrder($task)
+                ),
+                "增加完成任务失败"
+            );
+
+            return true;
+        }, new Collection([
+            $this->getRepository(),
+            $this->_taskService->getRepository()
+        ]), TaskErrorConstant::ERR_TASK_ORDER_CLOSE_FAILED);
+    }
+
+    protected function isAllowClose(TaskOrder $taskOrder)
+    {
+        $taskOrder->isAllowClose()
+        || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_DISALLOW_CLOSE);
     }
 
     /**

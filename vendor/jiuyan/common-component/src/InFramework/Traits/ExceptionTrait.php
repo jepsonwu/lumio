@@ -15,7 +15,7 @@ trait ExceptionTrait
 
     public function throwDBException($result, $message, $code = 0)
     {
-        if (!$result) {
+        if (is_null($result) || $result === false) {
             throw new DBException($message, $code);
         }
     }

@@ -18,7 +18,7 @@ Route::version('v1', [
     'middleware' => ['jiuyan.api.auth']
 ], function () {
     Route::get('/', 'TaskOrderController@list');
-    Route::get('/check', 'TaskOrderController@isAllowApply');
+    Route::get('/check-permission', 'TaskOrderController@checkPermission');
     Route::post('/', 'TaskOrderController@apply');
     Route::post('/assign/', 'TaskOrderController@assign');
     Route::post('/confirm/{id}', 'TaskOrderController@confirm');

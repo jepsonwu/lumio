@@ -21,13 +21,9 @@ class UserService extends BaseService
 {
     const TOKEN_EXPIRES = 864000;
 
-    /**
-     */
-    protected $_userRepository;
-
     public function __construct(UserRepositoryEloquent $userRepository)
     {
-        $this->_userRepository = $userRepository;
+        $this->setRepository($userRepository);
         $this->_requestParamsComponent = app('RequestCommonParams');
     }
 
@@ -37,7 +33,7 @@ class UserService extends BaseService
      */
     public function getById($userId)
     {
-        $user = $this->_userRepository->find($userId);
+        $user = $this->getRepository()->find($userId);
         return $user;
     }
 
@@ -64,12 +60,12 @@ class UserService extends BaseService
      */
     public function getByMobile($mobile)
     {
-        return $this->_userRepository->getByMobile($mobile);
+        return $this->getRepository()->getByMobile($mobile);
     }
 
     public function getUserByToken($token)
     {
-        $user = $this->_userRepository->getByToken($token);
+        $user = $this->getRepository()->getByToken($token);
         $user && $user->token_expires < time() && $user = [];
 
         return $user;
@@ -82,7 +78,7 @@ class UserService extends BaseService
      */
     public function create($attributes)
     {
-        return $this->_userRepository->create([
+        return $this->getRepository()->create([
             "mobile" => $attributes['mobile'],
             "password" => $attributes['password'],
             "gender" => User::GENDER_UNKNOWN,
@@ -104,7 +100,7 @@ class UserService extends BaseService
      */
     public function update($userId, $attributes)
     {
-        $user = $this->_userRepository->update([
+        $user = $this->getRepository()->update([
             "username" => "",
             "avatar" => "",
             "gender" => "",
@@ -136,17 +132,17 @@ class UserService extends BaseService
 
     public function changePassword(User $user, $newPassword)
     {
-        return $this->_userRepository->changePassword($user, $newPassword);
+        return $this->getRepository()->changePassword($user, $newPassword);
     }
 
     public function isBuyer(User $user)
     {
-        return $this->_userRepository->isBuyer($user);
+        return $this->getRepository()->isBuyer($user);
     }
 
     public function isSeller(User $user)
     {
-        return $this->_userRepository->isSeller($user);
+        return $this->getRepository()->isSeller($user);
     }
 
     public function isDeployTaobaoAccount(User $user)
@@ -163,5 +159,18 @@ class UserService extends BaseService
         || ExceptionResponseComponent::business(AccountErrorConstant::ERR_USER_NO_DEPLOY_JD_ACCOUNT);
 
         return true;
+    }
+
+    public function isAutoApplyTask(User $user)
+    {
+        return $user->isAutoApplyTask();
+    }
+
+    /**
+     * @return mixed|UserRepositoryEloquent
+     */
+    public function getRepository()
+    {
+        return parent::getRepository();
     }
 }
