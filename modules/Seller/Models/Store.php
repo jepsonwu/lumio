@@ -76,6 +76,11 @@ class Store extends Model implements Transformable, IModelAccess
         return $this->verify_status == self::VERIFY_STATUS_WAITING;
     }
 
+    public function isPassed()
+    {
+        return $this->verify_status == self::VERIFY_STATUS_PASSED;
+    }
+
     public function isValid()
     {
         return $this->store_status == GlobalDBConstant::DB_TRUE;

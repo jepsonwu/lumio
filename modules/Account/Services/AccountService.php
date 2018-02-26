@@ -12,7 +12,7 @@ use Modules\Account\Models\User;
 use Modules\Account\Repositories\AccountRepositoryEloquent;
 use Log;
 
-class AccountRequestService extends BaseService
+class AccountService extends BaseService
 {
     /**
      */

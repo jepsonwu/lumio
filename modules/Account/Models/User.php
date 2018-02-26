@@ -90,6 +90,11 @@ class User extends Model implements Transformable, IModelAccess
         ]);
     }
 
+    public function isNormal()
+    {
+        return $this->role == self::ROLE_NORMAL;
+    }
+
     public function isBuyer()
     {
         return $this->role == self::ROLE_BUYER;

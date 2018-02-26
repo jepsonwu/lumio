@@ -4,16 +4,16 @@ namespace Modules\Account\Http\Controllers;
 
 use App\Components\Helpers\AuthHelper;
 use Illuminate\Http\Request;
-use Modules\Account\Services\AccountRequestService;
+use Modules\Account\Services\AccountService;
 
 class AuthController extends AuthBaseController
 {
     /**
-     * @var AccountRequestService
+     * @var AccountService
      */
     public $accountService;
 
-    public function __construct(AccountRequestService $accountService)
+    public function __construct(AccountService $accountService)
     {
         $this->accountService = $accountService;
     }
@@ -87,7 +87,7 @@ class AuthController extends AuthBaseController
             [
                 'mobile' => ['bail', 'required', 'mobile'],
                 'captcha' => 'bail|required|integer',
-                'password' => ['bail', 'required', 'string', 'between:6,12'],//todo 长度
+                'password' => ['bail', 'required', 'string', 'between:6,12'],
                 'confirm_password' => ['bail', 'required', 'string', 'between:6,12'],
                 'invite_code' => ['bail', 'string']
             ]

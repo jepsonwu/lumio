@@ -3,6 +3,7 @@
 namespace Modules\Seller\Services;
 
 use App\Constants\GlobalDBConstant;
+use Illuminate\Support\Collection;
 use Jiuyan\Common\Component\InFramework\Components\ExceptionResponseComponent;
 use Jiuyan\Common\Component\InFramework\Services\BaseService;
 use Modules\Seller\Constants\SellerBanyanDBConstant;
@@ -16,9 +17,15 @@ class StoreService extends BaseService
 
     const BANYAN_SELLER_STAT_STORE_NUMBER_KEY = "store_number";
 
-    public function __construct(StoreRepositoryEloquent $storeRepositoryEloquent)
+    protected $_goodService;
+
+    public function __construct(
+        StoreRepositoryEloquent $storeRepositoryEloquent,
+        GoodsService $goodsService
+    )
     {
         $this->setRepository($storeRepositoryEloquent);
+        $this->_goodService = $goodsService;
         $this->_requestParamsComponent = app('RequestCommonParams');
     }
 
@@ -127,14 +134,24 @@ class StoreService extends BaseService
     {
         $store = $this->isValidStore($storeId);
         $this->isAllowDelete($userId, $store);
-        $result = $this->getRepository()->deleteStore($store);
-        $result || ExceptionResponseComponent::business(SellerErrorConstant::ERR_STORE_DELETE_FAILED);
 
-        //todo 权限
+        $this->doingTransaction(function () use ($store) {
+            $result = $this->getRepository()->deleteStore($store);
+            $this->throwDBException($result, "delete store failed");
 
-        //todo 事物 删除商品
+            $this->throwDBException(
+                $this->_goodService->deleteByStoreId($store->id),
+                "delete goods by store failed"
+            );
 
-        $this->decUserStoreNumber($store->user_id);
+            $store->isPassed() && $this->throwDBException(
+                $this->decUserStoreNumber($store->user_id),
+                "dec user store number failed"
+            );
+        }, new Collection([
+            $this->getRepository(),
+            $this->_goodService->getRepository()
+        ]), SellerErrorConstant::ERR_STORE_DELETE_FAILED);
 
         return true;
     }

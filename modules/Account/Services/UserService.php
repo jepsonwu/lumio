@@ -93,25 +93,40 @@ class UserService extends BaseService
     }
 
     /**
-     * @param $userId
+     * @param User $user
      * @param $attributes
      * @return mixed|User
+     * @throws \Jiuyan\Common\Component\InFramework\Exceptions\BusinessException
      * @throws \Prettus\Validator\Exceptions\ValidatorException
      */
-    public function update($userId, $attributes)
+    public function update(User $user, $attributes)
     {
-        $user = $this->getRepository()->update([
-            "username" => "",
-            "avatar" => "",
-            "gender" => "",
-            "qq" => "",
-            "email" => "",
-            "open_status" => "",
-            "taobao_account" => "",
-            "jd_account" => ""
-        ], $userId);
+        $data = [
+            "username" => array_get($attributes, "username", ""),
+            "avatar" => array_get($attributes, "avatar", ""),
+            "gender" => array_get($attributes, "gender", User::GENDER_UNKNOWN),
+            "qq" => array_get($attributes, "qq", ""),
+            "email" => array_get($attributes, "email", ""),
+            "open_status" => array_get($attributes, "open_status", GlobalDBConstant::DB_TRUE),
+            "taobao_account" => array_get($attributes, "taobao_account", ""),
+            "jd_account" => array_get($attributes, "jd_account", "")
+        ];
 
-        //todo 升级role
+        switch (1) {
+            case $user->isNormal():
+                (!empty($data['taobao_account']) || !empty($data['jd_account']))
+                && $data['role'] = User::ROLE_BUYER;
+                break;
+            case $user->isBuyer():
+                (empty($data['taobao_account']) && empty($data['jd_account']))
+                && $data['role'] = User::ROLE_NORMAL;
+                break;
+            case $user->isSeller():
+                break;
+        }
+
+        $user = $this->getRepository()->update($data, $user->id);
+        $user || ExceptionResponseComponent::business(AccountErrorConstant::ERR_USER_UPDATE_FAILED);
 
         return $user;
     }

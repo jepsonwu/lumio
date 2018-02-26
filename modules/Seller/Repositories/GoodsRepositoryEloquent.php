@@ -2,6 +2,7 @@
 
 namespace Modules\Seller\Repositories;
 
+use App\Constants\GlobalDBConstant;
 use App\Validators\GlobalValidator;
 use Modules\Seller\Models\Goods;
 use Prettus\Repository\Eloquent\BaseRepository;
@@ -41,5 +42,13 @@ class GoodsRepositoryEloquent extends BaseRepository
     public function deleteGoods(Goods $goods)
     {
         return $goods->deleteGoods();
+    }
+
+    public function deleteByStoreId($storeId)
+    {
+        $builder = $this->model->newQuery();
+        return $this->model->whereStoreId($builder, $storeId)->update([
+            "goods_status" => GlobalDBConstant::DB_FALSE
+        ]);
     }
 }

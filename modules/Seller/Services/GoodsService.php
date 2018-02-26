@@ -115,6 +115,11 @@ class GoodsService extends BaseService
         $this->isAllowOperate($userId, $goods);
     }
 
+    public function deleteByStoreId($storeId)
+    {
+        return $this->getRepository()->deleteByStoreId($storeId);
+    }
+
     public function isValidGoods($id)
     {
         /**@var Goods $goods * */

@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Components\CustomizeCaptchaManageComponent;
+use Illuminate\Contracts\Validation\Factory;
+use Illuminate\Support\Facades\Validator;
 use Jiuyan\LumioSSO\Contracts\AuthenticateContract;
 use App\Exceptions\Handler;
 use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
@@ -25,6 +27,7 @@ class RequestMacroGlobalProvider extends ServiceProvider
         $this->registerIdHelper();
         $this->registerBanyanDB();
         $this->registerAuth();
+        $this->registerValidator();
     }
 
     protected function registerSession()
@@ -66,6 +69,15 @@ class RequestMacroGlobalProvider extends ServiceProvider
             $this->app->register(IdeHelperServiceProvider::class);
             AliasLoader::getInstance($this->app->make('config')->get('app.aliases', []))->register();
         }
+    }
+
+    //todo
+    protected function registerValidator()
+    {
+        /**@var $validator Factory* */
+//        $validator = app('validator');
+//        $validator->extend('default', function ($attribute, $value, $parameters) {
+//        });
     }
 
     public function boot()

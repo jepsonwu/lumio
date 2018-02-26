@@ -86,10 +86,6 @@ class TaskOrderService extends BaseService
 
     public function checkPermission($userId, $taskId)
     {
-        if ($this->_userInternalService->isBuyer($userId)) {
-            return true;
-        }
-
         $task = $this->_taskService->isValidTask($taskId);
         $this->_sellerInternalService->isTaobaoStore($task->store_id)
             ? $this->_userInternalService->isDeployTaobaoAccount($userId)

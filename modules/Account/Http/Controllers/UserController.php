@@ -29,6 +29,21 @@ class UserController extends ApiBaseController
      **
      * @apiError  20113
      *
+     * @apiSuccess {int} id
+     * @apiSuccess {string} username
+     * @apiSuccess {string} avatar
+     * @apiSuccess {string} mobile
+     * @apiSuccess {int} gender 性别：0-女，1-男，2-未知
+     * @apiSuccess {string} qq
+     * @apiSuccess {string} email
+     * @apiSuccess {string} invite_code
+     * @apiSuccess {int} role 角色：0-普通，1-买家，2-卖家
+     * @apiSuccess {int} level
+     * @apiSuccess {int} open_status 任务开启状态：0-否，1-是
+     * @apiSuccess {string} taobao_account
+     * @apiSuccess {string} jd_account
+     * @apiSuccess {string} token
+     *
      * @apiSuccessExample {json} Success-Response:
      *{"succ":true,"data":{"id":"10","username":"","avatar":"","mobile":"18258438129","gender":"2","qq":"","email":"","invite_code":"1QKXVDDaAb","role":"0","level":"1","open_status":"0","taobao_account":"","jd_account":"","token":"d49632796366b8d842e78400a3fe4d35","created_at":"1518423978"},"code":"0","msg":"","time":"1518427587"}
      *
@@ -74,7 +89,7 @@ class UserController extends ApiBaseController
     /**
      *
      *
-     * @api {GET} /api/user/v1 我的用户详情
+     * @api {PUT} /api/user/v1 我的用户详情
      * @apiSampleRequest /api/user/v1
      *
      * @apiVersion 1.0.0
@@ -99,6 +114,7 @@ class UserController extends ApiBaseController
      *
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Jiuyan\Common\Component\InFramework\Exceptions\BusinessException
      * @throws \Prettus\Validator\Exceptions\ValidatorException
      */
     public function update(Request $request)
@@ -115,7 +131,7 @@ class UserController extends ApiBaseController
         ]);
 
         $requestParams = $this->requestParams->getRegularParams();
-        $user = $this->userService->update(AuthHelper::user()->id, $requestParams);
+        $user = $this->userService->update(AuthHelper::user(), $requestParams);
         return $this->success($user);
     }
 }

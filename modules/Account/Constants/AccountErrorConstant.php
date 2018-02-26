@@ -29,4 +29,5 @@ class AccountErrorConstant
 
     const ERR_USER_NO_DEPLOY_TAOBAO_ACCOUNT = '20201|未绑定淘宝账号';
     const ERR_USER_NO_DEPLOY_JD_ACCOUNT = '20202|未绑定京东账号';
+    const ERR_USER_UPDATE_FAILED = '20203|修改失败';
 }
