@@ -40,6 +40,7 @@ class StoreController extends ApiBaseController
     public function list(Request $request)
     {
         $result = $this->storeService->list(AuthHelper::user()->id);
+
         return $this->success($result);
     }
 

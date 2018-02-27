@@ -97,9 +97,11 @@ class ApiBaseController extends Controller
         }
 
         if ($data instanceof Collection) {
-            $data = $data->each(function ($item) {
-                return $this->formatDataItem($item);
-            })->toArray();
+            $newData = [];
+            $data->each(function ($item) use (&$newData) {
+                $newData[] = $this->formatDataItem($item);
+            });
+            $data = $newData;
         } elseif (is_array($data)) {
             $data = array_map(function ($item) {
                 return $this->formatDataItem($item);
