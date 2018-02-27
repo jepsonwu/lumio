@@ -2,6 +2,7 @@
 
 namespace Modules\Seller\Services;
 
+use App\Components\Factories\InternalServiceFactory;
 use App\Constants\GlobalDBConstant;
 use Illuminate\Support\Collection;
 use Jiuyan\Common\Component\InFramework\Components\ExceptionResponseComponent;
@@ -10,7 +11,6 @@ use Modules\Seller\Constants\SellerBanyanDBConstant;
 use Modules\Seller\Constants\SellerErrorConstant;
 use Modules\Seller\Models\Store;
 use Modules\Seller\Repositories\StoreRepositoryEloquent;
-use Modules\Task\Services\TaskInternalService;
 
 class StoreService extends BaseService
 {
@@ -19,15 +19,12 @@ class StoreService extends BaseService
     const BANYAN_SELLER_STAT_STORE_NUMBER_KEY = "store_number";
 
     protected $_goodService;
-    protected $_taskInternalService;
 
     public function __construct(
-        StoreRepositoryEloquent $storeRepositoryEloquent,
-        TaskInternalService $taskInternalService
+        StoreRepositoryEloquent $storeRepositoryEloquent
     )
     {
         $this->setRepository($storeRepositoryEloquent);
-        $this->_taskInternalService = $taskInternalService;
         $this->_requestParamsComponent = app('RequestCommonParams');
     }
 
@@ -161,7 +158,7 @@ class StoreService extends BaseService
     protected function isAllowDelete($userId, Store $store)
     {
         $this->isAllowOperate($userId, $store);
-        $this->_taskInternalService->checkActiveByStore($store->id)
+        InternalServiceFactory::getTaskInternalService()->checkActiveByStore($store->id)
         && ExceptionResponseComponent::business(SellerErrorConstant::ERR_STORE_DISALLOW_DELETE);
     }
 

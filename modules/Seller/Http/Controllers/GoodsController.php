@@ -3,8 +3,10 @@
 namespace Modules\Seller\Http\Controllers;
 
 use App\Components\Helpers\AuthHelper;
+use App\Constants\GlobalDBConstant;
 use Illuminate\Http\Request;
 use Jiuyan\Common\Component\InFramework\Controllers\ApiBaseController;
+use Modules\Seller\Models\Goods;
 use Modules\Seller\Services\GoodsService;
 
 class GoodsController extends ApiBaseController
@@ -27,17 +29,40 @@ class GoodsController extends ApiBaseController
      * @apiGroup seller
      * @apiName list
      *
+     * @apiParam {int} [store_id] 店铺ID
+     * @apiParam {string} [goods_name] 商品名称
+     * @apiParam {int} page
+     *
      * @apiError  20113
      *
      * @apiSuccessExample {json} Success-Response:
-     * {"succ":true,"data":[{"id":"4","user_id":"10","real_name":"\u5434\u5065\u5e73","id_card":"3602221991078362","bank_card":"234234343413134","bank":"\u4e2d\u56fd\u94f6\u884c","bankfiliale":"\u676d\u5dde\u4e5d\u5821\u652f\u884c","account_status":"1","created_at":"1518760738","updated_at":"2018-02-16 13:58:58"}],"code":"0","msg":"","time":"1518760783"}
+     * {"succ":true,"data":{"current_page":"1","data":[{"id":"1","user_id":"10","store_id":"1","goods_name":"demo","goods_url":"ddd","goods_image":"","goods_price":"0","goods_keywords":"dd|aa","goods_status":"1","created_at":"1519739026","updated_at":"2018-02-27 21:43:46"}],"from":"1","last_page":"2","next_page_url":"http:\/\/test.lumio.com\/api\/seller\/goods\/v1?page=2","path":"http:\/\/test.lumio.com\/api\/seller\/goods\/v1","per_page":"1","prev_page_url":"","to":"1","total":"2"},"code":"0","msg":"","time":"1519743720"}
      *
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function list(Request $request)
     {
-        $result = $this->goodsService->list(AuthHelper::user()->id);
+        $this->validate($request, [
+            'store_id' => ['int'],
+            'goods_name' => ['string', 'between:1,200'],
+        ]);
+
+        //todo package and optimize
+        $params = $this->requestParams->getRegularParams();
+        $params = array_filter($params, function ($val) {
+            return $val != "";
+        });
+
+        $conditions = [
+            "user_id" => AuthHelper::user()->id,
+            "goods_status" => GlobalDBConstant::DB_TRUE
+        ];
+        isset($params['store_id']) && $conditions['store_id'] = $params['store_id'];
+        isset($params['goods_name'])
+        && $conditions['goods_name'] = ['goods_name', 'like', "%{$params['goods_name']}%"];
+
+        $result = $this->goodsService->list($conditions);
         return $this->success($result);
     }
 

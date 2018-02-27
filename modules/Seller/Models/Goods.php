@@ -32,13 +32,6 @@ class Goods extends Model implements Transformable, IModelAccess
 
     use ErrorTrait;
 
-    const TYPE_TAOBAO = 1;
-    const TYPE_JD = 2;
-
-    const VERIFY_STATUS_WAITING = 0;
-    const VERIFY_STATUS_PASSED = 1;
-    const VERIFY_STATUS_FAILED = 2;
-
     protected $table = "store_goods";
 
     protected $fillable = [

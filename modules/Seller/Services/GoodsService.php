@@ -2,6 +2,7 @@
 
 namespace Modules\Seller\Services;
 
+use App\Components\Factories\InternalServiceFactory;
 use App\Constants\GlobalDBConstant;
 use Jiuyan\Common\Component\InFramework\Components\ExceptionResponseComponent;
 use Jiuyan\Common\Component\InFramework\Services\BaseService;
@@ -10,22 +11,18 @@ use Modules\Seller\Models\Goods;
 use Modules\Seller\Repositories\GoodsRepositoryEloquent;
 use Modules\Seller\Constants\SellerBanyanDBConstant;
 use Illuminate\Support\Collection;
-use Modules\Task\Services\TaskInternalService;
 
 class GoodsService extends BaseService
 {
     protected $_storeService;
-    protected $_taskInternalService;
 
     const BANYAN_SELLER_STAT_GOODS_NUMBER_KEY = "goods_number";
 
     public function __construct(
-        GoodsRepositoryEloquent $goodsRepositoryEloquent,
-        TaskInternalService $taskInternalService
+        GoodsRepositoryEloquent $goodsRepositoryEloquent
     )
     {
         $this->setRepository($goodsRepositoryEloquent);
-        $this->_taskInternalService = $taskInternalService;
         $this->_requestParamsComponent = app('RequestCommonParams');
     }
 
@@ -72,9 +69,9 @@ class GoodsService extends BaseService
         && ExceptionResponseComponent::business(SellerErrorConstant::ERR_GOODS_NO_DEPLOY);
     }
 
-    public function list($userId)
+    public function list($conditions)
     {
-        return $this->getRepository()->getByUserId($userId);
+        return $this->getRepository()->paginateWithWhere($conditions, 10);
     }
 
     public function update($userId, $goodsId, $attributes)
@@ -126,7 +123,7 @@ class GoodsService extends BaseService
     {
         $this->isAllowOperate($userId, $goods);
 
-        $this->_taskInternalService->checkActiveByGoods($goods->id)
+        InternalServiceFactory::getTaskInternalService()->checkActiveByGoods($goods->id)
         && ExceptionResponseComponent::business(SellerErrorConstant::ERR_GOODS_DISALLOW_DELETE);
     }
 

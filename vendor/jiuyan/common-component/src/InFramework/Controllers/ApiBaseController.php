@@ -4,6 +4,7 @@ namespace Jiuyan\Common\Component\InFramework\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Jiuyan\Common\Component\InFramework\Components\RequestParamsComponent;
 use Jiuyan\Common\Component\InFramework\Exceptions\ApiExceptions;
@@ -87,6 +88,14 @@ class ApiBaseController extends Controller
 
     protected function formatResultData($data)
     {
+        $extend = [];
+        $isPaginator = false;
+        if ($data instanceof LengthAwarePaginator) {
+            $isPaginator = true;
+            $extend = $data->toArray();
+            $data = $data->items();
+        }
+
         if ($data instanceof Collection) {
             $data = $data->each(function ($item) {
                 return $this->formatDataItem($item);
@@ -97,6 +106,11 @@ class ApiBaseController extends Controller
             }, $data);
         } else {
             $data = $this->formatDataItem($data);
+        }
+
+        if ($isPaginator) {
+            $extend['data'] = $data;
+            $data = $extend;
         }
 
         return $data;
