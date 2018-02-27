@@ -17,7 +17,7 @@ class StoreController extends ApiBaseController
     }
 
     /**
-     *
+     * 1.返回所有的店铺，不分页
      *
      * @api {GET} /api/seller/store/v1 店铺列表
      * @apiSampleRequest /api/seller/store/v1
@@ -119,6 +119,8 @@ class StoreController extends ApiBaseController
 
     /**
      *
+     *1.只允许删除没有活跃任务的店铺
+     *2.todo 可以考虑删除有活跃任务，但是当前没人做任务的店铺 需要同步关闭任务
      *
      * @api {DELETE} /api/seller/store/v1/{id} 删除店铺
      * @apiSampleRequest /api/seller/store/v1/{id}

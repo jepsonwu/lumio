@@ -17,6 +17,11 @@ class TaskController extends ApiBaseController
     }
 
     /**
+     * todo 我的任务列表
+     * store_id goods_id goods_name platform task_status
+     *
+     * todo 首页任务列表
+     * platform
      *
      *
      * @api {GET} /api/user-fund/v1 我的资金账户

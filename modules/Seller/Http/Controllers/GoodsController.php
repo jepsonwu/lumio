@@ -19,15 +19,13 @@ class GoodsController extends ApiBaseController
     /**
      *
      *
-     * @api {GET} /api/user-fund/v1 我的资金账户
-     * @apiSampleRequest /api/user-fund/v1
+     * @api {GET} /api/seller/goods/v1 商品列表
+     * @apiSampleRequest /api/seller/goods/v1
      *
      * @apiVersion 1.0.0
      *
-     * @apiGroup user-fund
+     * @apiGroup seller
      * @apiName list
-     *
-     *
      *
      * @apiError  20113
      *
@@ -43,24 +41,75 @@ class GoodsController extends ApiBaseController
         return $this->success($result);
     }
 
+    /**
+     *
+     *
+     * @api {POST} /api/seller/goods/v1 创建商品
+     * @apiSampleRequest /api/seller/goods/v1
+     *
+     * @apiVersion 1.0.0
+     *
+     * @apiGroup seller
+     * @apiName create
+     *
+     * @apiParam {int} store_id 店铺ID
+     * @apiParam {string} goods_name 商品名称
+     * @apiParam {string} goods_url 商品url
+     * @apiParam {string} goods_keywords 商品关键字，多个用【|】分割
+     *
+     * @apiError  20113
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * {"succ":true,"data":{"store_id":"1","goods_name":"demo","goods_url":"ddd","goods_keywords":"dd|aa","user_id":"10","goods_image":"","goods_price":"0","created_at":"1519739224","id":"3"},"code":"0","msg":"","time":"1519739224"}
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
     public function create(Request $request)
     {
-        $this->validate($request, [
-            'store_id' => ['bail', 'required', 'int'],
-            'goods_name' => ['bail', 'string', 'required', 'between:1,200'],
-            'goods_url' => ['bail', 'string', 'required', 'between:1,500'],
-            'goods_keywords' => ['bail', 'string', 'required', 'between:1,500'],
-        ]);
+        $this->validate($request, $this->getValidateForCreate());
 
         $store = $this->goodsService->create(AuthHelper::user()->id, $this->requestParams->getRegularParams());
         return $this->success($store);
     }
 
+    protected function getValidateForCreate()
+    {
+        return [
+            'store_id' => ['bail', 'required', 'int'],
+            'goods_name' => ['bail', 'string', 'required', 'between:1,200'],
+            'goods_url' => ['bail', 'string', 'required', 'between:1,500'],
+            'goods_keywords' => ['bail', 'string', 'required', 'between:1,500'],
+        ];
+    }
+
+    /**
+     *
+     * 1.不允许修改 store_id|goods_name
+     *
+     * @api {PUT} /api/seller/goods/v1/{id} 修改商品
+     * @apiSampleRequest /api/seller/goods/v1/{id}
+     *
+     * @apiVersion 1.0.0
+     *
+     * @apiGroup seller
+     * @apiName update
+     *
+     * @apiParam {string} goods_name 商品名称
+     * @apiParam {string} goods_url 商品url
+     * @apiParam {string} goods_keywords 商品关键字，多个用【|】分割
+     *
+     * @apiError  20113
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * {"succ":true,"data":{"store_id":"1","goods_name":"demo","goods_url":"ddd","goods_keywords":"dd|aa","user_id":"10","goods_image":"","goods_price":"0","created_at":"1519739224","id":"3"},"code":"0","msg":"","time":"1519739224"}
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'store_id' => ['bail', 'required', 'int'],
-            'goods_name' => ['bail', 'string', 'required', 'between:1,200'],
             'goods_url' => ['bail', 'string', 'required', 'between:1,500'],
             'goods_keywords' => ['bail', 'string', 'required', 'between:1,500'],
         ]);
@@ -69,6 +118,26 @@ class GoodsController extends ApiBaseController
         return $this->success($store);
     }
 
+    /**
+     *1.只允许删除没有活跃任务的商品
+     *2.todo 可以考虑删除有活跃任务，但是当前没人做任务的商品 需要同步关闭任务
+     *
+     * @api {DELETE} /api/seller/goods/v1/{id} 删除商品
+     * @apiSampleRequest /api/seller/goods/v1/{id}
+     *
+     * @apiVersion 1.0.0
+     *
+     * @apiGroup seller
+     * @apiName delete
+     *
+     * @apiError  20113
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * {"succ":true,"data":[],"code":"0","msg":"","time":"1519739901"}
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
     public function delete(Request $request, $id)
     {
         $this->goodsService->delete(AuthHelper::user()->id, $id);

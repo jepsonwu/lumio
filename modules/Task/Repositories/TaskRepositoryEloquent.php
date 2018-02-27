@@ -38,6 +38,20 @@ class TaskRepositoryEloquent extends BaseRepository
         return $builder->get();
     }
 
+    public function checkActiveByGoods($goodsId)
+    {
+        $builder = $this->model->newQuery();
+        $this->model->whereGoodsId($builder, $goodsId)->whereActive($builder);
+        return $builder->limit(1)->first();
+    }
+
+    public function checkActiveByStore($storeId)
+    {
+        $builder = $this->model->newQuery();
+        $this->model->whereStoreId($builder, $storeId)->whereActive($builder);
+        return $builder->limit(1)->first();
+    }
+
     public function incWaitingOrder(Task $task)
     {
         return $task->incWaitingOrder();

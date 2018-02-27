@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Seller\Services;
+namespace Modules\Task\Services;
 
 use Illuminate\Support\Collection;
 use Jiuyan\Common\Component\InFramework\Components\ExceptionResponseComponent;
@@ -11,6 +11,7 @@ use Modules\Task\Models\TaskOrder;
 use Modules\Task\Repositories\TaskOrderRepositoryEloquent;
 use Modules\Account\Services\UserInternalService;
 use Modules\UserFund\Services\UserFundInternalService;
+use Modules\Seller\Services\SellerInternalService;
 
 class TaskOrderService extends BaseService
 {

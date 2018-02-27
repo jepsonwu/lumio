@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Seller\Services;
+namespace Modules\Task\Services;
 
 use Illuminate\Support\Collection;
 use Jiuyan\Common\Component\InFramework\Components\ExceptionResponseComponent;
@@ -11,6 +11,7 @@ use Modules\Task\Constants\TaskErrorConstant;
 use Modules\Task\Models\Task;
 use Modules\Task\Repositories\TaskRepositoryEloquent;
 use Modules\UserFund\Services\UserFundInternalService;
+use Modules\Seller\Services\SellerInternalService;
 
 class TaskService extends BaseService
 {
@@ -261,6 +262,16 @@ class TaskService extends BaseService
         )) {
             ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_DISALLOW_CLOSE);
         }
+    }
+
+    public function checkActiveByGoods($goodsId)
+    {
+        return $this->getRepository()->checkActiveByGoods($goodsId);
+    }
+
+    public function checkActiveByStore($storeId)
+    {
+        return $this->getRepository()->checkActiveByStore($storeId);
     }
 
     public function incWaitingOrder(Task $task)

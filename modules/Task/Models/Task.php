@@ -66,6 +66,24 @@ class Task extends Model implements Transformable, IModelAccess
         return $this;
     }
 
+    public function whereStoreId(Builder &$builder, $storeId)
+    {
+        $builder->where("store_id", $storeId);
+        return $this;
+    }
+
+    public function whereGoodsId(Builder &$builder, $goodsId)
+    {
+        $builder->where("goods_id", $goodsId);
+        return $this;
+    }
+
+    public function whereActive(Builder &$builder)
+    {
+        $builder->where('task_status', '<', self::STATUS_DONE);
+        return $this;
+    }
+
     public function incWaitingOrder()
     {
         $attributes = [

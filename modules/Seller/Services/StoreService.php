@@ -10,6 +10,7 @@ use Modules\Seller\Constants\SellerBanyanDBConstant;
 use Modules\Seller\Constants\SellerErrorConstant;
 use Modules\Seller\Models\Store;
 use Modules\Seller\Repositories\StoreRepositoryEloquent;
+use Modules\Task\Services\TaskInternalService;
 
 class StoreService extends BaseService
 {
@@ -18,14 +19,15 @@ class StoreService extends BaseService
     const BANYAN_SELLER_STAT_STORE_NUMBER_KEY = "store_number";
 
     protected $_goodService;
+    protected $_taskInternalService;
 
     public function __construct(
         StoreRepositoryEloquent $storeRepositoryEloquent,
-        GoodsService $goodsService
+        TaskInternalService $taskInternalService
     )
     {
         $this->setRepository($storeRepositoryEloquent);
-        $this->_goodService = $goodsService;
+        $this->_taskInternalService = $taskInternalService;
         $this->_requestParamsComponent = app('RequestCommonParams');
     }
 
@@ -140,7 +142,7 @@ class StoreService extends BaseService
             $this->throwDBException($result, "delete store failed");
 
             $this->throwDBException(
-                $this->_goodService->deleteByStoreId($store->id),
+                $this->getGoodsService()->deleteByStoreId($store->id),
                 "delete goods by store failed"
             );
 
@@ -150,7 +152,7 @@ class StoreService extends BaseService
             );
         }, new Collection([
             $this->getRepository(),
-            $this->_goodService->getRepository()
+            $this->getGoodsService()->getRepository()
         ]), SellerErrorConstant::ERR_STORE_DELETE_FAILED);
 
         return true;
@@ -158,8 +160,9 @@ class StoreService extends BaseService
 
     protected function isAllowDelete($userId, Store $store)
     {
-        //todo 当前有任务
         $this->isAllowOperate($userId, $store);
+        $this->_taskInternalService->checkActiveByStore($store->id)
+        && ExceptionResponseComponent::business(SellerErrorConstant::ERR_STORE_DISALLOW_DELETE);
     }
 
     public function isValidStore($id)
@@ -180,6 +183,15 @@ class StoreService extends BaseService
         return $store;
     }
 
+    public function isMyAvailableStore($storeId, $userId)
+    {
+        $store = $this->isValidMyStore($storeId, $userId);
+        $store->isPassed()
+        || ExceptionResponseComponent::business(SellerErrorConstant::ERR_STORE_NO_PASSED);
+
+        return $store;
+    }
+
     public function isTaobao(Store $store)
     {
         return $store->isTaobao();
@@ -196,5 +208,14 @@ class StoreService extends BaseService
     public function getRepository()
     {
         return parent::getRepository();
+    }
+
+    /**
+     * @return GoodsService
+     */
+    protected function getGoodsService()
+    {
+        is_null($this->_goodService) && $this->_goodService = app(GoodsService::class);
+        return $this->_goodService;
     }
 }

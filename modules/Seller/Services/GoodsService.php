@@ -9,30 +9,37 @@ use Modules\Seller\Constants\SellerErrorConstant;
 use Modules\Seller\Models\Goods;
 use Modules\Seller\Repositories\GoodsRepositoryEloquent;
 use Modules\Seller\Constants\SellerBanyanDBConstant;
+use Illuminate\Support\Collection;
+use Modules\Task\Services\TaskInternalService;
 
 class GoodsService extends BaseService
 {
     protected $_storeService;
+    protected $_taskInternalService;
 
     const BANYAN_SELLER_STAT_GOODS_NUMBER_KEY = "goods_number";
 
     public function __construct(
         GoodsRepositoryEloquent $goodsRepositoryEloquent,
-        StoreService $storeService
+        TaskInternalService $taskInternalService
     )
     {
         $this->setRepository($goodsRepositoryEloquent);
-        $this->_storeService = $storeService;
+        $this->_taskInternalService = $taskInternalService;
         $this->_requestParamsComponent = app('RequestCommonParams');
     }
 
     public function create($userId, $attributes)
     {
-        $this->_storeService->isValidMyStore($attributes['store_id'], $userId);
+        $this->getStoreService()->isMyAvailableStore($attributes['store_id'], $userId);
+
+        //todo 重名判断
 
         //todo add price image
 
         $attributes['user_id'] = $userId;
+        $attributes['goods_image'] = '';
+        $attributes['goods_price'] = 0;
         $attributes['created_at'] = time();
         $attributes['goods_status'] = GlobalDBConstant::DB_TRUE;
 
@@ -75,6 +82,8 @@ class GoodsService extends BaseService
         $goods = $this->isValidGoods($goodsId);
         $this->isAllowUpdate($userId, $goods);
 
+        //todo add price image
+
         $goods = $this->getRepository()->update($attributes, $goodsId);
         $goods || ExceptionResponseComponent::business(SellerErrorConstant::ERR_GOODS_UPDATE_FAILED);
 
@@ -97,22 +106,28 @@ class GoodsService extends BaseService
         $goods = $this->isValidGoods($goodsId);
         $this->isAllowDelete($userId, $goods);
 
-        $result = $this->getRepository()->deleteGoods($goods);
-        $result || ExceptionResponseComponent::business(SellerErrorConstant::ERR_GOODS_DELETE_FAILED);
 
-        //todo 权限
+        $this->doingTransaction(function () use ($goods) {
+            $result = $this->getRepository()->deleteGoods($goods);
+            $this->throwDBException($result, "delete goods failed");
 
-        //todo 事物 删除商品
-
-        $this->decUserGoodsNumber($goods->user_id);
+            $this->throwDBException(
+                $this->decUserGoodsNumber($goods->user_id),
+                "dec user goods number failed"
+            );
+        }, new Collection([
+            $this->getRepository()
+        ]), SellerErrorConstant::ERR_GOODS_DELETE_FAILED);
 
         return true;
     }
 
     protected function isAllowDelete($userId, Goods $goods)
     {
-        //todo 当前有任务
         $this->isAllowOperate($userId, $goods);
+
+        $this->_taskInternalService->checkActiveByGoods($goods->id)
+        && ExceptionResponseComponent::business(SellerErrorConstant::ERR_GOODS_DISALLOW_DELETE);
     }
 
     public function deleteByStoreId($storeId)
@@ -144,5 +159,14 @@ class GoodsService extends BaseService
     public function getRepository()
     {
         return parent::getRepository();
+    }
+
+    /**
+     * @return StoreService
+     */
+    protected function getStoreService()
+    {
+        is_null($this->_storeService) && $this->_storeService = app(StoreService::class);
+        return $this->_storeService;
     }
 }
