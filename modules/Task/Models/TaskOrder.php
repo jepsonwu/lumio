@@ -33,7 +33,7 @@ class TaskOrder extends Model implements Transformable, IModelAccess
     const STATUS_DONE = 3;
     const STATUS_CLOSE = 4;
 
-    protected $table = "task";
+    protected $table = "task_order";
 
     protected $fillable = [
         "id", "user_id", "task_id", "task_user_id", "order_id", "order_status", "created_at", "updated_at"

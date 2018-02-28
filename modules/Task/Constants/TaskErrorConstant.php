@@ -24,7 +24,7 @@ class TaskErrorConstant
     const ERR_TASK_ORDER_DOING_FAILED = '23201|任务订单执行失败';
     const ERR_TASK_ORDER_DISALLOW_DONE = '23201|不允许给该用户分配任务';
     const ERR_TASK_ORDER_DONE_FAILED = '23201|任务订单完成失败';
-    const ERR_TASK_ORDER_DISALLOW_CLOSE = '23201|不允许给该用户分配任务';
+    const ERR_TASK_ORDER_DISALLOW_CLOSE = '23201|不允许删除';
     const ERR_TASK_ORDER_CLOSE_FAILED = '23201|任务订单关闭失败';
     const ERR_TASK_ORDER_OPERATE_ILLEGAL = '23201|非法操作';
 }

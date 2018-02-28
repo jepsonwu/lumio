@@ -141,7 +141,7 @@ class Task extends Model implements Transformable, IModelAccess
 
     public function hasAvailableTotalOrderNumber()
     {
-        return $this->finished_order_number >
+        return $this->total_order_number >
             (
                 $this->waiting_order_number + $this->doing_order_number + $this->finished_order_number
             );

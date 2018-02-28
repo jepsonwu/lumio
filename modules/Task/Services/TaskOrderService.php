@@ -2,6 +2,7 @@
 
 namespace Modules\Task\Services;
 
+use App\Components\Factories\InternalServiceFactory;
 use Illuminate\Support\Collection;
 use Jiuyan\Common\Component\InFramework\Components\ExceptionResponseComponent;
 use Jiuyan\Common\Component\InFramework\Services\BaseService;
@@ -9,38 +10,26 @@ use Modules\Task\Constants\TaskErrorConstant;
 use Modules\Task\Models\Task;
 use Modules\Task\Models\TaskOrder;
 use Modules\Task\Repositories\TaskOrderRepositoryEloquent;
-use Modules\Account\Services\UserInternalService;
-use Modules\UserFund\Services\UserFundInternalService;
-use Modules\Seller\Services\SellerInternalService;
 
 class TaskOrderService extends BaseService
 {
     const COMMISSION_PERCENT = 10;//万分之几
 
     protected $_taskService;
-    protected $_userInternalService;
-    protected $_userFundInternalService;
-    protected $_sellerInternalService;
 
     public function __construct(
         TaskService $taskService,
-        TaskOrderRepositoryEloquent $taskOrderRepositoryEloquent,
-        UserInternalService $userInternalService,
-        UserFundInternalService $userFundInternalService,
-        SellerInternalService $sellerInternalService
+        TaskOrderRepositoryEloquent $taskOrderRepositoryEloquent
     )
     {
         $this->_taskService = $taskService;
         $this->setRepository($taskOrderRepositoryEloquent);
-        $this->_userInternalService = $userInternalService;
-        $this->_userFundInternalService = $userFundInternalService;
-        $this->_sellerInternalService = $sellerInternalService;
         $this->_requestParamsComponent = app('RequestCommonParams');
     }
 
-    public function list($userId)
+    public function list($conditions)
     {
-
+        return $this->getRepository()->paginateWithWhere($conditions, 10);
     }
 
     public function apply($userId, $taskId)
@@ -88,9 +77,9 @@ class TaskOrderService extends BaseService
     public function checkPermission($userId, $taskId)
     {
         $task = $this->_taskService->isValidTask($taskId);
-        $this->_sellerInternalService->isTaobaoStore($task->store_id)
-            ? $this->_userInternalService->isDeployTaobaoAccount($userId)
-            : $this->_userInternalService->isDeployJdAccount($userId);
+        InternalServiceFactory::getSellerInternalService()->isTaobaoStore($task->store_id)
+            ? InternalServiceFactory::getUserInternalService()->isDeployTaobaoAccount($userId)
+            : InternalServiceFactory::getUserInternalService()->isDeployJdAccount($userId);
 
         return true;
     }
@@ -118,7 +107,7 @@ class TaskOrderService extends BaseService
 
     protected function isAllowAssign($userId)
     {
-        $this->_userInternalService->isAutoApplyTask($userId)
+        InternalServiceFactory::getUserInternalService()->isAutoApplyTask($userId)
         || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_DISALLOW_ASSIGN_USER);
     }
 
@@ -128,7 +117,7 @@ class TaskOrderService extends BaseService
         $this->isAllowOperate($userId, $taskOrder);
 
         $task = $this->_taskService->isValidTask($taskOrder->task_id);
-        $store = $this->_sellerInternalService->isValidStore($task->store_id);
+        $store = InternalServiceFactory::getSellerInternalService()->isValidStore($task->store_id);
 
         $store->store_account == $storeAccount
         || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_CONFIRM_FAILED);
@@ -190,9 +179,9 @@ class TaskOrderService extends BaseService
                 "增加完成任务失败"
             );
 
-            $this->_userFundInternalService->pay($userId, $task->goods_price, "");
+            InternalServiceFactory::getUserFundInternalService()->pay($userId, $task->goods_price, "");
 
-            $this->_userFundInternalService->earn(
+            InternalServiceFactory::getUserFundInternalService()->earn(
                 $taskOrder->user_id,
                 $task->goods_price,
                 $this->makeCommission($task->goods_price),
@@ -229,7 +218,6 @@ class TaskOrderService extends BaseService
         $taskOrder = $this->isValidTaskOrder($taskOrderId);
         $this->isAllowOperate($userId, $taskOrder);
         $this->isAllowClose($taskOrder);
-
 
         return $this->doingTransaction(function () use ($userId, $taskOrder) {
             $task = $this->_taskService->isValidTask($taskOrder->task_id, true);

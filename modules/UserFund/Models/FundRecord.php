@@ -30,7 +30,7 @@ class FundRecord extends Model implements Transformable, IModelAccess
 
     use ErrorTrait;
 
-    protected $table = "user_fund";
+    protected $table = "user_fund_record";
 
     const RECORD_TYPE_WITHDRAW = 1;
     const RECORD_TYPE_RECHARGE = 2;

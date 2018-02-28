@@ -5,7 +5,7 @@ namespace Modules\Task\Http\Controllers;
 use App\Components\Helpers\AuthHelper;
 use Illuminate\Http\Request;
 use Jiuyan\Common\Component\InFramework\Controllers\ApiBaseController;
-use Modules\Seller\Services\TaskOrderService;
+use Modules\Task\Services\TaskOrderService;
 
 class TaskOrderController extends ApiBaseController
 {
@@ -19,30 +19,71 @@ class TaskOrderController extends ApiBaseController
     /**
      *
      *
-     * @api {GET} /api/user-fund/v1 我的资金账户
-     * @apiSampleRequest /api/user-fund/v1
+     * @api {GET} /api/task-order/v1 任务订单列表
+     * @apiSampleRequest /api/task-order/v1
      *
      * @apiVersion 1.0.0
      *
-     * @apiGroup user-fund
+     * @apiGroup task-order
      * @apiName list
      *
-     *
+     * @apiParam {int} [order_status] 状态
      *
      * @apiError  20113
      *
      * @apiSuccessExample {json} Success-Response:
-     * {"succ":true,"data":[{"id":"4","user_id":"10","real_name":"\u5434\u5065\u5e73","id_card":"3602221991078362","bank_card":"234234343413134","bank":"\u4e2d\u56fd\u94f6\u884c","bankfiliale":"\u676d\u5dde\u4e5d\u5821\u652f\u884c","account_status":"1","created_at":"1518760738","updated_at":"2018-02-16 13:58:58"}],"code":"0","msg":"","time":"1518760783"}
+     * {"succ":true,"data":{"current_page":"1","data":[{"id":"1","user_id":"10","task_id":"2","task_user_id":"10","order_id":"","order_status":"1","created_at":"1519827187"}],"from":"1","last_page":"1","next_page_url":"","path":"http:\/\/test.lumio.com\/api\/task-order\/v1","per_page":"10","prev_page_url":"","to":"1","total":"1"},"code":"0","msg":"","time":"1519827309"}
      *
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function list(Request $request)
     {
-        $result = $this->taskOrderService->list(AuthHelper::user()->id);
+        $this->validate($request, [
+            'order_status' => ['in:1,2,3,4'],
+        ]);
+
+        $params = $this->requestParams->getRegularParams();
+        $params = array_filter($params, function ($val) {
+            return $val != "";
+        });
+
+        $conditions = [
+            "user_id" => AuthHelper::user()->id,
+        ];
+        isset($params['order_status']) && $conditions['order_status'] = $params['order_status'];
+
+        $result = $this->taskOrderService->list($conditions);
         return $this->success($result);
     }
 
+    /**
+     *
+     *
+     * @api {POST} /api/task-order/v1 申请任务订单
+     * @apiSampleRequest /api/task-order/v1
+     *
+     * @apiVersion 1.0.0
+     *
+     * @apiGroup task-order
+     * @apiName apply
+     *
+     * @apiParam {int} task_id 任务ID
+     *
+     * @apiError  20113
+     *
+     * @apiSuccess {int} id
+     * @apiSuccess {int} user_id
+     * @apiSuccess {int} task_id
+     * @apiSuccess {int} task_user_id
+     * @apiSuccess {int} order_status 订单状态：1-waiting，2-doing，3-done，4-close
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * {"succ":true,"data":{"user_id":"10","task_id":"2","task_user_id":"10","order_status":"1","created_at":"1519827187","id":"1"},"code":"0","msg":"","time":"1519827187"}
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
     public function apply(Request $request)
     {
         $this->validate($request, [
@@ -53,6 +94,27 @@ class TaskOrderController extends ApiBaseController
         return $this->success($taskOrder);
     }
 
+    /**
+     *
+     *
+     * @api {GET} /api/task-order/v1/check-permission 检查申请权限
+     * @apiSampleRequest /api/task-order/v1/check-permission
+     *
+     * @apiVersion 1.0.0
+     *
+     * @apiGroup task-order
+     * @apiName check-permission
+     *
+     * @apiParam {int} task_id 任务ID
+     *
+     * @apiError  20113
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *{"succ":true,"data":[],"code":"0","msg":"","time":"1519820780"}
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
     public function checkPermission(Request $request)
     {
         $this->validate($request, [
@@ -64,6 +126,28 @@ class TaskOrderController extends ApiBaseController
         return $this->success([]);
     }
 
+    /**
+     *
+     *
+     * @api {POST} /api/task-order/v1/assign 派发任务订单
+     * @apiSampleRequest /api/task-order/v1/assign
+     *
+     * @apiVersion 1.0.0
+     *
+     * @apiGroup task-order
+     * @apiName assign
+     *
+     * @apiParam {int} task_id 任务ID
+     * @apiParam {int} user_id 用户ID
+     *
+     * @apiError  20113
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * {"succ":true,"data":{"user_id":"10","task_id":"2","task_user_id":"10","order_status":"1","created_at":"1519827187","id":"1"},"code":"0","msg":"","time":"1519827187"}
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
     public function assign(Request $request)
     {
         $this->validate($request, [
@@ -79,6 +163,27 @@ class TaskOrderController extends ApiBaseController
         return $this->success($taskOrder);
     }
 
+    /**
+     *
+     *
+     * @api {POST} /api/task-order/v1/confirm/{id} 确认任务订单
+     * @apiSampleRequest /api/task-order/v1/confirm/{id}
+     *
+     * @apiVersion 1.0.0
+     *
+     * @apiGroup task-order
+     * @apiName confirm
+     *
+     * @apiParam {string} store_account 店铺账号
+     *
+     * @apiError  20113
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *{"succ":true,"data":[],"code":"0","msg":"","time":"1519820780"}
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
     public function confirm(Request $request, $id)
     {
         $this->validate($request, [
@@ -89,6 +194,27 @@ class TaskOrderController extends ApiBaseController
         return $this->success([]);
     }
 
+    /**
+     *
+     *
+     * @api {PUT} /api/task-order/v1/{id} 做任务订单
+     * @apiSampleRequest /api/task-order/v1/{id}
+     *
+     * @apiVersion 1.0.0
+     *
+     * @apiGroup task-order
+     * @apiName doing
+     *
+     * @apiParam {string} order_id 订单号
+     *
+     * @apiError  20113
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *{"succ":true,"data":[],"code":"0","msg":"","time":"1519820780"}
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
     public function doing(Request $request, $id)
     {
         $this->validate($request, [
@@ -99,12 +225,50 @@ class TaskOrderController extends ApiBaseController
         return $this->success([]);
     }
 
+    /**
+     *
+     *
+     * @api {PUT} /api/task-order/v1/done/{id} 完成任务订单
+     * @apiSampleRequest /api/task-order/v1/done/{id}
+     *
+     * @apiVersion 1.0.0
+     *
+     * @apiGroup task-order
+     * @apiName done
+     *
+     * @apiError  20113
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *{"succ":true,"data":[],"code":"0","msg":"","time":"1519820780"}
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
     public function done(Request $request, $id)
     {
         $this->taskOrderService->done(AuthHelper::user()->id, $id);
         return $this->success([]);
     }
 
+    /**
+     *
+     *
+     * @api {DELETE} /api/task-order/v1/{id} 删除任务订单
+     * @apiSampleRequest /api/task-order/v1/{id}
+     *
+     * @apiVersion 1.0.0
+     *
+     * @apiGroup task-order
+     * @apiName close
+     *
+     * @apiError  20113
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *{"succ":true,"data":[],"code":"0","msg":"","time":"1519820780"}
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
     public function close(Request $request, $id)
     {
         $this->taskOrderService->close(AuthHelper::user()->id, $id);
