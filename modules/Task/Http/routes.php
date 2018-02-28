@@ -5,6 +5,7 @@ Route::version('v1', [
     'namespace' => 'Modules\Task\Http\Controllers',
     'middleware' => ['jiuyan.api.auth']
 ], function () {
+    Route::get('/my', 'TaskController@myList');
     Route::get('/', 'TaskController@list');
     Route::get('/check', 'TaskController@isAllowCreate');
     Route::post('/', 'TaskController@create');

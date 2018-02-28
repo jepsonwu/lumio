@@ -243,4 +243,9 @@ class WalletService extends BaseService
     {
         return $record->amount - $record->commission;
     }
+
+    public function getRepository()
+    {
+        return [$this->_fundService->getRepository(), $this->_fundRecordService->getRepository()];
+    }
 }

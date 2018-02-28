@@ -20,7 +20,7 @@ class UserFundInternalService extends BaseService
         $this->accountService->checkDeployAccount($userId);
     }
 
-    //todo change name
+    //这一步不需要 充值就成为卖家
     public function isFinishedDeployWallet($userId)
     {
 
@@ -58,6 +58,6 @@ class UserFundInternalService extends BaseService
 
     public function getRepository()
     {
-        return [$this->accountService->getRepository(), $this->walletService->getRepository()];
+        return array_merge([$this->accountService->getRepository()], $this->walletService->getRepository());
     }
 }

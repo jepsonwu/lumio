@@ -2,34 +2,23 @@
 
 namespace Modules\Task\Services;
 
+use App\Components\Factories\InternalServiceFactory;
 use Illuminate\Support\Collection;
 use Jiuyan\Common\Component\InFramework\Components\ExceptionResponseComponent;
 use Jiuyan\Common\Component\InFramework\Services\BaseService;
-use Modules\Account\Services\UserInternalService;
 use Modules\Seller\Models\Goods;
 use Modules\Task\Constants\TaskErrorConstant;
 use Modules\Task\Models\Task;
 use Modules\Task\Repositories\TaskRepositoryEloquent;
-use Modules\UserFund\Services\UserFundInternalService;
-use Modules\Seller\Services\SellerInternalService;
 
 class TaskService extends BaseService
 {
-    protected $_sellerInternalService;
-    protected $_userInternalService;
-    protected $_userFundInternalService;
 
     public function __construct(
-        TaskRepositoryEloquent $taskRepositoryEloquent,
-        SellerInternalService $sellerInternalService,
-        UserInternalService $userInternalService,
-        UserFundInternalService $userFundInternalService
+        TaskRepositoryEloquent $taskRepositoryEloquent
     )
     {
         $this->setRepository($taskRepositoryEloquent);
-        $this->_sellerInternalService = $sellerInternalService;
-        $this->_userInternalService = $userInternalService;
-        $this->_userFundInternalService = $userFundInternalService;
         $this->_requestParamsComponent = app('RequestCommonParams');
     }
 
@@ -48,24 +37,33 @@ class TaskService extends BaseService
     public function create($userId, $attributes)
     {
         $this->isAllowCreate($userId);
-        $goods = $this->_sellerInternalService->isValidMyGoods($userId, $attributes['goods_id']);
+        $goods = InternalServiceFactory::getSellerInternalService()->isValidMyGoods(
+            $userId,
+            $attributes['goods_id']
+        );
 
         $amount = $goods->goods_price * $attributes['total_order_number'];
         $this->checkBalance($userId, $amount);
 
-        $task = $this->doingTransaction(function () use ($userId, $goods, $amount) {
-            $task = $this->rawCreate($userId, $goods);
+        $task = $this->doingTransaction(function () use ($userId, $goods, $amount, $attributes) {
+            $task = $this->rawCreate($attributes, $userId, $goods);
 
-            $this->throwDBException($this->_userFundInternalService->lock($userId, $amount), "锁定余额失败");
+            $this->throwDBException(
+                InternalServiceFactory::getUserFundInternalService()->lock($userId, $amount),
+                "锁定余额失败"
+            );
             return $task;
         }, new Collection(
-            array_merge([$this->getRepository()], $this->_userFundInternalService->getRepository())
+            array_merge(
+                [$this->getRepository()],
+                InternalServiceFactory::getUserFundInternalService()->getRepository()
+            )
         ), TaskErrorConstant::ERR_TASK_CREATE_FAILED);
 
         return $task;
     }
 
-    protected function rawCreate($userId, Goods $goods)
+    protected function rawCreate($attributes, $userId, Goods $goods)
     {
         $attributes['user_id'] = $userId;
         $attributes['store_id'] = $goods->store_id;
@@ -87,70 +85,72 @@ class TaskService extends BaseService
 
     public function isAllowCreate($userId)
     {
-        if (!$this->_userInternalService->isSeller($userId)) {
-            $this->_userFundInternalService->isFinishedDeployAccount($userId);
-            $this->_userFundInternalService->isFinishedDeployWallet($userId);//todo optimize
+        if (!InternalServiceFactory::getUserInternalService()->isSeller($userId)) {
+            //InternalServiceFactory::getUserFundInternalService()->isFinishedDeployAccount($userId);
+            InternalServiceFactory::getUserFundInternalService()->isFinishedDeployWallet($userId);
         }
 
-        $this->_sellerInternalService->isFinishedDeploy($userId);
+        InternalServiceFactory::getSellerInternalService()->isFinishedDeploy($userId);
     }
 
     protected function checkBalance($userId, $amount)
     {
-        return $this->_userFundInternalService->checkBalance($userId, $amount);
+        return InternalServiceFactory::getUserFundInternalService()->checkBalance($userId, $amount);
     }
 
-    public function list($userId)
+    public function list($conditions)
     {
-        return $this->getRepository()->getByUserId($userId);
+        return $this->getRepository()->paginateWithWhere($conditions, 10);
     }
-
 
     /**
-     * 1.只能修改总订单数、搜索关键字 增加考虑余额 减少考虑当前正在执行的任务
+     * 1.只能修改总订单数、搜索关键字、平台 增加考虑余额 减少考虑当前正在执行的任务
      * 2.修改数量
      * 3.锁定、解锁余额
      * @param $userId
      * @param $taskId
-     * @param $totalOrderNumber
+     * @param $attributes
      * @return Task
      * @throws \Exception
      * @throws \Jiuyan\Common\Component\InFramework\Exceptions\BusinessException
      */
-    public function update($userId, $taskId, $totalOrderNumber)
+    public function update($userId, $taskId, $attributes)
     {
         $task = $this->isValidTask($taskId);
-        if ($task->total_order_number == $totalOrderNumber) {
-            return $task;
-        }
+        $this->isAllowUpdate($userId, $task);
 
-        $incOrderNumber = $totalOrderNumber - $task->total_order_number;
-        $this->isAllowUpdate($userId, $task, $incOrderNumber);
+        $incOrderNumber = $attributes['total_order_number'] - $task->total_order_number;
+        $incOrderNumber !== 0 && $this->isAllowUpdateTotalNumber($userId, $task, $incOrderNumber);
 
-        $this->doingTransaction(function () use ($userId, $task, $incOrderNumber) {
-            $this->rawUpdate($task->id, $incOrderNumber + $task->total_order_number);
+        return $this->doingTransaction(function () use ($userId, $task, $incOrderNumber, $attributes) {
+            $attributes['total_order_number'] = $incOrderNumber + $task->total_order_number;
+            $task = $this->rawUpdate($task->id, $attributes);
 
-            $amount = $task->goods_price * $incOrderNumber;
-            if ($incOrderNumber > 0) {
-                $result = $this->_userFundInternalService->lock($userId, $amount);
-            } else {
-                $result = $this->_userFundInternalService->unlock($userId, -$amount);;
+            if ($incOrderNumber !== 0) {
+                $amount = $task->goods_price * $incOrderNumber;
+                if ($incOrderNumber > 0) {
+                    $result = InternalServiceFactory::getUserFundInternalService()->lock($userId, $amount);
+                } else {
+                    $result = InternalServiceFactory::getUserFundInternalService()->unlock($userId, -$amount);;
+                }
+
+                $this->throwDBException($result, "修改操作余额失败");
             }
 
-            $this->throwDBException($result, "修改操作余额失败");
+            return $task;
         }, new Collection(
-            array_merge([$this->getRepository()], $this->_userFundInternalService->getRepository())
+            array_merge(
+                [$this->getRepository()],
+                InternalServiceFactory::getUserFundInternalService()->getRepository()
+            )
         ), TaskErrorConstant::ERR_TASK_UPDATE_FAILED);
-
-
-        return $task;
     }
 
-    protected function rawUpdate($taskId, $totalOrderNumber)
+    protected function rawUpdate($taskId, $attributes)
     {
-        $attributes['total_order_number'] = $totalOrderNumber;
         $task = $this->getRepository()->update($attributes, $taskId);
         $this->throwDBException($task, "修改失败");
+        return $task;
     }
 
     /**
@@ -186,18 +186,22 @@ class TaskService extends BaseService
         return $task;
     }
 
-    protected function isAllowUpdate($userId, Task $task, $incOrderNumber)
+    protected function isAllowUpdate($userId, Task $task)
     {
         $this->isAllowOperate($userId, $task);
 
         if (!($task->isWaiting() || $task->isDoing())) {
             ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_DISALLOW_UPDATE);
         }
+    }
 
+    protected function isAllowUpdateTotalNumber($userId, Task $task, $incOrderNumber)
+    {
         if ($incOrderNumber > 0) {
             $this->checkBalance($userId, $task->goods_price * $incOrderNumber);
         } else {
-            if (($task->waiting_order_number + $task->doing_order_number) > $incOrderNumber) {
+            $availableDec = $task->total_order_number - (($task->finished_order_number + $task->waiting_order_number + $task->doing_order_number));
+            if ($availableDec < -$incOrderNumber) {
                 ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_DISALLOW_UPDATE);
             }
         }
@@ -230,11 +234,14 @@ class TaskService extends BaseService
             $this->rawClose($task);
 
             $this->throwDBException(
-                $this->_userFundInternalService->unlock($userId, $this->getRefundAmount($task))
+                InternalServiceFactory::getUserFundInternalService()->unlock($userId, $this->getRefundAmount($task))
                 , "解锁余额失败"
             );
         }, new Collection(
-            array_merge([$this->getRepository()], $this->_userFundInternalService->getRepository())
+            array_merge(
+                [$this->getRepository()],
+                InternalServiceFactory::getUserFundInternalService()->getRepository()
+            )
         ), TaskErrorConstant::ERR_TASK_CLOSE_FAILED);
 
         return true;
