@@ -16,11 +16,24 @@ class FundRecordService extends BaseService
         $this->_requestParamsComponent = app('RequestCommonParams');
     }
 
+    /**
+     * @param $userId
+     * @param $amount
+     * @param $remarks
+     * @return mixed|FundRecord
+     */
     public function prepareRecharge($userId, $amount, $remarks)
     {
         return $this->getRepository()->prepareRecharge($userId, $amount, $remarks);
     }
 
+    /**
+     * @param $userId
+     * @param $amount
+     * @param $commission
+     * @param $remarks
+     * @return mixed|FundRecord
+     */
     public function prepareWithdraw($userId, $amount, $commission, $remarks)
     {
         return $this->getRepository()->prepareWithdraw($userId, $amount, $commission, $remarks);
@@ -39,11 +52,13 @@ class FundRecordService extends BaseService
         return $record;
     }
 
+    //todo 关联ID
     public function pay($userId, $amount, $remarks)
     {
         return $this->getRepository()->pay($userId, $amount, $remarks);
     }
 
+    //todo 关联ID
     public function earn($userId, $amount, $commission, $remarks)
     {
         return $this->getRepository()->earn($userId, $amount, $commission, $remarks);

@@ -2,8 +2,8 @@
 
 namespace Modules\UserFund\Repositories;
 
+use App\Validators\GlobalValidator;
 use Modules\UserFund\Models\FundRecord;
-use Modules\UserFund\Validators\FundRecordValidator;
 use Prettus\Repository\Eloquent\BaseRepository;
 
 /**
@@ -24,7 +24,7 @@ class FundRecordRepositoryEloquent extends BaseRepository
 
     public function validator()
     {
-        return FundRecordValidator::class;
+        return GlobalValidator::class;
     }
 
     public function prepareRecharge($userId, $amount, $remarks)

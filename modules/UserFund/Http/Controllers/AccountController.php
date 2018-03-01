@@ -16,6 +16,12 @@ class AccountController extends ApiBaseController
         $this->accountService = $accountService;
     }
 
+    //todo 系统账号
+    public function systemList()
+    {
+
+    }
+
     /**
      *
      *

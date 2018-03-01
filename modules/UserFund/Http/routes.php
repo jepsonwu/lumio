@@ -16,11 +16,15 @@ Route::version('v1', [
     'namespace' => 'Modules\UserFund\Http\Controllers',
     'middleware' => ['jiuyan.api.auth']
 ], function () {
-    Route::get('/', 'WalletController@list');
+    Route::get('/', 'WalletController@detail');
+    Route::get('/fund-record', 'WalletController@fundRecordList');
+
+    Route::get('/recharge', 'WalletController@rechargeList');
     Route::post('/recharge', 'WalletController@recharge');
-    Route::put('/recharge/{id}', 'WalletController@updateRecharge');
-    Route::delete('/recharge/{id}', 'WalletController@deleteRecharge');
+    Route::delete('/recharge/{id}', 'WalletController@closeRecharge');
+
+    Route::get('/withdraw', 'WalletController@withdrawList');
     Route::post('/withdraw', 'WalletController@withdraw');
-    Route::delete('/withdraw/{id}', 'WalletController@deleteWithdraw');
+    Route::delete('/withdraw/{id}', 'WalletController@closeWithdraw');
 });
 
