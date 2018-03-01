@@ -94,7 +94,7 @@ class WalletController extends ApiBaseController
      * @apiError  20113
      *
      * @apiSuccessExample {json} Success-Response:
-     *
+     *{"succ":true,"data":[],"code":"0","msg":"","time":"1517818507"}
      *
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
@@ -163,7 +163,7 @@ class WalletController extends ApiBaseController
      * @apiError  20113
      *
      * @apiSuccessExample {json} Success-Response:
-     *
+     *{"succ":true,"data":[],"code":"0","msg":"","time":"1517818507"}
      *
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
