@@ -45,9 +45,9 @@ class WalletService extends BaseService
         return $this->_fundRecordService->list($conditions);
     }
 
-    public function rechargeList()
+    public function rechargeList($conditions)
     {
-
+        return $this->_fundRechargeService->getRepository()->paginateWithWhere($conditions, 10);
     }
 
     public function checkRechargePermission($userId)
@@ -58,6 +58,7 @@ class WalletService extends BaseService
 
     public function prepareRecharge($userId, $attributes)
     {
+        //todo check by type
         $this->_accountService->isMyValidAccount($userId, $attributes['source_account_id']);
         //todo check system account
 
@@ -174,9 +175,9 @@ class WalletService extends BaseService
         ]), UserFundErrorConstant::ERR_WALLET_VERIFY_RECHARGE_FAILED);
     }
 
-    public function withdrawList()
+    public function withdrawList($conditions)
     {
-
+        return $this->_fundWithdrawService->getRepository()->paginateWithWhere($conditions, 10);
     }
 
     public function checkWithdrawPermission($userId)
