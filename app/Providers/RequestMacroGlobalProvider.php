@@ -22,12 +22,18 @@ class RequestMacroGlobalProvider extends ServiceProvider
 {
     public function register()
     {
+        $this->registerCommon();
         $this->registerSession();
         $this->registerSystem();
         $this->registerIdHelper();
         $this->registerBanyanDB();
         $this->registerAuth();
         $this->registerValidator();
+    }
+
+    protected function registerCommon()
+    {
+        $this->app->configure("common");
     }
 
     protected function registerSession()
