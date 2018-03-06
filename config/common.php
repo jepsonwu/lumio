@@ -2,9 +2,9 @@
 return [
     'upload_domain' => 'http://u1.jiuyan.info',
     'qiniu' => [
-        'access_key' => 'I5m6XV-FOs1aUPQnu7v4eF_yLgJjbgoZrrWT3Ghk',
-        'secret_key' => '8PSIInkjk5cXmDcQFN3Ix1fg34lRVB2QToT0yiri',
-        'bucket' => 'vooha',
+        'access_key' => 'MdpPmfSR9Rr3S6WKuoSE7OYxQ8umaTwoCAMVRvw5',
+        'secret_key' => 'cho-eUSF0gsKhJNgr2vnBPt3QKHpl2-BpCO020Hd',
+        'bucket' => 'tree',
         'expires' => 86400,
     ],
 ];
