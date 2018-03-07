@@ -62,7 +62,7 @@ return array(
     'Jiuyan\\Socialite\\' => array($vendorDir . '/jiuyan/socialite/src'),
     'Jiuyan\\Request\\Tool\\' => array($vendorDir . '/jiuyan/laravel-request-sign/src/main', $vendorDir . '/jiuyan/request-sign/src/main'),
     'Jiuyan\\Qconf\\Client\\' => array($vendorDir . '/jiuyan/qconf-client/src'),
-    'Jiuyan\\Profiler\\' => array($vendorDir . '/Jiuyan/Lumen-profiler/src'),
+    'Jiuyan\\Profiler\\' => array($vendorDir . '/jiuyan/lumen-profiler/src'),
     'Jiuyan\\Lumio\\BanyanDB\\' => array($vendorDir . '/jiuyan/lumio-banyandb/src'),
     'Jiuyan\\LumioSSO\\' => array($vendorDir . '/jiuyan/lumio-sso/src'),
     'Jiuyan\\LumenCommand\\' => array($vendorDir . '/Jiuyan/lumen-expand-command/src'),

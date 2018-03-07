@@ -1,39 +1,5 @@
 [
     {
-        "name": "Jiuyan/Lumen-profiler",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "git@githost.in66.cc:php_composer_lib/lumen-profiler.git",
-            "reference": "00b2828c353c4f40c55ec4b4bfb568a008724279"
-        },
-        "require": {
-            "pbweb/xhprof": "^1.0",
-            "php": ">=5.5"
-        },
-        "time": "2017-10-31T04:23:25+00:00",
-        "type": "library",
-        "installation-source": "source",
-        "autoload": {
-            "psr-4": {
-                "Jiuyan\\Profiler\\": "src"
-            }
-        },
-        "authors": [
-            {
-                "name": "xiaohe",
-                "email": "xiaohe@in66.com"
-            }
-        ],
-        "description": "get profiler data",
-        "keywords": [
-            "Jiuyan",
-            "Lumen",
-            "profiler"
-        ]
-    },
-    {
         "name": "Jiuyan/lumen-expand-command",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
@@ -2103,6 +2069,40 @@
             "module",
             "modules",
             "rad"
+        ]
+    },
+    {
+        "name": "jiuyan/lumen-profiler",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "git@githost.in66.cc:php_composer_lib/lumen-profiler.git",
+            "reference": "6c12e89eb31d8b3367a9ca98fadaaa1efe6d50e2"
+        },
+        "require": {
+            "pbweb/xhprof": "^1.0",
+            "php": ">=5.5"
+        },
+        "time": "2018-03-07T10:33:14+00:00",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "psr-4": {
+                "Jiuyan\\Profiler\\": "src"
+            }
+        },
+        "authors": [
+            {
+                "name": "xiaohe",
+                "email": "xiaohe@in66.com"
+            }
+        ],
+        "description": "get profiler data",
+        "keywords": [
+            "Jiuyan",
+            "Lumen",
+            "profiler"
         ]
     },
     {

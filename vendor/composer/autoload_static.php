@@ -415,7 +415,7 @@ class ComposerStaticInit48522e9b2c76f5178f331ea98be276a6
         ),
         'Jiuyan\\Profiler\\' => 
         array (
-            0 => __DIR__ . '/..' . '/Jiuyan/Lumen-profiler/src',
+            0 => __DIR__ . '/..' . '/jiuyan/lumen-profiler/src',
         ),
         'Jiuyan\\Lumio\\BanyanDB\\' => 
         array (
