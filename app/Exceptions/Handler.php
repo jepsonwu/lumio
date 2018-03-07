@@ -50,11 +50,11 @@ class Handler extends ExceptionHandler
             $validation = $e->getResponse()->getData(true);
             $code = GlobalErrorConstant::ERR_VALIDATION;
             $message = ($validation ? key($validation) : "field") . " invalid";
-        }
-
-        if ($e instanceof BusinessException || $e instanceof ApiExceptions) {
+        } else if ($e instanceof BusinessException || $e instanceof ApiExceptions) {
             $message = $e->getMessage();
             $code = $e->getCode();
+        } else {
+            \Log::error($e->getMessage());
         }
 
         return response()->make(
