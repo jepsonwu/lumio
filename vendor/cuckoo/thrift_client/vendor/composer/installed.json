@@ -1,0 +1,81 @@
+[
+    {
+        "name": "packaged/thrift",
+        "version": "0.9.2.1",
+        "version_normalized": "0.9.2.1",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/packaged/thrift.git",
+            "reference": "c662baa1e9818f0e458b07813674b7ba71f9ac69"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://files.phpcomposer.com/files/packaged/thrift/c662baa1e9818f0e458b07813674b7ba71f9ac69.zip",
+            "reference": "c662baa1e9818f0e458b07813674b7ba71f9ac69",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.0.0"
+        },
+        "time": "2015-01-23T18:16:46+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Thrift\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "Apache-2.0"
+        ],
+        "description": "Apache Thrift",
+        "homepage": "http://thrift.apache.org/",
+        "keywords": [
+            "apache",
+            "thrift"
+        ]
+    },
+    {
+        "name": "Jiuyan/statsd",
+        "version": "1.0.1",
+        "version_normalized": "1.0.1.0",
+        "source": {
+            "type": "git",
+            "url": "git@githost.in66.cc:php_composer_lib/statsd.git",
+            "reference": "3807b04292379f8cdf96f21e5f1c2cc01818ddd0"
+        },
+        "require": {
+            "php": ">= 5.6.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": ">= 4.4.0"
+        },
+        "time": "2017-08-22T08:21:07+00:00",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "psr-4": {
+                "Domnikl\\Statsd\\": "lib/"
+            }
+        },
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Dominik Liebler",
+                "email": "liebler.dominik@gmail.com"
+            }
+        ],
+        "description": "a PHP client for statsd",
+        "homepage": "https://domnikl.github.com/statsd-php",
+        "keywords": [
+            "metrics",
+            "monitoring",
+            "statistics",
+            "statsd",
+            "udp"
+        ]
+    }
+]
