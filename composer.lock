@@ -7,39 +7,6 @@
     "content-hash": "33744a6b239103366ccf31c7accc4a61",
     "packages": [
         {
-            "name": "Jiuyan/lumen-expand-command",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "git@githost.in66.cc:php_composer_lib/lumen-expand-command.git",
-                "reference": "7aa17fa861d3edb4dc09afa301a2f11a1326f9aa"
-            },
-            "require": {
-                "illuminate/console": "^5.0",
-                "illuminate/filesystem": "^5.0",
-                "illuminate/support": "^5.0",
-                "league/flysystem": "^1.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Jiuyan\\LumenCommand\\": "src"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "description": "expand command for Lumen framework.",
-            "keywords": [
-                "command",
-                "console",
-                "lumen",
-                "publish",
-                "vendor"
-            ],
-            "time": "2017-08-31T08:30:58+00:00"
-        },
-        {
             "name": "barryvdh/laravel-ide-helper",
             "version": "v2.4.1",
             "source": {
@@ -1788,6 +1755,39 @@
             ],
             "description": "laravel request sign",
             "time": "2017-08-09T09:57:14+00:00"
+        },
+        {
+            "name": "jiuyan/lumen-expand-command",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "git@githost.in66.cc:php_composer_lib/lumen-expand-command.git",
+                "reference": "6e8b847b44da6b93da06a92c33ba932e15d4eb89"
+            },
+            "require": {
+                "illuminate/console": "^5.0",
+                "illuminate/filesystem": "^5.0",
+                "illuminate/support": "^5.0",
+                "league/flysystem": "^1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Jiuyan\\LumenCommand\\": "src"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "expand command for Lumen framework.",
+            "keywords": [
+                "command",
+                "console",
+                "lumen",
+                "publish",
+                "vendor"
+            ],
+            "time": "2018-03-07T10:29:08+00:00"
         },
         {
             "name": "jiuyan/lumen-modules",

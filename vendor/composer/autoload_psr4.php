@@ -65,7 +65,7 @@ return array(
     'Jiuyan\\Profiler\\' => array($vendorDir . '/jiuyan/lumen-profiler/src'),
     'Jiuyan\\Lumio\\BanyanDB\\' => array($vendorDir . '/jiuyan/lumio-banyandb/src'),
     'Jiuyan\\LumioSSO\\' => array($vendorDir . '/jiuyan/lumio-sso/src'),
-    'Jiuyan\\LumenCommand\\' => array($vendorDir . '/Jiuyan/lumen-expand-command/src'),
+    'Jiuyan\\LumenCommand\\' => array($vendorDir . '/jiuyan/lumen-expand-command/src'),
     'Jiuyan\\Laravel\\Tool\\' => array($vendorDir . '/jiuyan/laravel-hashids/src/main'),
     'Jiuyan\\Laravel\\QConf\\' => array($vendorDir . '/jiuyan/laravel-qconf-client/src/main'),
     'Jiuyan\\IdGenerator\\' => array($vendorDir . '/jiuyan/laravel-id-generator/src/main'),

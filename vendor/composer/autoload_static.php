@@ -427,7 +427,7 @@ class ComposerStaticInit48522e9b2c76f5178f331ea98be276a6
         ),
         'Jiuyan\\LumenCommand\\' => 
         array (
-            0 => __DIR__ . '/..' . '/Jiuyan/lumen-expand-command/src',
+            0 => __DIR__ . '/..' . '/jiuyan/lumen-expand-command/src',
         ),
         'Jiuyan\\Laravel\\Tool\\' => 
         array (
