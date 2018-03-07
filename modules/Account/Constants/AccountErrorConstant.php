@@ -26,6 +26,7 @@ class AccountErrorConstant
     const ERR_ACCOUNT_AUTHORIZED_FAILED = '20112|身份验证失败';
     const ERR_ACCOUNT_LOGIN_FAILED = '20113|登录失败';
     const ERR_ACCOUNT_INVITE_USER_NOT_FOUND = '20113|邀请用户不存在';
+    const ERR_ACCOUNT_LOGOUT = '20113|当前账号已退出';
 
     const ERR_USER_NO_DEPLOY_TAOBAO_ACCOUNT = '20201|未绑定淘宝账号';
     const ERR_USER_NO_DEPLOY_JD_ACCOUNT = '20202|未绑定京东账号';
