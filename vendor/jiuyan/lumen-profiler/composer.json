@@ -1,0 +1,24 @@
+{
+  "name": "jiuyan/lumen-profiler",
+  "description": "get profiler data",
+  "keywords": [
+    "profiler",
+    "Lumen",
+    "Jiuyan"
+  ],
+  "authors": [
+    {
+      "name": "xiaohe",
+      "email": "xiaohe@in66.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.5",
+    "pbweb/xhprof": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Jiuyan\\Profiler\\": "src"
+    }
+  }
+}
