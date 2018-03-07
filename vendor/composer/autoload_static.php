@@ -27,8 +27,8 @@ class ComposerStaticInit48522e9b2c76f5178f331ea98be276a6
         'f8b0b5f351aa0dc2d4b9c3b8f451115f' => __DIR__ . '/..' . '/league/json-guard/src/functions.php',
         'd8859b65bf5d482501535bcf6a749f92' => __DIR__ . '/..' . '/pbweb/xhprof/xhprof_lib/utils/xhprof_lib.php',
         '889ba5e6451e1e0fb4800d09c1f6a2ef' => __DIR__ . '/..' . '/pbweb/xhprof/xhprof_lib/utils/xhprof_runs.php',
-        'cf526b50d62cbba0b2e62b5ed245c482' => __DIR__ . '/..' . '/Jiuyan/Lumen-modules/src/helpers.php',
         '534f191cbd2fe269d156e7f700c409d5' => __DIR__ . '/..' . '/jiuyan/dingo-api/src/helpers.php',
+        'cf526b50d62cbba0b2e62b5ed245c482' => __DIR__ . '/..' . '/jiuyan/lumen-modules/src/helpers.php',
         'f1272eb2741f8bbba87422c9db522f58' => __DIR__ . '/../..' . '/app/const.php',
     );
 
@@ -346,7 +346,7 @@ class ComposerStaticInit48522e9b2c76f5178f331ea98be276a6
         ),
         'Nwidart\\Modules\\' => 
         array (
-            0 => __DIR__ . '/..' . '/Jiuyan/Lumen-modules/src',
+            0 => __DIR__ . '/..' . '/jiuyan/lumen-modules/src',
         ),
         'Nord\\Lumen\\Cors\\' => 
         array (

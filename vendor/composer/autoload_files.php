@@ -26,7 +26,7 @@ return array(
     'f8b0b5f351aa0dc2d4b9c3b8f451115f' => $vendorDir . '/league/json-guard/src/functions.php',
     'd8859b65bf5d482501535bcf6a749f92' => $vendorDir . '/pbweb/xhprof/xhprof_lib/utils/xhprof_lib.php',
     '889ba5e6451e1e0fb4800d09c1f6a2ef' => $vendorDir . '/pbweb/xhprof/xhprof_lib/utils/xhprof_runs.php',
-    'cf526b50d62cbba0b2e62b5ed245c482' => $vendorDir . '/Jiuyan/Lumen-modules/src/helpers.php',
     '534f191cbd2fe269d156e7f700c409d5' => $vendorDir . '/jiuyan/dingo-api/src/helpers.php',
+    'cf526b50d62cbba0b2e62b5ed245c482' => $vendorDir . '/jiuyan/lumen-modules/src/helpers.php',
     'f1272eb2741f8bbba87422c9db522f58' => $baseDir . '/app/const.php',
 );

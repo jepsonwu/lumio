@@ -45,7 +45,7 @@ return array(
     'Prettus\\Validator\\' => array($vendorDir . '/prettus/laravel-validation/src/Prettus/Validator'),
     'Prettus\\Repository\\' => array($vendorDir . '/jiuyan/l5-repository/src/Prettus/Repository'),
     'PhpAmqpLib\\' => array($vendorDir . '/php-amqplib/php-amqplib/PhpAmqpLib'),
-    'Nwidart\\Modules\\' => array($vendorDir . '/Jiuyan/Lumen-modules/src'),
+    'Nwidart\\Modules\\' => array($vendorDir . '/jiuyan/lumen-modules/src'),
     'Nord\\Lumen\\Cors\\' => array($vendorDir . '/nordsoftware/lumen-cors/src'),
     'Monolog\\' => array($vendorDir . '/monolog/monolog/src/Monolog'),
     'Modules\\' => array($baseDir . '/modules'),
