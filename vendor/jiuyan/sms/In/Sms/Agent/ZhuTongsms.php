@@ -14,8 +14,8 @@ class ZhuTongsms extends BaseSmsAgent
 {
 
     protected $url = "http://www.ztsms.cn:8800/sendXSms.do";
-    protected $user = "jiuqikeji";
-    protected $pwd = "Jq654321";
+    protected $user = "zmxh16317yzm";
+    protected $pwd = "npzJOL";
     public $productId = "71451";
 
     public $error = array(
@@ -83,12 +83,11 @@ class ZhuTongsms extends BaseSmsAgent
         $tkey = $this->gettKey();
         //"您的验证码是：".$mobile_code."。请不要把验证码泄露给其他人。"
 //        $post_data = "username={$username}&password={$password}&mobile=" . $mobile . "&content=" . urlencode($content) . "&productid=" . $this->productId;//973785//95533,666999,136136
-        $post_data = ['username'=>$username,'password'=>$password,'mobile'=>$mobile,'tkey'=>$tkey,'content'=>$content,'productid'=>$this->productId];
+        $post_data = ['username' => $username, 'password' => $password, 'mobile' => $mobile, 'tkey' => $tkey, 'content' => $content, 'productid' => $this->productId];
         $post_data['password'] = $this->encryCode($password, $tkey);
         $query = http_build_query($post_data);
         //密码可以使用明文密码或使用32位MD5加密
         $gets = $this->Post($query, $target);
-
         $return = false;
         if (strpos($gets, ',') !== false) {
             $returnArr = explode(',', $gets);
@@ -139,12 +138,14 @@ class ZhuTongsms extends BaseSmsAgent
     }
 
 
-    public function gettKey(){
+    public function gettKey()
+    {
         return date("YmdHis");
     }
 
-    public function encryCode($pwd,$tKey){
-        return md5(md5($pwd).$tKey);
+    public function encryCode($pwd, $tKey)
+    {
+        return md5(md5($pwd) . $tKey);
     }
 
 

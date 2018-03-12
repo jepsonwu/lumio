@@ -32,8 +32,6 @@ class AccountService extends BaseService
 
     public function sendAccountCaptcha($mobile)
     {
-        return true;
-        //todo 提供新驱动
         $result = CaptchaComponent::getInstance()->sendCaptcha($mobile, '', 'sms');
         if (!$result) {
             ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_SMS_CODE_SEND_FAILED);
@@ -98,7 +96,6 @@ class AccountService extends BaseService
 
     private function _checkSmsCaptcha($mobile, $captcha)
     {
-        return true;
         if (!CaptchaComponent::getInstance()->verifyCaptcha($captcha, $mobile)) {
             ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_INVALID_SMS_CODE);
         }

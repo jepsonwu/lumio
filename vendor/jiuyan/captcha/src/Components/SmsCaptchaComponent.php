@@ -22,10 +22,10 @@ class SmsCaptchaComponent extends SendCaptchaBaseComponent implements SendCaptch
 
     protected function _send($target, $extFlag = '')
     {
-        if (!Sms::checkMobile($target, self::SMS_SEND_FLAG)) {
-            Log::error('captcha send target invalid');
-            return false;
-        }
+//        if (!Sms::checkMobile($target, self::SMS_SEND_FLAG)) {
+//            Log::error('captcha send target invalid');
+//            return false;
+//        }
         try {
             $sendRet = Sms::sendSms($target, 'in', [], self::SMS_SEND_FLAG);
         } catch (Exception $e) {

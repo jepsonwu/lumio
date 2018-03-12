@@ -16,6 +16,7 @@ use Jiuyan\Captcha\Providers\CaptchaServiceProvider;
 use Jiuyan\Common\Component\InFramework\Providers\InFrameworkProvider;
 use Jiuyan\Lumio\BanyanDB\BanyanDBFactory;
 use Jiuyan\Lumio\BanyanDB\Providers\BanyanDBServiceProvider;
+use Modules\Account\Constants\AccountBanyanDBConstant;
 use Modules\Account\Services\UserInternalService;
 
 class RequestMacroGlobalProvider extends ServiceProvider
@@ -49,7 +50,12 @@ class RequestMacroGlobalProvider extends ServiceProvider
         $this->app->register(InFrameworkProvider::class);
         $this->app->singleton('CaptchaManageComponent', CustomizeCaptchaManageComponent::class);
         $this->app->singleton('banyandbForCaptcha', function () {
-            return BanyanDBFactory::getInstance('in_sms', 'auth_code', 'new', BanyanDBFactory::HASH_STRUCTURE);
+            return BanyanDBFactory::getInstance(
+                'common',
+                'common',
+                AccountBanyanDBConstant::COMMON_USER_SMS_CAPTCHA,
+                BanyanDBFactory::HASH_STRUCTURE
+            );
         });
     }
 

@@ -7,18 +7,20 @@
  */
 
 namespace In\Sms;
+
 use In\Sms\Agent;
 use In\Sms\log\SmsLog;
 use In\Sms\config\SmsConfig;
 use PhpAmqpLib\Channel\AMQPChannel;
 
-class SmsSendChannel{
+class SmsSendChannel
+{
 
     const CAPTCHA_EXPIRE_TIME = 1800;
     private $memcacheObj;
 
     private $usableChannel;  //可用的渠道:'Montnets','HuYi','Bech','ManDao','TuoPeng','ZhuTong'
-    private $channel="";
+    private $channel = "";
     private $channel_ratio;
     //private $channel_ratio = array('Montnets'=>'60','TuoPeng'=>'5','ZhuTong'=>'35');
 
@@ -32,25 +34,24 @@ class SmsSendChannel{
     private $type;
     public $count = 10;   //某个渠道出问题的次数
 
-    public function __construct($type="in")
+    public function __construct($type = "in")
     {
 
         $this->updateAttr($type);
         $this->memcacheObj = new \Memcached();
-        foreach (SmsConfig::$config['memcached'] as $info){
+        foreach (SmsConfig::$config['memcached'] as $info) {
             $this->memcacheObj->addServer($info['host'], $info['port'], true);
         }
 
     }
 
-    public function updateAttr($type){
+    public function updateAttr($type)
+    {
         $this->type = $type;
         $this->usableChannel = SmsConfig::$config['channel'];
         $this->channel_ratio = SmsConfig::$config['channelRatio'];
         $this->checkObj = new SmsMobileCheck($type);
     }
-
-
 
 
     /*
@@ -59,7 +60,8 @@ class SmsSendChannel{
      * @param $param 一些额外的参数 如code:验证码
      * desc:选择发送短息的服务商
      */
-    public function selectedChannel($mobile,$textKey,array $param){
+    public function selectedChannel($mobile, $textKey, array $param)
+    {
 
         //保存必要信息,为发送短信函数做准备
         $this->mobile = $mobile;
@@ -68,11 +70,11 @@ class SmsSendChannel{
 
         //debug信息数组
         $msg = array();
-        $debugInfo = array('mobile'=>$mobile,'textKey'=>$textKey,'msg'=>'');
+        $debugInfo = array('mobile' => $mobile, 'textKey' => $textKey, 'msg' => '');
 
         $succ = true;
         //手机+内容为key,key不能重复
-        $arr = array('mobile'=>$mobile,'textKey'=>$textKey,'extra'=>$param);
+        $arr = array('mobile' => $mobile, 'textKey' => $textKey, 'extra' => $param);
         try {
             $sms_cacheKey = $this->generalSmSContentKey($arr);
             $sms_result_value = $this->memcacheObj->get($sms_cacheKey);
@@ -80,12 +82,13 @@ class SmsSendChannel{
                 $sms_result_value = array();
             $VetoChannel = $this->getVetoChannel();
 
+            $sms_result_value = [];
             if ($sms_result_value) {
 
                 $sms_result_value = array_unique(array_merge($sms_result_value, $VetoChannel));
                 if (count($this->usableChannel) == count($sms_result_value)) {   //如果这个号码，这个内容将所有的渠道都用完，就记录下来
                     /*================debug msg==========================*/
-                    $msg[]="send_sms ---- be defeated! 所有发送渠道用尽!";
+                    $msg[] = "send_sms ---- be defeated! 所有发送渠道用尽!";
                     $succ = false;
                 }
 
@@ -104,27 +107,27 @@ class SmsSendChannel{
                 foreach ($usable_channelArr as $res) {
                     if (!in_array($res, $sms_result_value)) {
                         $this->channel = $res;
-                        $sms_result_value[]=$res;
-                        $this->memcacheObj->set($sms_cacheKey,$sms_result_value,$this->item_sms_time);
+                        $sms_result_value[] = $res;
+                        $this->memcacheObj->set($sms_cacheKey, $sms_result_value, $this->item_sms_time);
                         break;
 
                     }
                 }
 
             }
-        }catch(Exception $e){
+        } catch (Exception $e) {
             $succ = false;
         }
 
         /*================debug msg==========================*/
-        $msg[]= "usable_channel:".json_encode($this->usableChannel)." sms_result_value:".json_encode($sms_result_value)." veto_channel".json_encode($VetoChannel);
+        $msg[] = "usable_channel:" . json_encode($this->usableChannel) . " sms_result_value:" . json_encode($sms_result_value) . " veto_channel" . json_encode($VetoChannel);
 
-        foreach($msg as $m) {
+        foreach ($msg as $m) {
             $debugInfo['msg'] = $m;
             SmsLog::addSmsDebugLog($debugInfo);
         }
         /*================debug msg==========================*/
-        return array('success'=>$succ,'channel'=>$this->channel,'msg'=>$msg);
+        return array('success' => $succ, 'channel' => $this->channel, 'msg' => $msg);
 
     }
 
@@ -132,31 +135,33 @@ class SmsSendChannel{
      * @param $usableChannle
      * desc 按照权重排序可用渠道
      */
-    public function shuffleChannel($usableChannle){
+    public function shuffleChannel($usableChannle)
+    {
         $channls = $usableChannle;
         shuffle($channls);
         $new_channels = $this->getChannelratio($channls);
         return $new_channels;
     }
 
-    public function sendSms($mobile,$textKey,array $param,$channel=""){
+    public function sendSms($mobile, $textKey, array $param, $channel = "")
+    {
         $repeat = 0;
         $result = array();
         //首先验证
         $cres = $this->checkObj->checkMobile($mobile);
         //通过验证后
-        if($cres['success']){
+        if ($cres['success']) {
             //随机验证码
             $code = $this->checkObj->generalCaptchaCode();
             $param['code'] = $code;
             //发送
-            $result = $this->send($mobile,$textKey,$param,$channel);
+            $result = $this->send($mobile, $textKey, $param, $channel);
             //失败重新发送一次
-            if(!$result['success'] && ($repeat == 0)){
-                $result = $this->send($mobile,$textKey,$param,$channel);
+            if (!$result['success'] && ($repeat == 0)) {
+                $result = $this->send($mobile, $textKey, $param, $channel);
                 $repeat++;
             }
-        }else{
+        } else {
             $result = $cres;
         }
         return $result;
@@ -166,33 +171,34 @@ class SmsSendChannel{
      * $assign 指定发送渠道和用户密码 例如:SmsConfig::$config['assign']['forme']
      * @desc 验证码发送
      */
-    public function send($mobile,$textKey,array $param,$channel=""){
+    public function send($mobile, $textKey, array $param, $channel = "")
+    {
         //debug信息数组
         $msg = array();
         $info = '验证码发送成功';
         $error = 0;
-        $debugInfo = array('mobile'=>$mobile,'textKey'=>$textKey,'msg'=>'');
+        $debugInfo = array('mobile' => $mobile, 'textKey' => $textKey, 'msg' => '');
 
         try {
             /*
              * 决定发送渠道
              */
-            if(empty($channel)){
+            if (empty($channel)) {
                 $cres = $this->selectedChannel($mobile, $textKey, $param);
-                if($cres['success'])
+                if ($cres['success'])
                     $channel = $cres['channel'];
             }
             /*
              * 发送
              */
-            if($channel) {
+            if ($channel) {
                 /*=============statics:请求发送统计=============*/
                 $item = SmsLog::queueItem($channel, $mobile, $textKey, "SEND");
                 $item['stat_type'] = 'send';
                 SmsLog::addSmsCodeInfoToQ($item);
                 /*============================*/
                 //$channel = "Montnets";
-                $smsstr = "In\\Sms\\Agent\\".$channel."sms";
+                $smsstr = "In\\Sms\\Agent\\" . $channel . "sms";
                 $sms = new $smsstr;
                 $sms->setAccount(SmsConfig::$config['channelAccount'][$channel]['user'],
                     SmsConfig::$config['channelAccount'][$channel]['pwd']);
@@ -204,7 +210,7 @@ class SmsSendChannel{
                 $item = SmsLog::queueItem($channel, $mobile, $textKey, "SEND");
                 if ($result == 1 || $result === true) {
                     $result = true;
-                }else {
+                } else {
                     $result = false;
                 }
                 SmsLog::addSmsCodeInfoToQ($item);
@@ -227,7 +233,7 @@ class SmsSendChannel{
                             $this->memcacheObj->delete($channel_Key);    //删除此渠道的失效计数器,在下一步直接屏蔽它
 
                             $veto_channel_Key = $this->getMemcheVetoChannel($channel);
-                            $this->memcacheObj->set($veto_channel_Key, 1,$this->veto_channel_time);    //失效频道屏蔽时间
+                            $this->memcacheObj->set($veto_channel_Key, 1, $this->veto_channel_time);    //失效频道屏蔽时间
 
                         } else {
                             //**************debug log*************
@@ -239,7 +245,7 @@ class SmsSendChannel{
                         //**************debug log*************
                         $msg[] = "send  be defeated! set! selected_channel:" . $channel;
                         //************************************
-                        $cheannel_init = $this->memcacheObj->add($channel_Key, 1,$this->detection_time);
+                        $cheannel_init = $this->memcacheObj->add($channel_Key, 1, $this->detection_time);
                         if (!$cheannel_init) {
                             $this->memcacheObj->increment($channel_Key, 1);
                         }
@@ -247,31 +253,31 @@ class SmsSendChannel{
                     $info = "验证码发送失败";
                     $error = SmsConfig::ERR_USER_SMSCODE_SEND_FAILED;
                 }
-            }else{
+            } else {
                 $info = "短时间内发送过多,请稍后再试!";
                 $error = SmsConfig::ERR_USER_SMS_CODE_ALREADY_SENT;
                 $result = false;
             }
-        }catch(Exception $e){
+        } catch (Exception $e) {
             $result = false;
         }
 
         /*===================debug msg====================*/
-        foreach($msg as $m) {
+        foreach ($msg as $m) {
             $debugInfo['msg'] = $m;
             try {
                 SmsLog::addSmsDebugLog($debugInfo);
-            }catch (\Exception $e){
+            } catch (\Exception $e) {
 
             }
         }
-        $item = array('mobile'=>$mobile,'msg'=>$info);
+        $item = array('mobile' => $mobile, 'msg' => $info);
         SmsLog::addSmsDebugLog($item);
 
         /*================================================*/
 
-        return  array('success'=>$result,'msg'=>$info,'error_code'=>$error,'code'=>$param['code'],
-            'info'=>array('channel'=>$channel,'mobile'=>$mobile,'textKey'=>$textKey,'extra'=>$param));
+        return array('success' => $result, 'msg' => $info, 'error_code' => $error, 'code' => $param['code'],
+            'info' => array('channel' => $channel, 'mobile' => $mobile, 'textKey' => $textKey, 'extra' => $param));
 
     }
 
@@ -282,14 +288,15 @@ class SmsSendChannel{
      * @param string $channle
      * desc: 营销短信
      */
-    public function sendPromo($mobile, $textKey, array $param, $channel=""){
+    public function sendPromo($mobile, $textKey, array $param, $channel = "")
+    {
 
         $result = false;
         //debug信息数组
         $msg = array();
         $info = '验证码发送成功';
         $error = 0;
-        $debugInfo = array('mobile'=>$mobile,'textKey'=>$textKey,'msg'=>'promo '.$this->type);
+        $debugInfo = array('mobile' => $mobile, 'textKey' => $textKey, 'msg' => 'promo ' . $this->type);
 
         try {
             SmsLog::addSmsDebugLog($debugInfo);
@@ -297,28 +304,28 @@ class SmsSendChannel{
             /*
              * 决定发送渠道
              */
-            if(empty($channel)){
+            if (empty($channel)) {
                 $channels = $this->shuffleChannel($this->usableChannel);
                 $channel = array_shift($channels);
-                $debugInfo['msg'] = 'promo usableChannel:'. implode(',',$this->usableChannel);
+                $debugInfo['msg'] = 'promo usableChannel:' . implode(',', $this->usableChannel);
                 SmsLog::addSmsDebugLog($debugInfo);
                 if ($channel == 'XinYiChen') {
                     $channel = 'Montnets';
-                    $debugInfo['msg'] = 'promo usableErrorChannel:'. implode(',',$this->usableChannel);
+                    $debugInfo['msg'] = 'promo usableErrorChannel:' . implode(',', $this->usableChannel);
                     SmsLog::addSmsDebugLog($debugInfo);
                 }
             }
             /*
              * 发送
              */
-            if($channel) {
+            if ($channel) {
 
 
 //              $channel = "Montnets";
 //              $channel = "ZhuTong";
-                $smsstr = "In\\Sms\\Agent\\".$channel."sms";
+                $smsstr = "In\\Sms\\Agent\\" . $channel . "sms";
                 $sms = new $smsstr;
-                if($channel == "ZhuTong")
+                if ($channel == "ZhuTong")
                     $sms->setProductId(SmsConfig::$config['channelAccount'][$channel]['productid']);
                 $sms->setAccount(SmsConfig::$config['channelAccount'][$channel]['user'],
                     SmsConfig::$config['channelAccount'][$channel]['pwd']);
@@ -327,32 +334,33 @@ class SmsSendChannel{
                 $content = $sms->getText($textKey, $param);
                 $res = $sms->send('', $mobile, $content);
                 /*=============statics:发送成功/失败统计=============*/
-                if ( $res == 1 || $res === true){
+                if ($res == 1 || $res === true) {
                     $result = true;
-                }else
+                } else
                     $result = false;
                 /*============================*/
-            }else{
+            } else {
                 $info = "发送失败!";
                 $error = SmsConfig::ERR_USER_SMSCODE_SEND_FAILED;
             }
-        }catch(Exception $e){
+        } catch (Exception $e) {
 
         }
 
         /*===================debug msg====================*/
-        $debugInfo['msg'] = "营销类短信".$info;
+        $debugInfo['msg'] = "营销类短信" . $info;
         SmsLog::addSmsDebugLog($debugInfo);
 
         /*================================================*/
 
-        return  array('success'=>$result,'msg'=>$info,'error_code'=>$error,'code'=>0,
-            'info'=>array('channel'=>$channel,'mobile'=>$mobile,'textKey'=>$textKey,'extra'=>$param));
+        return array('success' => $result, 'msg' => $info, 'error_code' => $error, 'code' => 0,
+            'info' => array('channel' => $channel, 'mobile' => $mobile, 'textKey' => $textKey, 'extra' => $param));
     }
 
-    public function generalSmSContentKey($param){
+    public function generalSmSContentKey($param)
+    {
         //手机+内容为key不能重复
-        $str = $param['mobile'].'_'.$param['textKey'].'_'.md5(json_encode(array_keys($param['extra'])));
+        $str = $param['mobile'] . '_' . $param['textKey'] . '_' . md5(json_encode(array_keys($param['extra'])));
         $sign = $this->getMemcheSendSmsKey($str);
         return $sign;
     }
@@ -360,13 +368,14 @@ class SmsSendChannel{
     /*
      * desc:获得全部的失效渠道
      */
-    public function getVetoChannel(){
+    public function getVetoChannel()
+    {
 
         $veto_channel = array();
-        foreach($this->usableChannel as $channel){
+        foreach ($this->usableChannel as $channel) {
             $vetoChannelKey = $this->getMemcheVetoChannel($channel);
             $sms_result = $this->memcacheObj->get($vetoChannelKey);
-            if($sms_result == 1){
+            if ($sms_result == 1) {
                 $veto_channel[] = $channel;
             }
         }
@@ -374,66 +383,66 @@ class SmsSendChannel{
     }
 
 
-
-
     /**
      * desc:短信发送渠道的优先级排序
      */
-    private function getChannelratio($channel){
-        if(count($channel) < 2){
+    private function getChannelratio($channel)
+    {
+        if (count($channel) < 2) {
             return $channel;
         }
         $ok_channel = array();
         $rand_max = 0;
         $rand_count = 0;
-        foreach($this->channel_ratio as $channel_key=>$ratio){
-            if(in_array($channel_key,$channel)){    //获得现在有用的渠道以及他的权重值
+        foreach ($this->channel_ratio as $channel_key => $ratio) {
+            if (in_array($channel_key, $channel)) {    //获得现在有用的渠道以及他的权重值
 
                 $rand_max = $ratio + $rand_max;
                 $key = $rand_max;
 
-                $rand_count = $rand_count+$ratio;
+                $rand_count = $rand_count + $ratio;
 
                 $ok_channel[$key] = $channel_key;
             }
         }
 
         $returnData = array();
-        $rand = rand(1,$rand_count);
-        foreach($ok_channel as $ratio_value=>$channel_value){
-            if($rand <= $ratio_value){
+        $rand = rand(1, $rand_count);
+        foreach ($ok_channel as $ratio_value => $channel_value) {
+            if ($rand <= $ratio_value) {
                 $returnData[] = $channel_value;
                 unset($ok_channel[$ratio_value]);
                 break;
             }
         }
-        $returnData = array_merge($returnData,$ok_channel);
+        $returnData = array_merge($returnData, $ok_channel);
         return $returnData;
     }
 
     /**
      * 短信发送情况存储memcha的key
      */
-    private function getMemcheSendSmsKey($number_text){
-        return $this->type.'_SENDSMS_V1200_NUMBER_'.$number_text;
+    private function getMemcheSendSmsKey($number_text)
+    {
+        return $this->type . '_SENDSMS_V1200_NUMBER_' . $number_text;
     }
 
 
     /**
      * 渠道存储memcha的key
      */
-    private function getMemcheSmsChannelKey($channel){
-        return $this->type.'_SENDSMS_V1200_CHANNEL_'.$channel;
+    private function getMemcheSmsChannelKey($channel)
+    {
+        return $this->type . '_SENDSMS_V1200_CHANNEL_' . $channel;
     }
 
     /**
      * 失效渠道存储memcha的key
      */
-    private function getMemcheVetoChannel($channel){
-        return $this->type.'_SENDSMS_V1200_VETO_CHANNEL_'.$channel;
+    private function getMemcheVetoChannel($channel)
+    {
+        return $this->type . '_SENDSMS_V1200_VETO_CHANNEL_' . $channel;
     }
-
-
 
 
 }

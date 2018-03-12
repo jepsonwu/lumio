@@ -1,4 +1,5 @@
 <?php
+
 namespace Modules\Account\Constants;
 
 use Jiuyan\Lumio\BanyanDB\BanyanDBFactory;
@@ -11,6 +12,7 @@ class AccountBanyanDBConstant
 
     const COMMON_DEMO = "demo";
     const COMMON_USER_INVITE_CODE_MAP = "user_invite_code_map";
+    const COMMON_USER_SMS_CAPTCHA = "user_sms_captcha";
 
     /**
      *

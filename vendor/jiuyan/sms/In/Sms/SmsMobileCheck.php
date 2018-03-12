@@ -24,12 +24,13 @@ class SmsMobileCheck
     {
         $this->updateAttr($type);
         $this->memcacheObj = new \Memcached();
-        foreach (SmsConfig::$config['memcached'] as $info){
+        foreach (SmsConfig::$config['memcached'] as $info) {
             $this->memcacheObj->addServer($info['host'], $info['port'], true);
         }
     }
 
-    public function updateAttr($type){
+    public function updateAttr($type)
+    {
         $this->type = $type;
     }
 
@@ -79,8 +80,6 @@ class SmsMobileCheck
      */
     public function checkMobile($mobile, $interval = 10)
     {
-
-
         $result = true;
         $msg = '手机格式和发送频率 验证通过';        //错误信息说明
         $sms_code = '';   //错误代码
@@ -107,7 +106,7 @@ class SmsMobileCheck
                 $error = SmsConfig::ERR_USER_SMS_CODE_ALREADY_SENT;
             } else {
                 if ($count == false) {
-                    $this->memcacheObj->add($smscode_limit_key, 1,3600);
+                    $this->memcacheObj->add($smscode_limit_key, 1, 3600);
                 } else {
                     $this->memcacheObj->increment($smscode_limit_key, 1);
                 }
@@ -118,9 +117,9 @@ class SmsMobileCheck
             $error = SmsConfig::ERR_USER_PHONE_FORMAT_ERROR;
         }
 
-        $item = array('mobile'=>$mobile,'msg'=>$msg);
+        $item = array('mobile' => $mobile, 'msg' => $msg);
         SmsLog::addSmsDebugLog($item);
-        return array('success' => $result, 'msg' => $msg,'error_code'=>$error);
+        return array('success' => $result, 'msg' => $msg, 'error_code' => $error);
 
     }
 
@@ -182,7 +181,7 @@ class SmsMobileCheck
 
     private function getSmsCacheKey($mobile, $tag = '')
     {
-        return $this->type."_V201_" . $tag . '_' . $mobile;
+        return $this->type . "_V201_" . $tag . '_' . $mobile;
     }
 
 
