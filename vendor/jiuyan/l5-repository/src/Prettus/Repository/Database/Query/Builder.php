@@ -33,7 +33,7 @@ class Builder extends QBuilder
     {
         $columns = [];
         foreach ($this->wheres as $where) {
-            $columns[] = $where['column'];
+            isset($where['column']) && $columns[] = $where['column'];
         }
 
         $this->eloquentBuilder->isValidSliceColumns($columns);

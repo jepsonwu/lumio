@@ -48,9 +48,9 @@ class StoreRepositoryEloquent extends BaseRepository
         return $store->pass();
     }
 
-    public function fail(Store $store)
+    public function fail(Store $store, $reason)
     {
-        return $store->fail();
+        return $store->fail($reason);
     }
 
     public function isTaobao(Store $store)

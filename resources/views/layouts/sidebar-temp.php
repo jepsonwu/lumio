@@ -28,9 +28,9 @@
                 </a>
             </li>
             <li class=" ">
-                <a href="/admin/demo">
+                <a href="/admin/seller/store">
                     <i class="icon-home"></i>
-                    <span class="title">demo</span>
+                    <span class="title">店铺管理</span>
                 </a>
             </li>
         </ul>
