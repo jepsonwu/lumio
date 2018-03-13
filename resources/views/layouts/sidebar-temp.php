@@ -39,6 +39,18 @@
                     <span class="title">用户管理</span>
                 </a>
             </li>
+            <li class=" ">
+                <a href="/admin/user-fund/withdraw">
+                    <i class="icon-home"></i>
+                    <span class="title">提现管理</span>
+                </a>
+            </li>
+            <li class=" ">
+                <a href="/admin/user-fund/recharge">
+                    <i class="icon-home"></i>
+                    <span class="title">充值管理</span>
+                </a>
+            </li>
         </ul>
         <!-- END SIDEBAR MENU -->
     </div>

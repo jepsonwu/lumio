@@ -23,3 +23,11 @@ app()->group([
     resource($app, '/user', 'UserController');
 });
 
+app()->group([
+    'namespace' => 'Modules\Admin\Http\Controllers\UserFund',
+    'prefix' => '/admin/user-fund',
+], function (\Laravel\Lumen\Application $app) {
+    resource($app, '/withdraw', 'WithdrawController');
+    resource($app, '/recharge', 'RechargeController');
+});
+
