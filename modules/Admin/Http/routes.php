@@ -16,3 +16,10 @@ app()->group([
     resource($app, '/store', 'StoreController');
 });
 
+app()->group([
+    'namespace' => 'Modules\Admin\Http\Controllers\Account',
+    'prefix' => '/admin/account',
+], function (\Laravel\Lumen\Application $app) {
+    resource($app, '/user', 'UserController');
+});
+

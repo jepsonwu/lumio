@@ -33,6 +33,12 @@
                     <span class="title">店铺管理</span>
                 </a>
             </li>
+            <li class=" ">
+                <a href="/admin/account/user">
+                    <i class="icon-home"></i>
+                    <span class="title">用户管理</span>
+                </a>
+            </li>
         </ul>
         <!-- END SIDEBAR MENU -->
     </div>
