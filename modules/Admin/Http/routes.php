@@ -37,5 +37,9 @@ app()->group([
     resource($app, '/recharge', 'RechargeController');
     $app->post("/recharge/{id}/verify-fail", 'RechargeController@verifyFail');
     $app->post("/recharge/{id}/verify-pass", 'RechargeController@verifyPass');
+
+    resource($app, '/record', 'RecordController');
+    resource($app, '/', 'FundController');
+    resource($app, '/account', 'AccountController');
 });
 
