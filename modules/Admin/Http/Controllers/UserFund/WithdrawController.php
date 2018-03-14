@@ -5,11 +5,20 @@ namespace Modules\Admin\Http\Controllers\UserFund;
 use Illuminate\Http\Request;
 use Modules\Admin\Http\Controllers\AdminController;
 use Modules\UserFund\Models\FundWithdraw;
+use Modules\UserFund\Services\UserFundInternalService;
 
 class WithdrawController extends AdminController
 {
 
     protected $title = '提现管理';
+
+    protected $userFundInternalService;
+
+    public function __construct(UserFundInternalService $userFundInternalService)
+    {
+        $this->userFundInternalService = $userFundInternalService;
+        parent::__construct();
+    }
 
     public function index(Request $request)
     {
@@ -38,6 +47,24 @@ class WithdrawController extends AdminController
         ]);
     }
 
+    public function verifyFail(Request $request, $id)
+    {
+        $this->validate($request, [
+            "reason" => "required|string|between:1,100"
+        ]);
+
+        $params = $this->requestParams->getRegularParams();
+        $this->userFundInternalService->failWithdraw($id, 1, $params['reason']);
+
+        return $this->success([]);
+    }
+
+    public function verifyPass(Request $request, $id)
+    {
+        $this->userFundInternalService->passWithdraw($id, 1);
+
+        return $this->success([]);
+    }
 
 //    public function edit($id, UserInternalService $internalService)
 //    {

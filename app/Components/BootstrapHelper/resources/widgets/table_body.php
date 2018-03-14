@@ -31,14 +31,20 @@ foreach ($list as $key => $model):
             </td>
         <?php endforeach; ?>
 
-        <?php if ($widget->buttons): ?>
+        <?php
+        $buttons = $widget->buttons;
+        is_callable($buttons) && $buttons = call_user_func_array($buttons, [$model]);
+
+        if ($buttons):?>
             <td <?= $widget->buttonsStyleClass ? $widget->buttonsStyleClass : '' ?>>
-                <?php foreach ($widget->buttons as $one):
+                <?php foreach ($buttons as $one):
                     /** @var $one App\Components\BootstrapHelper\Widgets\ButtonWidget */
                     ?>
                     <span><?= $one->setModel($model)->render(); ?></span>
                 <?php endforeach; ?>
             </td>
+        <?php else: ?>
+            <td></td>
         <?php endif; ?>
 
     </tr>

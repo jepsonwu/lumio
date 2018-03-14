@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Builder;
  * @property int $verify_status
  * @property int $store_status
  * @property string $verify_remark
+ * @property int $verify_user_id
  * @property int $created_at
  * @property string $updated_at
  *
@@ -43,7 +44,7 @@ class Store extends Model implements Transformable, IModelAccess
 
     protected $fillable = [
         "id", "user_id", "store_type", "store_url", "store_name", "store_account", "verify_status",
-        "verify_remark", "store_status", "created_at", "updated_at"
+        "verify_remark", "verify_user_id", "store_status", "created_at", "updated_at"
     ];
 
     public function transform()
@@ -94,18 +95,20 @@ class Store extends Model implements Transformable, IModelAccess
         ]);
     }
 
-    public function pass()
+    public function pass($verifyUserId)
     {
         return $this->update([
-            "verify_status" => self::VERIFY_STATUS_PASSED
+            "verify_status" => self::VERIFY_STATUS_PASSED,
+            "verify_user_id" => $verifyUserId,
         ]);
     }
 
-    public function fail($reason)
+    public function fail($reason, $verifyUserId)
     {
         return $this->update([
             "verify_status" => self::VERIFY_STATUS_FAILED,
-            "verify_remark" => $reason
+            "verify_remark" => $reason,
+            "verify_user_id" => $verifyUserId,
         ]);
     }
 

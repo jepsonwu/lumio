@@ -112,15 +112,36 @@ $statusList = [
     'buttonsStyleClass' => new \App\Components\BootstrapHelper\Widgets\StyleClass([
         'style' => 'width: 150px',
     ]),
-    'buttons' => [
-        new \App\Components\BootstrapHelper\Widgets\ButtonWidget([
-            'title' => '审核通过',
-            'styleClass' => new \App\Components\BootstrapHelper\Widgets\StyleClass([
-                'class' => 'btn btn-danger list-btn-ajax-remove',
+    'buttons' => function (\Modules\UserFund\Models\FundWithdraw $fundWithdraw) {
+        if (!$fundWithdraw->isWaiting()) {
+            return [];
+        }
+
+        return [
+            new \App\Components\BootstrapHelper\Widgets\ButtonWidget([
+                'title' => '审核通过',
+                'styleClass' => new \App\Components\BootstrapHelper\Widgets\StyleClass([
+                    'class' => 'btn btn-danger list-btn-ajax-verify-pass',
+                ]),
             ]),
-        ]),
-    ],
+            new \App\Components\BootstrapHelper\Widgets\ButtonWidget([
+                'title' => '审核失败',
+                'styleClass' => new \App\Components\BootstrapHelper\Widgets\StyleClass([
+                    'class' => 'btn btn-success list-btn-ajax-verify-fail',
+                ]),
+                'attrs' => [
+                    'data-toggle' => "modal",
+                    'href' => "#verify_fail",
+                ],
+                'onClick' => function ($model) {
+                    return "verifyFailClick('/admin/user-fund/withdraw/',this)";
+                },
+            ]),
+        ];
+    }
 ]) ?>
+
+<?php $this->insert('admin/common/_verify_fail'); ?>
 
 <script>
     $(function () {

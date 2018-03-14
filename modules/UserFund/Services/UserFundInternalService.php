@@ -55,6 +55,25 @@ class UserFundInternalService extends BaseService
         return $this->walletService->pay($userId, $amount, $remarks);
     }
 
+    public function passRecharge($rechargeId, $verifyUserId)
+    {
+        return $this->walletService->passRecharge($rechargeId, $verifyUserId);
+    }
+
+    public function failRecharge($rechargeId, $verifyUserId, $reason)
+    {
+        return $this->walletService->failRecharge($rechargeId, $verifyUserId, $reason);
+    }
+
+    public function passWithdraw($withdrawId, $verifyUserId)
+    {
+        return $this->walletService->passWithdraw($withdrawId, $verifyUserId);
+    }
+
+    public function failWithdraw($withdrawId, $verifyUserId, $reason)
+    {
+        return $this->walletService->failWithdraw($withdrawId, $verifyUserId, $reason);
+    }
 
     public function getRepository()
     {

@@ -70,12 +70,12 @@ class StoreService extends BaseService
         && ExceptionResponseComponent::business(SellerErrorConstant::ERR_STORE_NO_DEPLOY);
     }
 
-    public function pass($id)
+    public function pass($id, $verifyUserId)
     {
         $store = $this->isValidStore($id);
         $this->isAllowVerify($store);
 
-        $result = $this->getRepository()->pass($store);
+        $result = $this->getRepository()->pass($store, $verifyUserId);
         $result || ExceptionResponseComponent::business(SellerErrorConstant::ERR_STORE_VERIFY_FAILED);
 
         $this->incUserStoreNumber($store->user_id);
@@ -89,12 +89,12 @@ class StoreService extends BaseService
         || ExceptionResponseComponent::business(SellerErrorConstant::ERR_STORE_VERIFIED);
     }
 
-    public function fail($id, $reason)
+    public function fail($id, $reason, $verifyUserId)
     {
         $store = $this->isValidStore($id);
         $this->isAllowVerify($store);
 
-        $result = $this->getRepository()->fail($store, $reason);
+        $result = $this->getRepository()->fail($store, $reason, $verifyUserId);
         $result || ExceptionResponseComponent::business(SellerErrorConstant::ERR_STORE_VERIFY_FAILED);
 
         return true;

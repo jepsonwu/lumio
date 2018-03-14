@@ -7,11 +7,20 @@ use Illuminate\Http\Request;
 use Modules\Account\Services\UserInternalService;
 use Modules\Admin\Http\Controllers\AdminController;
 use Modules\Seller\Models\Store;
+use Modules\Seller\Services\SellerInternalService;
 
 class StoreController extends AdminController
 {
 
     protected $title = '店铺管理';
+
+    protected $sellerInternalService;
+
+    public function __construct(SellerInternalService $sellerInternalService)
+    {
+        $this->sellerInternalService = $sellerInternalService;
+        parent::__construct();
+    }
 
     public function index(Request $request)
     {
@@ -47,6 +56,25 @@ class StoreController extends AdminController
         ]);
     }
 
+    public function verifyFail(Request $request, $id)
+    {
+        $this->validate($request, [
+            "reason" => "required|string|between:1,100"
+        ]);
+
+        //todo auth
+        $params = $this->requestParams->getRegularParams();
+        $this->sellerInternalService->verifyFailStore($id, $params['reason'], 1);
+
+        return $this->success([]);
+    }
+
+    public function verifyPass(Request $request, $id)
+    {
+        $this->sellerInternalService->verifyPassStore($id, 1);
+
+        return $this->success([]);
+    }
 
 //    public function edit($id, UserInternalService $internalService)
 //    {

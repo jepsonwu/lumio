@@ -43,14 +43,14 @@ class StoreRepositoryEloquent extends BaseRepository
         return $store->deleteStore();
     }
 
-    public function pass(Store $store)
+    public function pass(Store $store, $verifyUserId)
     {
-        return $store->pass();
+        return $store->pass($verifyUserId);
     }
 
-    public function fail(Store $store, $reason)
+    public function fail(Store $store, $reason, $verifyUserId)
     {
-        return $store->fail($reason);
+        return $store->fail($reason, $verifyUserId);
     }
 
     public function isTaobao(Store $store)

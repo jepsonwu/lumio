@@ -48,4 +48,14 @@ class SellerInternalService extends BaseService
 
         $this->goodsService->checkDeployGoods($userId);
     }
+
+    public function verifyFailStore($id, $reason, $verifyUserId)
+    {
+        return $this->storeService->fail($id, $reason, $verifyUserId);
+    }
+
+    public function verifyPassStore($id, $verifyUserId)
+    {
+        return $this->storeService->pass($id, $verifyUserId);
+    }
 }
