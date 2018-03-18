@@ -39,7 +39,7 @@ app()->group([
     $app->post("/recharge/{id}/verify-pass", 'RechargeController@verifyPass');
 
     resource($app, '/record', 'RecordController');
-    resource($app, '/', 'FundController');
     resource($app, '/account', 'AccountController');
+    resource($app, '/', 'FundController');
 });
 

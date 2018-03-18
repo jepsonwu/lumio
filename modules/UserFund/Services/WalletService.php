@@ -3,15 +3,18 @@
 namespace Modules\UserFund\Services;
 
 use Illuminate\Support\Collection;
+use Jiuyan\Captcha\CaptchaComponent;
 use Jiuyan\Common\Component\InFramework\Components\ExceptionResponseComponent;
 use Jiuyan\Common\Component\InFramework\Services\BaseService;
+use Modules\Account\Constants\AccountErrorConstant;
+use Modules\Account\Models\User;
 use Modules\UserFund\Constants\UserFundErrorConstant;
 use Modules\UserFund\Models\Fund;
 use Modules\UserFund\Models\FundRecord;
 
 class WalletService extends BaseService
 {
-    const WITHDRAW_COMMISSION_PERCENT = 10;//万分之几
+    const WITHDRAW_COMMISSION_PERCENT = 0;//万分之几
 
     protected $_fundService;
     protected $_fundRecordService;
@@ -186,9 +189,10 @@ class WalletService extends BaseService
         return true;
     }
 
-    public function prepareWithdraw($userId, $attributes)
+    public function prepareWithdraw(User $user, $attributes)
     {
-        $this->checkWithdrawCaptcha($attributes['captcha']);
+        $userId = $user->id;
+        $this->checkWithdrawCaptcha($attributes['captcha'], $user->mobile);
         $this->_accountService->isMyValidAccount($userId, $attributes['account_id']);
 
         return $this->doingTransaction(function () use ($userId, $attributes) {
@@ -228,12 +232,11 @@ class WalletService extends BaseService
         ]), UserFundErrorConstant::ERR_WALLET_WITHDRAW_FAILED);
     }
 
-    //todo check captcha
-    protected function checkWithdrawCaptcha($captcha)
+    protected function checkWithdrawCaptcha($captcha, $mobile)
     {
-        $result = true;
-        $result
-        || ExceptionResponseComponent::business(UserFundErrorConstant::ERR_WALLET_INVALID_CAPTCHA);
+        if (!CaptchaComponent::getInstance()->verifyCaptcha($captcha, $mobile)) {
+            ExceptionResponseComponent::business(UserFundErrorConstant::ERR_WALLET_INVALID_CAPTCHA);
+        }
     }
 
     public function passWithdraw($withdrawId, $verifyUserId)

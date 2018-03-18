@@ -305,7 +305,7 @@ class WalletController extends ApiBaseController
             'captcha' => 'bail|required|integer',
         ]);
 
-        $withdraw = $this->_walletService->prepareWithdraw(AuthHelper::user()->id, $this->requestParams->getRegularParams());
+        $withdraw = $this->_walletService->prepareWithdraw(AuthHelper::user(), $this->requestParams->getRegularParams());
         return $this->success($withdraw);
     }
 
