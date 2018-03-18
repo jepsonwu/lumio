@@ -32,11 +32,8 @@ class GoodsService extends BaseService
 
         //todo 重名判断
 
-        //todo add price image
-
         $attributes['user_id'] = $userId;
-        $attributes['goods_image'] = '';
-        $attributes['goods_price'] = 0;
+        $attributes['goods_url'] = '';
         $attributes['created_at'] = time();
         $attributes['goods_status'] = GlobalDBConstant::DB_TRUE;
 
@@ -78,12 +75,16 @@ class GoodsService extends BaseService
     {
         $goods = $this->isValidGoods($goodsId);
         $this->isAllowUpdate($userId, $goods);
-
-        //todo add price image
-
         $goods = $this->getRepository()->update($attributes, $goodsId);
         $goods || ExceptionResponseComponent::business(SellerErrorConstant::ERR_GOODS_UPDATE_FAILED);
 
+        return $goods;
+    }
+
+    public function detail($userId, $goodsId)
+    {
+        $goods = $this->isValidGoods($goodsId);
+        $this->isAllowOperate($userId, $goods);
         return $goods;
     }
 

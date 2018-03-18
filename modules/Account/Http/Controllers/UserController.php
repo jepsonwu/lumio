@@ -89,7 +89,7 @@ class UserController extends ApiBaseController
     /**
      *
      *
-     * @api {PUT} /api/user/v1 我的用户详情
+     * @api {PUT} /api/user/v1 修改个人详情
      * @apiSampleRequest /api/user/v1
      *
      * @apiVersion 1.0.0

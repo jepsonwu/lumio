@@ -17,7 +17,7 @@ class UploadController extends ApiBaseController
 
     /**
      *
-     * @api {GET} /api/common/v1/upload-token 上传token
+     * @api {GET} /api/common/v1/upload-token 获取上传token
      * @apiSampleRequest /api/common/v1/upload-token
      *
      * @apiVersion 1.0.0

@@ -27,7 +27,7 @@ class GoodsController extends ApiBaseController
      * @apiVersion 1.0.0
      *
      * @apiGroup seller
-     * @apiName list
+     * @apiName goods-list
      *
      * @apiParam {int} [store_id] 店铺ID
      * @apiParam {string} [goods_name] 商品名称
@@ -75,11 +75,12 @@ class GoodsController extends ApiBaseController
      * @apiVersion 1.0.0
      *
      * @apiGroup seller
-     * @apiName create
+     * @apiName create-goods
      *
      * @apiParam {int} store_id 店铺ID
      * @apiParam {string} goods_name 商品名称
-     * @apiParam {string} goods_url 商品url
+     * @apiParam {string} goods_image 商品主图
+     * @apiParam {int} goods_price 商品价格 分
      * @apiParam {string} goods_keywords 商品关键字，多个用【|】分割
      *
      * @apiError  20113
@@ -103,7 +104,9 @@ class GoodsController extends ApiBaseController
         return [
             'store_id' => ['bail', 'required', 'int'],
             'goods_name' => ['bail', 'string', 'required', 'between:1,200'],
-            'goods_url' => ['bail', 'string', 'required', 'between:1,500'],
+            //'goods_url' => ['bail', 'string', 'required', 'between:1,500'],
+            'goods_image' => ['bail', 'string', 'required', 'between:1,150'],
+            'goods_price' => ['bail', 'integer', 'required', 'min:1'],
             'goods_keywords' => ['bail', 'string', 'required', 'between:1,500'],
         ];
     }
@@ -118,10 +121,11 @@ class GoodsController extends ApiBaseController
      * @apiVersion 1.0.0
      *
      * @apiGroup seller
-     * @apiName update
+     * @apiName update-goods
      *
      * @apiParam {string} goods_name 商品名称
-     * @apiParam {string} goods_url 商品url
+     * @apiParam {string} goods_image 商品主图
+     * @apiParam {int} goods_price 商品价格 分
      * @apiParam {string} goods_keywords 商品关键字，多个用【|】分割
      *
      * @apiError  20113
@@ -135,11 +139,39 @@ class GoodsController extends ApiBaseController
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'goods_url' => ['bail', 'string', 'required', 'between:1,500'],
+            'goods_image' => ['bail', 'string', 'required', 'between:1,150'],
+            'goods_price' => ['bail', 'integer', 'required', 'min:1'],
+            //'goods_url' => ['bail', 'string', 'required', 'between:1,500'],
             'goods_keywords' => ['bail', 'string', 'required', 'between:1,500'],
         ]);
 
         $store = $this->goodsService->update(AuthHelper::user()->id, $id, $this->requestParams->getRegularParams());
+        return $this->success($store);
+    }
+
+    /**
+     *
+     *
+     *
+     * @api {GET} /api/seller/goods/v1/{id} 商品详情
+     * @apiSampleRequest /api/seller/goods/v1/{id}
+     *
+     * @apiVersion 1.0.0
+     *
+     * @apiGroup seller
+     * @apiName goods-detail
+     *
+     * @apiError  20113
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * {"succ":true,"data":{"store_id":"1","goods_name":"demo","goods_url":"ddd","goods_keywords":"dd|aa","user_id":"10","goods_image":"","goods_price":"0","created_at":"1519739224","id":"3"},"code":"0","msg":"","time":"1519739224"}
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function detail(Request $request, $id)
+    {
+        $store = $this->goodsService->detail(AuthHelper::user()->id, $id);
         return $this->success($store);
     }
 

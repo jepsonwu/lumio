@@ -49,7 +49,9 @@ class UserInternalService extends BaseService implements AuthenticateContract
             }
             $user = $this->getUserByToken($userToken);
 
-            $user || ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_LOGOUT);
+            $user || ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_AUTHORIZED_FAILED);
+
+            return $user;
         }
         return new User(config('api_auth.mock_user'));
     }

@@ -36,10 +36,19 @@ class StoreService extends BaseService
         $attributes['created_at'] = time();
         $attributes['verify_status'] = Store::VERIFY_STATUS_WAITING;
         $attributes['store_status'] = GlobalDBConstant::DB_TRUE;
+        $attributes['verify_remark'] = "";
+        $attributes['verify_user_id'] = 0;
 
         $store = $this->getRepository()->create($attributes);
         $store || ExceptionResponseComponent::business(SellerErrorConstant::ERR_STORE_CREATE_FAILED);
 
+        return $store;
+    }
+
+    public function detail($userId, $storeId)
+    {
+        $store = $this->isValidStore($storeId);
+        $this->isAllowOperate($userId, $store);
         return $store;
     }
 

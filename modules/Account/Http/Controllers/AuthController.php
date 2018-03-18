@@ -211,7 +211,7 @@ class AuthController extends AuthBaseController
     /**
      *
      *
-     * @api {POST} /api/account/v1/password/reset 注册
+     * @api {POST} /api/account/v1/password/reset 重置密码
      * @apiSampleRequest /api/account/v1/password/reset
      *
      * @apiVersion 1.0.0

@@ -17,9 +17,9 @@ class StoreController extends ApiBaseController
     }
 
     /**
-     * 1.返回所有的店铺，不分页
+     * 1.返回所有的店铺
      *
-     * @api {GET} /api/seller/store/v1 店铺列表
+     * @api {GET} /api/seller/store/v1 店铺列表|不分页
      * @apiSampleRequest /api/seller/store/v1
      *
      * @apiVersion 1.0.0
@@ -32,7 +32,7 @@ class StoreController extends ApiBaseController
      * @apiError  20113
      *
      * @apiSuccessExample {json} Success-Response:
-     * {"succ":true,"data":[{"id":"4","user_id":"10","real_name":"\u5434\u5065\u5e73","id_card":"3602221991078362","bank_card":"234234343413134","bank":"\u4e2d\u56fd\u94f6\u884c","bankfiliale":"\u676d\u5dde\u4e5d\u5821\u652f\u884c","account_status":"1","created_at":"1518760738","updated_at":"2018-02-16 13:58:58"}],"code":"0","msg":"","time":"1518760783"}
+     * {"succ":true,"data":[{"id":"1","user_id":"10","store_type":"2","store_url":"11","store_name":"jd","store_account":"22","verify_remark":"\u9519\u8bef","verify_user_id":"0","verify_status":"1","created_at":"1519653780"}],"code":"0","msg":"","time":"1521374483"}
      *
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
@@ -63,7 +63,7 @@ class StoreController extends ApiBaseController
      * @apiError  20113
      *
      * @apiSuccessExample {json} Success-Response:
-     * {"succ":true,"data":{"store_type":"1","store_url":"aaa","store_account":"ddd","store_name":"\u6dd8\u5b9d","user_id":"10","created_at":"1519653780","verify_status":"0","id":"1"},"code":"0","msg":"","time":"1519653780"}
+     * {"succ":true,"data":{"store_type":"1","store_url":"aaa","store_account":"ddd","store_name":"\u6dd8\u5b9d","user_id":"10","created_at":"1521374800","verify_status":"0","verify_remark":"","verify_user_id":"0","id":"2"},"code":"0","msg":"","time":"1521374800"}
      *
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
@@ -73,6 +73,31 @@ class StoreController extends ApiBaseController
         $this->validate($request, $this->getValidateForCreate());
 
         $store = $this->storeService->create(AuthHelper::user()->id, $this->requestParams->getRegularParams());
+        return $this->success($store);
+    }
+
+    /**
+     *
+     *
+     * @api {POST} /api/seller/store/v1/{id} 店铺详情
+     * @apiSampleRequest /api/seller/store/v1/{id}
+     *
+     * @apiVersion 1.0.0
+     *
+     * @apiGroup seller
+     * @apiName store-detail
+     *
+     * @apiError  20113
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * {"succ":true,"data":{"store_type":"1","store_url":"aaa","store_account":"ddd","store_name":"\u6dd8\u5b9d","user_id":"10","created_at":"1521374800","verify_status":"0","verify_remark":"","verify_user_id":"0","id":"2"},"code":"0","msg":"","time":"1521374800"}
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function detail(Request $request,$id)
+    {
+        $store = $this->storeService->detail(AuthHelper::user()->id, $id);
         return $this->success($store);
     }
 
@@ -95,7 +120,7 @@ class StoreController extends ApiBaseController
      * @apiVersion 1.0.0
      *
      * @apiGroup seller
-     * @apiName create-store
+     * @apiName update-store
      *
      * @apiParam {int} store_type 店铺类型：1-淘宝，2-京东
      * @apiParam {string} store_url 店铺url
@@ -129,7 +154,7 @@ class StoreController extends ApiBaseController
      * @apiVersion 1.0.0
      *
      * @apiGroup seller
-     * @apiName create-store
+     * @apiName delete-store
      *
      * @apiError  20113
      *
