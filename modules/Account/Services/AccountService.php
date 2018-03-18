@@ -51,8 +51,9 @@ class AccountService extends BaseService
         $user = $this->_userService->create($requestParams);
         $user || ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_REGISTER_FAILED);
 
-        AccountBanyanDBConstant::commonUserInviteCodeMap()->set($user->invite_code, $user->id);
-        //todo event 赠送积分
+        //todo 客服创建邀请码
+        //"invite_code" => EncryptTool::encryptId(time() . rand(10, 99)),
+        //AccountBanyanDBConstant::commonUserInviteCodeMap()->set($user->invite_code, $user->id);
 
         return $user;
     }

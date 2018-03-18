@@ -11,6 +11,7 @@ namespace Jiuyan\Captcha;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Jiuyan\CommonCache\InterfaceBanyan;
 use Log;
+use Modules\Account\Constants\AccountBanyanDBConstant;
 
 class CaptchaManageComponent
 {
@@ -76,12 +77,15 @@ class CaptchaManageComponent
             Log::error('captcha verify failed rc:' . $realCaptcha . ' cc:' . $currentCaptcha . ' tg:' . $targetFlag . ' cf:' . $cateFlag . ' hd:' . $this->handleType);
             return false;
         }
+
+        $this->_dealCaptcha('del', $cateFlag, $targetFlag);
         return true;
     }
 
     protected function _dealCaptcha($ope, $cateFlag, $mobile, $captcha = '')
     {
         $cacheKey = "captcha_ck_{$cateFlag}_{$mobile}";
+
         switch ($ope) {
             case 'set':
                 $expireTime = config('captcha.cache.expire', 900);
@@ -89,6 +93,9 @@ class CaptchaManageComponent
                 break;
             case 'get':
                 return $this->_getCacheRepository()->get($cacheKey);
+                break;
+            case 'del':
+                return $this->_getCacheRepository()->del($cacheKey);
                 break;
             default:
                 break;

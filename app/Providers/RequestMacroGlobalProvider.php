@@ -50,12 +50,7 @@ class RequestMacroGlobalProvider extends ServiceProvider
         $this->app->register(InFrameworkProvider::class);
         $this->app->singleton('CaptchaManageComponent', CustomizeCaptchaManageComponent::class);
         $this->app->singleton('banyandbForCaptcha', function () {
-            return BanyanDBFactory::getInstance(
-                'common',
-                'common',
-                AccountBanyanDBConstant::COMMON_USER_SMS_CAPTCHA,
-                BanyanDBFactory::HASH_STRUCTURE
-            );
+            return AccountBanyanDBConstant::common(null);
         });
     }
 

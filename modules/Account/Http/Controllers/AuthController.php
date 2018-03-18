@@ -69,7 +69,7 @@ class AuthController extends AuthBaseController
      * @apiParam {int} captcha 验证码
      * @apiParam {string} password
      * @apiParam {string} confirm_password
-     * @apiParam {string} invite_code 邀请码
+     * @apiParam {string} [invite_code] 客服邀请码
      *
      * @apiError  20113
      *
@@ -89,7 +89,7 @@ class AuthController extends AuthBaseController
                 'captcha' => 'bail|required|integer',
                 'password' => ['bail', 'required', 'string', 'between:6,12'],
                 'confirm_password' => ['bail', 'required', 'string', 'between:6,12'],
-                'invite_code' => ['bail', 'string']
+                'invite_code' => ['bail', 'string',]
             ]
         );
 
@@ -118,7 +118,7 @@ class AuthController extends AuthBaseController
      * @apiError  20113
      *
      * @apiSuccessExample {json} Success-Response:
-     *{"succ":true,"data":{"mobile":"18258438129","gender":"2","role":"0","open_status":"0","invite_code":"1YAvMQvpBo","token":"9110ba4be2415257d100b35ec231bcc4","created_at":"1518423619","id":"9"},"code":"0","msg":"","time":"1518423619"}
+     * {"succ":true,"data":{"id":"10","username":"jepson","avatar":"","mobile":"18258438129","gender":"1","qq":"11","email":"11","invited_user_id":"0","invite_code":"1QKXVDDaAb","role":"2","level":"1","open_status":"1","taobao_account":"dd","jd_account":"dd","token":"869f595bfcf3dfbffbc00f50edfd6e4a","created_at":"1518423978"},"code":"0","msg":"","time":"1521379740"}
      *
      *
      * @param Request $request
@@ -161,7 +161,7 @@ class AuthController extends AuthBaseController
      */
     public function logout()
     {
-        $this->addCookie('_token', AuthHelper::user()->token, -1, '.lumio.com');//todo optimize
+        $this->addCookie('_token', AuthHelper::user()->token, -1, env("APP_DOMAIN"));
         return $this->success([]);
     }
 
@@ -245,7 +245,7 @@ class AuthController extends AuthBaseController
         );
 
         $this->accountService->resetPassword($request->input("mobile"), $request->input("password"),
-            $request->input("confirm_password"), $request->input("code")
+            $request->input("confirm_password"), $request->input("captcha")
         );
         return $this->success([]);
     }

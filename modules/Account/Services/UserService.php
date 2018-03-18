@@ -84,10 +84,17 @@ class UserService extends BaseService
             "gender" => User::GENDER_UNKNOWN,
             "role" => User::ROLE_NORMAL,
             "open_status" => GlobalDBConstant::DB_FALSE,
-            "invite_code" => EncryptTool::encryptId(time() . rand(10, 99)),
+            "invite_code" => '',
             "invited_user_id" => $attributes['invited_user_id'],
             "token" => $this->generateToken($attributes['mobile']),
             "token_expires" => time() + self::TOKEN_EXPIRES,
+            "taobao_account" => "",
+            "jd_account" => "",
+            "username" => "",
+            "avatar" => "",
+            "qq" => "",
+            "email" => "",
+            "level" => 1,
             "created_at" => time()
         ]);
     }
