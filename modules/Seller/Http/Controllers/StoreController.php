@@ -24,7 +24,7 @@ class StoreController extends ApiBaseController
      *
      * @apiVersion 1.0.0
      *
-     * @apiGroup seller
+     * @apiGroup seller-store
      * @apiName store-list
      *
      *
@@ -52,7 +52,7 @@ class StoreController extends ApiBaseController
      *
      * @apiVersion 1.0.0
      *
-     * @apiGroup seller
+     * @apiGroup seller-store
      * @apiName create-store
      *
      * @apiParam {int} store_type 店铺类型：1-淘宝，2-京东
@@ -84,7 +84,7 @@ class StoreController extends ApiBaseController
      *
      * @apiVersion 1.0.0
      *
-     * @apiGroup seller
+     * @apiGroup seller-store
      * @apiName store-detail
      *
      * @apiError  20113
@@ -119,7 +119,7 @@ class StoreController extends ApiBaseController
      *
      * @apiVersion 1.0.0
      *
-     * @apiGroup seller
+     * @apiGroup seller-store
      * @apiName update-store
      *
      * @apiParam {int} store_type 店铺类型：1-淘宝，2-京东
@@ -153,7 +153,7 @@ class StoreController extends ApiBaseController
      *
      * @apiVersion 1.0.0
      *
-     * @apiGroup seller
+     * @apiGroup seller-store
      * @apiName delete-store
      *
      * @apiError  20113

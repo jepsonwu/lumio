@@ -26,7 +26,7 @@ class GoodsController extends ApiBaseController
      *
      * @apiVersion 1.0.0
      *
-     * @apiGroup seller
+     * @apiGroup seller-goods
      * @apiName goods-list
      *
      * @apiParam {int} [store_id] 店铺ID
@@ -74,7 +74,7 @@ class GoodsController extends ApiBaseController
      *
      * @apiVersion 1.0.0
      *
-     * @apiGroup seller
+     * @apiGroup seller-goods
      * @apiName create-goods
      *
      * @apiParam {int} store_id 店铺ID
@@ -120,7 +120,7 @@ class GoodsController extends ApiBaseController
      *
      * @apiVersion 1.0.0
      *
-     * @apiGroup seller
+     * @apiGroup seller-goods
      * @apiName update-goods
      *
      * @apiParam {string} goods_name 商品名称
@@ -158,7 +158,7 @@ class GoodsController extends ApiBaseController
      *
      * @apiVersion 1.0.0
      *
-     * @apiGroup seller
+     * @apiGroup seller-goods
      * @apiName goods-detail
      *
      * @apiError  20113
@@ -184,7 +184,7 @@ class GoodsController extends ApiBaseController
      *
      * @apiVersion 1.0.0
      *
-     * @apiGroup seller
+     * @apiGroup seller-goods
      * @apiName delete
      *
      * @apiError  20113
