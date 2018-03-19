@@ -25,6 +25,10 @@ Route::version('v1', [
     Route::post('/confirm/{id}', 'TaskOrderController@confirm');
     Route::put('/{id}', 'TaskOrderController@doing');
     Route::put('/done/{id}', 'TaskOrderController@done');
+    Route::put('/freeze/{id}', 'TaskOrderController@freeze');
+    Route::put('/verify/{id}', 'TaskOrderController@verify');
+    Route::put('/seller-confirm/{id}', 'TaskOrderController@sellerConfirm');
+    Route::put('/buyer-confirm/{id}', 'TaskOrderController@buyerConfirm');
     Route::delete('/{id}', 'TaskOrderController@close');
 });
 

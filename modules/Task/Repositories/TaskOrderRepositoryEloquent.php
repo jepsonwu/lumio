@@ -38,9 +38,24 @@ class TaskOrderRepositoryEloquent extends BaseRepository
         return $builder->get();
     }
 
+    public function verify(TaskOrder $taskOrder)
+    {
+        return $taskOrder->verify();
+    }
+
     public function doing(TaskOrder $taskOrder, $orderId)
     {
         return $taskOrder->doing($orderId);
+    }
+
+    public function sellerConfirm(TaskOrder $taskOrder)
+    {
+        return $taskOrder->sellerConfirm();
+    }
+
+    public function buyerConfirm(TaskOrder $taskOrder)
+    {
+        return $taskOrder->buyerConfirm();
     }
 
     public function done(TaskOrder $taskOrder)
@@ -51,5 +66,15 @@ class TaskOrderRepositoryEloquent extends BaseRepository
     public function close(TaskOrder $taskOrder)
     {
         return $taskOrder->close();
+    }
+
+    public function freeze(TaskOrder $taskOrder)
+    {
+        return $taskOrder->freeze();
+    }
+
+    public function unFreeze(TaskOrder $taskOrder)
+    {
+        return $taskOrder->unFreeze();
     }
 }

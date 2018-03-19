@@ -6,6 +6,7 @@ use App\Components\Factories\InternalServiceFactory;
 use Illuminate\Support\Collection;
 use Jiuyan\Common\Component\InFramework\Components\ExceptionResponseComponent;
 use Jiuyan\Common\Component\InFramework\Services\BaseService;
+use Modules\Task\Constants\TaskBanyanDBConstant;
 use Modules\Task\Constants\TaskErrorConstant;
 use Modules\Task\Models\Task;
 use Modules\Task\Models\TaskOrder;
@@ -40,10 +41,11 @@ class TaskOrderService extends BaseService
             $task = $this->_taskService->isValidApplyTask($taskId);
             $taskOrder = $this->rawCreate($userId, $task);
 
-            $this->throwDBException(
-                $this->_taskService->incWaitingOrder($task),
-                "增加任务表订单失败"
-            );
+            //申请订单不计数
+//            $this->throwDBException(
+//                $this->_taskService->incWaitingOrder($task),
+//                "增加任务表订单失败"
+//            );
 
             return $taskOrder;
         }, new Collection([
@@ -55,17 +57,19 @@ class TaskOrderService extends BaseService
     /**
      * @param $userId
      * @param Task $task
+     * @param bool $apply
      * @return mixed|TaskOrder
      * @throws \Jiuyan\Common\Component\InFramework\Exceptions\DBException
      * @throws \Prettus\Validator\Exceptions\ValidatorException
      */
-    protected function rawCreate($userId, Task $task)
+    protected function rawCreate($userId, Task $task, $apply = true)
     {
         $attributes = [
             "user_id" => $userId,
             "task_id" => $task->id,
             "task_user_id" => $task->user_id,
-            "order_status" => TaskOrder::STATUS_WAITING,
+            "order_status" => $apply ? TaskOrder::STATUS_NEW : TaskOrder::STATUS_WAITING,
+            "order_id" => "",
             "created_at" => time()
         ];
         $taskOrder = $this->getRepository()->create($attributes);
@@ -81,7 +85,19 @@ class TaskOrderService extends BaseService
             ? InternalServiceFactory::getUserInternalService()->isDeployTaobaoAccount($userId)
             : InternalServiceFactory::getUserInternalService()->isDeployJdAccount($userId);
 
+        $this->checkApplyRateByStore($userId, $task->store_id);
         return true;
+    }
+
+    protected function checkApplyRateByStore($userId, $storeId)
+    {
+        $latestTime = (int)TaskBanyanDBConstant::commonTaskOrderUserLatestRecord($userId)->get($storeId);
+        time() - $latestTime <= 864000 && ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_MORE_APPLY);
+    }
+
+    protected function recordLatestDoneTime($userId, $storeId)
+    {
+        return TaskBanyanDBConstant::commonTaskOrderUserLatestRecord($userId)->set($storeId, time());
     }
 
     public function assign($currentUserId, $userId, $taskId)
@@ -89,9 +105,9 @@ class TaskOrderService extends BaseService
         $this->checkPermission($userId, $taskId);
         $this->isAllowAssign($userId);
 
-        return $this->doingTransaction(function () use ($currentUserId, $userId, $taskId) {
+        $taskOrder = $this->doingTransaction(function () use ($currentUserId, $userId, $taskId) {
             $task = $this->_taskService->isMyValidApplyTask($currentUserId, $taskId);
-            $taskOrder = $this->rawCreate($userId, $task);
+            $taskOrder = $this->rawCreate($userId, $task, false);
 
             $this->throwDBException(
                 $this->_taskService->incWaitingOrder($task),
@@ -103,12 +119,49 @@ class TaskOrderService extends BaseService
             $this->getRepository(),
             $this->_taskService->getRepository()
         ]), TaskErrorConstant::ERR_TASK_ORDER_ASSIGN_FAILED);
+
+        //todo 发短信通知
+        return $taskOrder;
     }
 
     protected function isAllowAssign($userId)
     {
         InternalServiceFactory::getUserInternalService()->isAutoApplyTask($userId)
         || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_DISALLOW_ASSIGN_USER);
+    }
+
+    public function verify($userId, $taskOrderId)
+    {
+        $taskOrder = $this->isValidTaskOrder($taskOrderId);
+        $this->isAllowVerify($userId, $taskOrder);
+
+        $taskOrder = $this->doingTransaction(function () use ($userId, $taskOrder) {
+            $task = $this->_taskService->isValidTask($taskOrder->task_id, true);
+            $this->throwDBException(
+                $this->getRepository()->verify($taskOrder),
+                "审核任务失败"
+            );
+
+            $this->throwDBException(
+                $this->_taskService->incWaitingOrder($task),
+                "增加任务表订单失败"
+            );
+
+            return $taskOrder;
+        }, new Collection([
+            $this->getRepository(),
+            $this->_taskService->getRepository()
+        ]), TaskErrorConstant::ERR_TASK_ORDER_VERIFY_FAILED);
+
+        //todo 发短信通知
+        return $taskOrder;
+    }
+
+    protected function isAllowVerify($userId, TaskOrder $taskOrder)
+    {
+        $this->isAllowDoneOperate($userId, $taskOrder);
+        $taskOrder->isNew()
+        || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_DISALLOW_VERIFY);
     }
 
     public function confirm($userId, $taskOrderId, $storeAccount)
@@ -162,6 +215,40 @@ class TaskOrderService extends BaseService
         || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_DISALLOW_DOING);
     }
 
+    public function sellerConfirm($userId, $taskOrderId)
+    {
+        $taskOrder = $this->isValidTaskOrder($taskOrderId);
+        $this->isAllowSellerConfirm($userId, $taskOrder);
+
+        $result = $this->getRepository()->sellerConfirm($taskOrder);
+        $result === false && ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_SELLER_CONFIRM_FAILED);
+        return true;
+    }
+
+    protected function isAllowSellerConfirm($userId, TaskOrder $taskOrder)
+    {
+        $this->isAllowDoneOperate($userId, $taskOrder);
+        $taskOrder->isDoing()
+        || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_DISALLOW_SELLER_CONFIRM);
+    }
+
+    public function buyerConfirm($userId, $taskOrderId)
+    {
+        $taskOrder = $this->isValidTaskOrder($taskOrderId);
+        $this->isAllowBuyerConfirm($userId, $taskOrder);
+
+        $result = $this->getRepository()->buyerConfirm($taskOrder);
+        $result === false && ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_BUYER_CONFIRM_FAILED);
+        return true;
+    }
+
+    protected function isAllowBuyerConfirm($userId, TaskOrder $taskOrder)
+    {
+        $this->isAllowOperate($userId, $taskOrder);
+        $taskOrder->isSellerConfirm()
+        || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_DISALLOW_BUYER_CONFIRM);
+    }
+
     public function done($userId, $taskOrderId)
     {
         $taskOrder = $this->isValidTaskOrder($taskOrderId);
@@ -188,6 +275,8 @@ class TaskOrderService extends BaseService
                 ""
             );
 
+            $this->recordLatestDoneTime($taskOrder->user_id, $task->store_id);
+
             return true;
         }, new Collection([
             $this->getRepository(),
@@ -198,7 +287,7 @@ class TaskOrderService extends BaseService
     protected function isAllowDone($userId, TaskOrder $taskOrder)
     {
         $this->isAllowDoneOperate($userId, $taskOrder);
-        $taskOrder->isDoing()
+        $taskOrder->isBuyerConfirm()
         || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_DISALLOW_DONE);
     }
 
@@ -228,7 +317,7 @@ class TaskOrderService extends BaseService
 
             $this->throwDBException(
                 (
-                $taskOrder->isWaiting()
+                $taskOrder->isTaskWaiting()
                     ? $this->_taskService->decWaitingOrder($task)
                     : $this->_taskService->decDoingOrder($task)
                 ),
@@ -246,6 +335,45 @@ class TaskOrderService extends BaseService
     {
         $taskOrder->isAllowClose()
         || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_DISALLOW_CLOSE);
+    }
+
+    public function autoOperate()
+    {
+        //todo 自动完成 商家确认、买家确认、商家完成
+    }
+
+    public function freeze($userId, $taskOrderId)
+    {
+        $taskOrder = $this->isValidTaskOrder($taskOrderId);
+        $this->isAllowFreeze($userId, $taskOrder);
+
+        $result = $this->getRepository()->freeze($taskOrder);
+        $result === false && ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_FREEZE_FAILED);
+        return true;
+    }
+
+    protected function isAllowFreeze($userId, TaskOrder $taskOrder)
+    {
+        $this->isAllowDoneOperate($userId, $taskOrder);
+        $taskOrder->isAllowFreeze()
+        || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_DISALLOW_FREEZE);
+    }
+
+    public function unFreeze($adminUserId, $taskOrderId)
+    {
+        $taskOrder = $this->isValidTaskOrder($taskOrderId);
+        $this->isAllowUnFreeze($adminUserId, $taskOrder);
+
+        $result = $this->getRepository()->unFreeze($taskOrder);
+        $result === false && ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_UNFREEZE_FAILED);
+        return true;
+    }
+
+    protected function isAllowUnFreeze($adminUserId, TaskOrder $taskOrder)
+    {
+        //todo 是否为管理员
+        $taskOrder->isFreeze()
+        || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_DISALLOW_UNFREEZE);
     }
 
     /**

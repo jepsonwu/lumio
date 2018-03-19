@@ -129,6 +129,31 @@ class TaskOrderController extends ApiBaseController
     /**
      *
      *
+     * @api {PUT} /api/task-order/v1/verify/{id} 审核任务订单
+     * @apiSampleRequest /api/task-order/v1/verify/{id}
+     *
+     * @apiVersion 1.0.0
+     *
+     * @apiGroup task-order
+     * @apiName verify
+     *
+     * @apiError  20113
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *{"succ":true,"data":[],"code":"0","msg":"","time":"1519820780"}
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function verify(Request $request, $id)
+    {
+        $this->taskOrderService->verify(AuthHelper::user()->id, $id);
+        return $this->success([]);
+    }
+
+    /**
+     *
+     *
      * @api {POST} /api/task-order/v1/assign 派发任务订单
      * @apiSampleRequest /api/task-order/v1/assign
      *
@@ -228,6 +253,56 @@ class TaskOrderController extends ApiBaseController
     /**
      *
      *
+     * @api {PUT} /api/task-order/v1/seller-confirm/{id} 卖家确认任务订单
+     * @apiSampleRequest /api/task-order/v1/seller-confirm/{id}
+     *
+     * @apiVersion 1.0.0
+     *
+     * @apiGroup task-order
+     * @apiName seller-confirm
+     *
+     * @apiError  20113
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *{"succ":true,"data":[],"code":"0","msg":"","time":"1519820780"}
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function sellerConfirm(Request $request, $id)
+    {
+        $this->taskOrderService->sellerConfirm(AuthHelper::user()->id, $id);
+        return $this->success([]);
+    }
+
+    /**
+     *
+     *
+     * @api {PUT} /api/task-order/v1/buyer-confirm/{id} 买家确认任务订单
+     * @apiSampleRequest /api/task-order/v1/buyer-confirm/{id}
+     *
+     * @apiVersion 1.0.0
+     *
+     * @apiGroup task-order
+     * @apiName buyer-confirm
+     *
+     * @apiError  20113
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *{"succ":true,"data":[],"code":"0","msg":"","time":"1519820780"}
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function buyerConfirm(Request $request, $id)
+    {
+        $this->taskOrderService->buyerConfirm(AuthHelper::user()->id, $id);
+        return $this->success([]);
+    }
+
+    /**
+     *
+     *
      * @api {PUT} /api/task-order/v1/done/{id} 完成任务订单
      * @apiSampleRequest /api/task-order/v1/done/{id}
      *
@@ -272,6 +347,31 @@ class TaskOrderController extends ApiBaseController
     public function close(Request $request, $id)
     {
         $this->taskOrderService->close(AuthHelper::user()->id, $id);
+        return $this->success([]);
+    }
+
+    /**
+     *
+     *
+     * @api {PUT} /api/task-order/v1/freeze/{id} 冻结任务订单
+     * @apiSampleRequest /api/task-order/v1/freeze/{id}
+     *
+     * @apiVersion 1.0.0
+     *
+     * @apiGroup task-order
+     * @apiName freeze
+     *
+     * @apiError  20113
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *{"succ":true,"data":[],"code":"0","msg":"","time":"1519820780"}
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function freeze(Request $request, $id)
+    {
+        $this->taskOrderService->freeze(AuthHelper::user()->id, $id);
         return $this->success([]);
     }
 }
