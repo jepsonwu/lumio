@@ -150,6 +150,7 @@ class TaskController extends ApiBaseController
      * @apiName create
      *
      * @apiParam {int} goods_id 商品ID
+     * @apiParam {string} task_name 任务名称
      * @apiParam {string} goods_keyword 关键词
      * @apiParam {int} total_order_number 总数
      * @apiParam {int} platform 平台：1-pc，2-mobile
@@ -181,6 +182,7 @@ class TaskController extends ApiBaseController
         $this->validate($request, [
             'goods_id' => ['bail', 'required', 'integer'],
             'goods_keyword' => ['bail', 'string', 'required', 'between:1,100'],
+            'task_name' => ['bail', 'string', 'required', 'between:1,200'],
             'total_order_number' => ['bail', 'integer', 'required', 'min:1'],
             'platform' => ['bail', 'integer', 'required', 'in:1,2'],
         ]);

@@ -231,6 +231,7 @@ class TaskOrderController extends ApiBaseController
      * @apiName doing
      *
      * @apiParam {string} order_id 订单号
+     * @apiParam {int} price 价格
      *
      * @apiError  20113
      *
@@ -244,9 +245,10 @@ class TaskOrderController extends ApiBaseController
     {
         $this->validate($request, [
             'order_id' => ['bail', 'required', 'string'],
+            'price' => ['bail', 'required', 'int', 'min:1'],
         ]);
 
-        $this->taskOrderService->doing(AuthHelper::user()->id, $id, $request->input("order_id"));
+        $this->taskOrderService->doing(AuthHelper::user()->id, $id, $request->input("order_id"), $request->input("price"));
         return $this->success([]);
     }
 

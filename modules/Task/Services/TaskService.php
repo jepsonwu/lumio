@@ -14,6 +14,12 @@ use Modules\Task\Repositories\TaskRepositoryEloquent;
 class TaskService extends BaseService
 {
 
+    //佣金比例 单位分 最小为 100分对应百分之一
+    protected $commissionRateRule = [
+        10000 => 10,
+        100 => 1,
+    ];
+
     public function __construct(
         TaskRepositoryEloquent $taskRepositoryEloquent
     )
@@ -42,7 +48,7 @@ class TaskService extends BaseService
             $attributes['goods_id']
         );
 
-        $amount = $goods->goods_price * $attributes['total_order_number'];
+        $amount = $this->getAmount($goods->goods_price, $attributes['total_order_number']);
         $this->checkBalance($userId, $amount);
 
         $task = $this->doingTransaction(function () use ($userId, $goods, $amount, $attributes) {
@@ -61,6 +67,23 @@ class TaskService extends BaseService
         ), TaskErrorConstant::ERR_TASK_CREATE_FAILED);
 
         return $task;
+    }
+
+    protected function getAmount($goodsPrice, $orderNumber)
+    {
+        $commissionRate = $this->getCommissionRate($goodsPrice);
+        return $goodsPrice * (100 + $commissionRate) * $orderNumber / 100;
+    }
+
+    protected function getCommissionRate($goodsPrice)
+    {
+        foreach ($this->commissionRateRule as $price => $rate) {
+            if ($goodsPrice >= $price) {
+                return $rate;
+            }
+        }
+
+        return 0;
     }
 
     protected function rawCreate($attributes, $userId, Goods $goods)
@@ -127,7 +150,7 @@ class TaskService extends BaseService
             $task = $this->rawUpdate($task->id, $attributes);
 
             if ($incOrderNumber !== 0) {
-                $amount = $task->goods_price * $incOrderNumber;
+                $amount = $this->getAmount($task->goods_price, $incOrderNumber);
                 if ($incOrderNumber > 0) {
                     $result = InternalServiceFactory::getUserFundInternalService()->lock($userId, $amount);
                 } else {
@@ -198,7 +221,7 @@ class TaskService extends BaseService
     protected function isAllowUpdateTotalNumber($userId, Task $task, $incOrderNumber)
     {
         if ($incOrderNumber > 0) {
-            $this->checkBalance($userId, $task->goods_price * $incOrderNumber);
+            $this->checkBalance($userId, $this->getAmount($task->goods_price, $incOrderNumber));
         } else {
             $availableDec = $task->total_order_number - (($task->finished_order_number + $task->waiting_order_number + $task->doing_order_number));
             if ($availableDec < -$incOrderNumber) {
@@ -249,7 +272,7 @@ class TaskService extends BaseService
 
     protected function getRefundAmount(Task $task)
     {
-        return $task->goods_price * ($task->total_order_number - $task->finished_order_number);
+        return $this->getAmount($task->goods_price, $task->total_order_number - $task->finished_order_number);
     }
 
     protected function rawClose(Task $task)

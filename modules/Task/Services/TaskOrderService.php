@@ -184,15 +184,15 @@ class TaskOrderService extends BaseService
         || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_OPERATE_ILLEGAL);
     }
 
-    public function doing($userId, $taskOrderId, $orderId)
+    public function doing($userId, $taskOrderId, $orderId, $price)
     {
         $taskOrder = $this->isValidTaskOrder($taskOrderId);
         $this->isAllowDoing($userId, $taskOrder);
 
-        return $this->doingTransaction(function () use ($taskOrder, $orderId) {
+        return $this->doingTransaction(function () use ($taskOrder, $orderId, $price) {
             $task = $this->_taskService->isValidTask($taskOrder->task_id, true);
             $this->throwDBException(
-                $this->getRepository()->doing($taskOrder, $orderId),
+                $this->getRepository()->doing($taskOrder, $orderId, $price),
                 "做任务失败"
             );
 
@@ -266,6 +266,7 @@ class TaskOrderService extends BaseService
                 "增加完成任务失败"
             );
 
+            //todo 家付佣金 买家收钱 注意实际金额 退款给卖家
             InternalServiceFactory::getUserFundInternalService()->pay($userId, $task->goods_price, "");
 
             InternalServiceFactory::getUserFundInternalService()->earn(

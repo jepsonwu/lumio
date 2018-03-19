@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 /**
  * @property int $id
+ * @property string $task_name
  * @property int $user_id
  * @property int $store_id
  * @property int $goods_id
@@ -47,7 +48,7 @@ class Task extends Model implements Transformable, IModelAccess
     protected $table = "task";
 
     protected $fillable = [
-        "id", "user_id", "store_id", "goods_id", "goods_name", "goods_price", "goods_image",
+        "id", "task_name", "user_id", "store_id", "goods_id", "goods_name", "goods_price", "goods_image",
         "goods_keyword", "total_order_number", "finished_order_number", "doing_order_number",
         "waiting_order_number", "platform", "task_status", "created_at", "updated_at"
     ];

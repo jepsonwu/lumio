@@ -43,9 +43,9 @@ class TaskOrderRepositoryEloquent extends BaseRepository
         return $taskOrder->verify();
     }
 
-    public function doing(TaskOrder $taskOrder, $orderId)
+    public function doing(TaskOrder $taskOrder, $orderId, $price)
     {
-        return $taskOrder->doing($orderId);
+        return $taskOrder->doing($orderId, $price);
     }
 
     public function sellerConfirm(TaskOrder $taskOrder)

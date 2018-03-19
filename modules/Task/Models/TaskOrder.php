@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
  * @property int $task_id
  * @property int $task_user_id
  * @property string $order_id
+ * @property int $price
  * @property int $order_status
  * @property int $latest_order_status
  * @property int $operate_time
@@ -43,7 +44,7 @@ class TaskOrder extends Model implements Transformable, IModelAccess
 
     protected $fillable = [
         "id", "user_id", "task_id", "task_user_id", "order_id", "order_status", "operate_time"
-        , "latest_order_status", "created_at", "updated_at"
+        , "latest_order_status", "price", "created_at", "updated_at"
     ];
 
     public function transform()
@@ -80,11 +81,12 @@ class TaskOrder extends Model implements Transformable, IModelAccess
         ]);
     }
 
-    public function doing($orderId)
+    public function doing($orderId, $price)
     {
         return $this->update([
             "order_status" => self::STATUS_DOING,
             "order_id" => $orderId,
+            "price" => $price,
             "operate_time" => time()
         ]);
     }
