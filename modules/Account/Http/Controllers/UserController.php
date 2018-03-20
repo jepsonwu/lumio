@@ -83,7 +83,10 @@ class UserController extends ApiBaseController
      */
     public function userDetail(Request $request, $userId)
     {
-        return $this->success($this->userService->isValidById($userId));
+        $user = $this->userService->isValidById($userId);
+        //todo 返回安全信息
+        $user->token = "";
+        return $this->success($user);
     }
 
     /**

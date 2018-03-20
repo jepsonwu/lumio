@@ -11,6 +11,7 @@ namespace Jiuyan\LumioSSO\Middlewares;
 use Closure;
 use Auth;
 use Illuminate\Http\Request;
+use Jiuyan\LumioSSO\Contracts\AuthenticateAdminContract;
 
 class AdminMiddleware
 {
@@ -22,7 +23,9 @@ class AdminMiddleware
     public function handle(Request $request, Closure $next)
     {
         if (!Auth::guard()->user()) {
-            $redirectUrl = app(AdminAuthService::class)->getLoginUrl($request->getUri());
+            /**@var $authService AuthenticateAdminContract* */
+            $authService = app(AuthenticateAdminContract::class);
+            $redirectUrl = $authService->getLoginUrl($request->getUri());
             return redirect($redirectUrl);
         }
 

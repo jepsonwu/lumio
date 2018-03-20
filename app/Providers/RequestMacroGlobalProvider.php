@@ -4,7 +4,7 @@ namespace App\Providers;
 
 use App\Components\CustomizeCaptchaManageComponent;
 use Illuminate\Contracts\Validation\Factory;
-use Illuminate\Support\Facades\Validator;
+use Jiuyan\LumioSSO\Contracts\AuthenticateAdminContract;
 use Jiuyan\LumioSSO\Contracts\AuthenticateContract;
 use App\Exceptions\Handler;
 use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
@@ -14,10 +14,10 @@ use Illuminate\Support\ServiceProvider;
 use Exception;
 use Jiuyan\Captcha\Providers\CaptchaServiceProvider;
 use Jiuyan\Common\Component\InFramework\Providers\InFrameworkProvider;
-use Jiuyan\Lumio\BanyanDB\BanyanDBFactory;
 use Jiuyan\Lumio\BanyanDB\Providers\BanyanDBServiceProvider;
 use Modules\Account\Constants\AccountBanyanDBConstant;
 use Modules\Account\Services\UserInternalService;
+use Modules\Admin\Services\UserInternalService as AdminUserInternalService;
 
 class RequestMacroGlobalProvider extends ServiceProvider
 {
@@ -63,11 +63,12 @@ class RequestMacroGlobalProvider extends ServiceProvider
     protected function registerAuth()
     {
         $this->app->configure('api_auth');
-        $this->app->configure('sso_auth');
+        $this->app->configure('admin_auth');
         /**
          * AUTH覆盖lib库中的取用户的实现，各个框架自己实现
          */
         $this->app->singleton(AuthenticateContract::class, UserInternalService::class);
+        $this->app->singleton(AuthenticateAdminContract::class, AdminUserInternalService::class);
     }
 
     protected function registerIdHelper()

@@ -9,8 +9,9 @@
 namespace Jiuyan\LumioSSO\Services;
 
 use GuzzleHttp\Client;
+use Jiuyan\LumioSSO\Contracts\AuthenticateAdminContract;
 
-class AdminAuthService
+class AdminAuthService implements AuthenticateAdminContract
 {
     const COOKIE_SSO_TICKET = 'ticket';
     const COOKIE_SSO_SESSION_KEY = 'sessionKey';
@@ -27,6 +28,11 @@ class AdminAuthService
     public function getLoginUrl($uri)
     {
         return self::SSO_SERVER_DOMAIN . '/user/login?callback=' . urlencode($uri);
+    }
+
+    public function setMock($mock)
+    {
+        // TODO: Implement setMock() method.
     }
 
     private function _getAuthKey($authKey = '')

@@ -16,10 +16,10 @@ class AuthBaseController extends ApiBaseController
     public function saveLoginInfo($authUserInfo)
     {
         if (isset($authUserInfo['token'])) {
-            $this->addCookie('_token', $authUserInfo['token'], UserService::TOKEN_EXPIRES, env("APP_DOMAIN"));
+            $this->addCookie('_token', $authUserInfo['token'], UserService::TOKEN_EXPIRES, env("COOKIE_DOMAIN"));
         }
         if (isset($authUserInfo['auth'])) {
-            $this->addCookie('_aries', $authUserInfo['auth'], 2592000 - 1800, env("APP_DOMAIN"));
+            $this->addCookie('_aries', $authUserInfo['auth'], 2592000 - 1800, env("COOKIE_DOMAIN"));
         }
     }
 }

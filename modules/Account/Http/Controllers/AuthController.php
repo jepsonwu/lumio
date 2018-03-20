@@ -161,7 +161,7 @@ class AuthController extends AuthBaseController
      */
     public function logout()
     {
-        $this->addCookie('_token', AuthHelper::user()->token, -1, env("APP_DOMAIN"));
+        $this->addCookie('_token', AuthHelper::user()->token, -1, env("COOKIE_DOMAIN"));
         return $this->success([]);
     }
 

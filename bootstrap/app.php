@@ -54,6 +54,7 @@ $app->middleware([
 $app->routeMiddleware(
     [
         'jiuyan.api.auth' => \Jiuyan\LumioSSO\Middlewares\ApiAuthMiddleware::class,
+        'jiuyan.admin.auth' => \Jiuyan\LumioSSO\Middlewares\AdminMiddleware::class,
         'jiuyan.api.sign' => \Jiuyan\Common\Component\InFramework\Middleware\RequestSignatureMiddleware::class
     ]
 );

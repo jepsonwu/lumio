@@ -44,13 +44,8 @@ class UserService extends BaseService
      */
     public function isValidById($userId)
     {
-        $user = null;
-        try {
-            $user = $this->getById($userId);
-        } catch (Exception $e) {
-            ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_USER_NOT_EXISTS);
-        }
-
+        $user = $this->getById($userId);
+        $user || ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_USER_NOT_EXISTS);
         return $user;
     }
 

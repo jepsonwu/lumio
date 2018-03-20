@@ -4,7 +4,6 @@ namespace Jiuyan\LumioSSO\Providers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
-use Jiuyan\LumioSSO\Services\AdminAuthService;
 use Jiuyan\LumioSSO\Contracts\AuthenticateAdminContract;
 use Jiuyan\LumioSSO\Contracts\AuthenticateContract;
 
@@ -18,11 +17,7 @@ class AuthServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(realpath(__DIR__ . '/../../config/api_auth.php'), 'api_auth');
-        $this->mergeConfigFrom(realpath(__DIR__ . '/../../config/sso_auth.php'), 'sso_auth');
-
-        $this->app->singleton(AuthenticateAdminContract::class, function ($app) {
-            return new AdminAuthService();
-        });
+        $this->mergeConfigFrom(realpath(__DIR__ . '/../../config/admin_auth.php'), 'admin_auth');
     }
 
 
@@ -42,13 +37,15 @@ class AuthServiceProvider extends ServiceProvider
             /**
              * @var AuthenticateContract $authService
              */
-            if (strpos($request->path(), config('sso_auth.router_prefix')) === 0) {
+            if (strpos("/" . $request->path(), config('admin_auth.router_prefix')) === 0) {
                 $authService = app(AuthenticateAdminContract::class);
+                $auth = 'admin_auth';
             } else {
                 $authService = app(AuthenticateContract::class);
+                $auth = 'api_auth';
             }
 
-            if (config('api_auth.is_mock')) {
+            if (config($auth . '.is_mock')) {
                 $authService->setMock(true);
             }
 
