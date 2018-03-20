@@ -20,11 +20,11 @@ class TaskErrorConstant
     const ERR_TASK_ORDER_ASSIGN_FAILED = '23203|任务订单指定失败';
     const ERR_TASK_ORDER_INVALID = '23204|无效的任务订单';
     const ERR_TASK_ORDER_CONFIRM_FAILED = '23205|任务订单信息不正确';
-    const ERR_TASK_ORDER_DISALLOW_DOING = '23206|不允许给该用户分配任务';
+    const ERR_TASK_ORDER_DISALLOW_DOING = '23206|不允许做任务';
     const ERR_TASK_ORDER_DOING_FAILED = '23207|任务订单执行失败';
-    const ERR_TASK_ORDER_DISALLOW_DONE = '23208|不允许给该用户分配任务';
+    const ERR_TASK_ORDER_DISALLOW_DONE = '23208|不允许完成任务';
     const ERR_TASK_ORDER_DONE_FAILED = '23209|任务订单完成失败';
-    const ERR_TASK_ORDER_DISALLOW_CLOSE = '23210|不允许删除';
+    const ERR_TASK_ORDER_DISALLOW_CLOSE = '23210|不允许删除任务';
     const ERR_TASK_ORDER_CLOSE_FAILED = '23211|任务订单关闭失败';
     const ERR_TASK_ORDER_OPERATE_ILLEGAL = '23212|非法操作';
     const ERR_TASK_ORDER_MORE_APPLY = '23213|十天内不能申请同一家店铺的任务';
