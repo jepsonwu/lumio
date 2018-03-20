@@ -367,11 +367,11 @@ class WalletService extends BaseService
         return $fund->unlockAmount($amount);
     }
 
-    public function earn($userId, $amount, $commission, $remarks)
+    public function earn($userId, $amount, $remarks)
     {
         $fund = $this->_fundService->getByUserId($userId, true);
         $this->throwDBException(
-            $this->_fundRecordService->earn($userId, $amount, $commission, $remarks),
+            $this->_fundRecordService->earn($userId, $amount, $remarks),
             "fund record earn failed"
         );
 
@@ -383,12 +383,12 @@ class WalletService extends BaseService
         return true;
     }
 
-    public function pay($userId, $amount, $remarks)
+    public function pay($userId, $amount, $commission, $remarks)
     {
         $fund = $this->_fundService->getByUserId($userId, true);
 
         $this->throwDBException(
-            $this->_fundRecordService->pay($userId, $amount, $remarks),
+            $this->_fundRecordService->pay($userId, $amount, $commission, $remarks),
             "fund record pay failed"
         );
 

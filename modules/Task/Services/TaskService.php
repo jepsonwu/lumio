@@ -14,8 +14,14 @@ use Modules\Task\Repositories\TaskRepositoryEloquent;
 class TaskService extends BaseService
 {
 
-    //佣金比例 单位分 最小为 100分对应百分之一
-    protected $commissionRateRule = [
+    //平台佣金比例 单位分 最小为 100分对应百分之一
+    protected $platformCommissionRateRule = [
+        10000 => 100,
+        100 => 10,
+    ];
+
+    //买家佣金比例 单位分 最小为 100分对应百分之一
+    protected $buyerCommissionRateRule = [
         10000 => 10,
         100 => 1,
     ];
@@ -69,15 +75,22 @@ class TaskService extends BaseService
         return $task;
     }
 
-    protected function getAmount($goodsPrice, $orderNumber)
+    public function getAmount($goodsPrice, $orderNumber = 1)
     {
         $commissionRate = $this->getCommissionRate($goodsPrice);
         return $goodsPrice * (100 + $commissionRate) * $orderNumber / 100;
     }
 
-    protected function getCommissionRate($goodsPrice)
+    public function getCommission($goodsPrice, $orderNumber = 1, $isPlatform = true)
     {
-        foreach ($this->commissionRateRule as $price => $rate) {
+        $commissionRate = $this->getCommissionRate($goodsPrice, $isPlatform);
+        return $goodsPrice * $commissionRate * $orderNumber / 100;
+    }
+
+    protected function getCommissionRate($goodsPrice, $isPlatform = true)
+    {
+        $rule = $isPlatform ? $this->platformCommissionRateRule : $this->buyerCommissionRateRule;
+        foreach ($rule as $price => $rate) {
             if ($goodsPrice >= $price) {
                 return $rate;
             }

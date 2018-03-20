@@ -191,6 +191,8 @@ class TaskOrderService extends BaseService
 
         return $this->doingTransaction(function () use ($taskOrder, $orderId, $price) {
             $task = $this->_taskService->isValidTask($taskOrder->task_id, true);
+            $price > $task->goods_price && $price = $task->goods_price;//不能多于任务金额
+
             $this->throwDBException(
                 $this->getRepository()->doing($taskOrder, $orderId, $price),
                 "做任务失败"
@@ -266,14 +268,29 @@ class TaskOrderService extends BaseService
                 "增加完成任务失败"
             );
 
-            //todo 家付佣金 买家收钱 注意实际金额 退款给卖家
-            InternalServiceFactory::getUserFundInternalService()->pay($userId, $task->goods_price, "");
+            //实际金额小于任务金额,剩余金额退款给卖家,佣金根据任务金额来算
+            $amount = $this->_taskService->getAmount($task->goods_price);
+            $platformCommission = $this->_taskService->getCommission($task->goods_price);
+            $buyerCommission = $this->_taskService->getCommission($task->goods_price, 1, false);
+            $refundAmount = $task->goods_price - $taskOrder->price;
+
+            InternalServiceFactory::getUserFundInternalService()->pay($userId,
+                $amount - $refundAmount,
+                $platformCommission,
+                "支付任务费用"
+            );
+
+            //todo 改成退款
+            $this->throwDBException(
+                InternalServiceFactory::getUserFundInternalService()->unlock($userId, $refundAmount)
+                , "解锁余额失败"
+            );
+
 
             InternalServiceFactory::getUserFundInternalService()->earn(
                 $taskOrder->user_id,
-                $task->goods_price,
-                $this->makeCommission($task->goods_price),
-                ""
+                $taskOrder->price + $buyerCommission,
+                "完成任务赚取"
             );
 
             $this->recordLatestDoneTime($taskOrder->user_id, $task->store_id);

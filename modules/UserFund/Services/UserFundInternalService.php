@@ -45,14 +45,14 @@ class UserFundInternalService extends BaseService
         return $this->walletService->unlock($fund, $amount);
     }
 
-    public function earn($userId, $amount, $commission, $remarks)
+    public function earn($userId, $amount, $remarks)
     {
-        return $this->walletService->earn($userId, $amount, $commission, $remarks);
+        return $this->walletService->earn($userId, $amount, $remarks);
     }
 
-    public function pay($userId, $amount, $remarks)
+    public function pay($userId, $amount, $commission, $remarks)
     {
-        return $this->walletService->pay($userId, $amount, $remarks);
+        return $this->walletService->pay($userId, $amount, $commission, $remarks);
     }
 
     public function passRecharge($rechargeId, $verifyUserId)

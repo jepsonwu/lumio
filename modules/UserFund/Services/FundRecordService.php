@@ -52,16 +52,14 @@ class FundRecordService extends BaseService
         return $record;
     }
 
-    //todo 关联ID
-    public function pay($userId, $amount, $remarks)
+    public function pay($userId, $amount, $commission, $remarks)
     {
-        return $this->getRepository()->pay($userId, $amount, $remarks);
+        return $this->getRepository()->pay($userId, $amount, $commission, $remarks);
     }
 
-    //todo 关联ID
-    public function earn($userId, $amount, $commission, $remarks)
+    public function earn($userId, $amount, $remarks)
     {
-        return $this->getRepository()->earn($userId, $amount, $commission, $remarks);
+        return $this->getRepository()->earn($userId, $amount, $remarks);
     }
 
     public function pass(FundRecord $record)

@@ -56,13 +56,13 @@ class FundRecordRepositoryEloquent extends BaseRepository
     }
 
 
-    public function pay($userId, $amount, $remarks)
+    public function pay($userId, $amount, $commission, $remarks)
     {
         return $this->create([
             "user_id" => $userId,
             "amount" => $amount,
-            "actual_amount" => $amount,
-            "commission" => 0,
+            "actual_amount" => $amount - $commission,
+            "commission" => $commission,
             "record_type" => FundRecord::RECORD_TYPE_PAY,
             "record_status" => FundRecord::RECORD_STATUS_DONE,
             "remarks" => $remarks,
@@ -70,13 +70,13 @@ class FundRecordRepositoryEloquent extends BaseRepository
         ]);
     }
 
-    public function earn($userId, $amount, $commission, $remarks)
+    public function earn($userId, $amount, $remarks)
     {
         return $this->create([
             "user_id" => $userId,
             "amount" => $amount,
-            "actual_amount" => $amount - $commission,
-            "commission" => $commission,
+            "actual_amount" => $amount,
+            "commission" => 0,
             "record_type" => FundRecord::RECORD_TYPE_EARN,
             "record_status" => FundRecord::RECORD_STATUS_DONE,
             "remarks" => $remarks,
