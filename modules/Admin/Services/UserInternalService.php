@@ -23,7 +23,7 @@ class UserInternalService extends BaseService implements AuthenticateAdminContra
     public function getLoginUrl($uri)
     {
         //html地址
-        return env("APP_DOMAIN") . '/account/login?callback=' . urlencode($uri);
+        return env("APP_DOMAIN") . '/auth/login?callback=' . urlencode($uri);
     }
 
     public function getLoginUser()
@@ -34,6 +34,7 @@ class UserInternalService extends BaseService implements AuthenticateAdminContra
             ) {
                 return [];
             }
+            dd($userToken);
             //$user = $this->getUserByToken($userToken);
             $user = [];
 

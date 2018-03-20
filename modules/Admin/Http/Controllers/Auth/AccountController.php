@@ -1,16 +1,16 @@
 <?php
 
-namespace Modules\Admin\Http\Controllers\AdminAccount;
+namespace Modules\Admin\Http\Controllers\Auth;
 
 
 use App\Components\Helpers\AuthHelper;
 use Illuminate\Http\Request;
-use Jiuyan\Common\Component\InFramework\Controllers\ApiBaseController;
 use Modules\Admin\Constants\AccountBusinessConstant;
+use Modules\Admin\Http\Controllers\AdminController;
 use Modules\Admin\Services\AccountService;
 use Modules\Admin\Services\UserService;
 
-class AccountController extends ApiBaseController
+class AccountController extends AdminController
 {
 
     protected $_accountService;
@@ -18,20 +18,31 @@ class AccountController extends ApiBaseController
     public function __construct(AccountService $accountService)
     {
         $this->_accountService = $accountService;
+        parent::__construct();
+    }
+
+    public function index()
+    {
+        return $this->render('admin/auth/index', [
+            'list' => [],
+            'params' => []
+        ]);
     }
 
     public function login(Request $request)
     {
         $this->validate($request, [
-            "user_name" => "",
-            "password" => "",
+            "user_name" => "required|string",
+            "password" => "required|string",//redirect_url
         ]);
 
         $params = $this->requestParams->getRegularParams();
         $user = $this->_accountService->login($params['user_name'], $params['password']);
 
         $this->saveLoginInfo($user);
-        return $this->success($user);
+        return $this->success([
+            "redirect_url" => "/admin"
+        ]);
     }
 
     protected function saveLoginInfo($userInfo)

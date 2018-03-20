@@ -9,7 +9,6 @@ $(function () {
         },
         error: function () {
             console.log(arguments);
-            alert(_bug_message);
         }
     });
 

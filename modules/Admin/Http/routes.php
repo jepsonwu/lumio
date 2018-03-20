@@ -10,6 +10,15 @@ app()->group([
 });
 
 app()->group([
+    'namespace' => 'Modules\Admin\Http\Controllers\Auth',
+    'prefix' => '/admin/auth',
+], function (\Laravel\Lumen\Application $app) {
+    $app->get("/login", 'AccountController@index');
+    $app->post("/login", 'AccountController@login');
+    $app->post("/logout", 'AccountController@logout');
+});
+
+app()->group([
     'namespace' => 'Modules\Admin\Http\Controllers\Seller',
     'prefix' => '/admin/seller',
 ], function (\Laravel\Lumen\Application $app) {

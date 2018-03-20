@@ -39,9 +39,9 @@ class Handler extends ExceptionHandler
     public function render($request, Exception $e)
     {
         //todo package
-        if (app()->environment() == 'local') {
-            return parent::render($request, $e);
-        }
+//        if (app()->environment() == 'local') {
+//            return parent::render($request, $e);
+//        }
 
         $errorInfo = explode('|', GlobalErrorConstant::ERR_SYSTEM);
         $message = $errorInfo[1];

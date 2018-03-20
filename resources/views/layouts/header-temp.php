@@ -28,13 +28,16 @@
                 <!-- END NOTIFICATION DROPDOWN -->
                 <!-- BEGIN USER LOGIN DROPDOWN -->
                 <li class="dropdown dropdown-user">
+                    <?php $user=Auth::user();if($user){?>
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown"
                        data-close-others="true">
 
-                        <span class="username username-hide-on-mobile"><?= 'demo'//Auth::user()->name ?> </span>
+                        <span class="username username-hide-on-mobile"><?= $user->name ?> </span>
                         <i class="fa fa-angle-down"></i>
                     </a>
-<!--                    <ul class="dropdown-menu">-->
+                    <?php }?>
+
+                    <!--                    <ul class="dropdown-menu">-->
 <!--                        <li class="divider">-->
 <!--                        </li>-->
 <!--                        <li>-->
