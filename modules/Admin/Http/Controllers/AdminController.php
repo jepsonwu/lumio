@@ -12,7 +12,7 @@ class AdminController extends ViewController
     private $templates;
 
     protected $title = '';
-    protected $subTitle = '后台管理';
+    protected $subTitle = '';
     protected $breads = [
         [
             '/admin/',

@@ -30,6 +30,7 @@ class RequestMacroGlobalProvider extends ServiceProvider
         $this->registerBanyanDB();
         $this->registerAuth();
         $this->registerValidator();
+        $this->registerAdmin();
     }
 
     protected function registerCommon()
@@ -86,6 +87,11 @@ class RequestMacroGlobalProvider extends ServiceProvider
 //        $validator = app('validator');
 //        $validator->extend('default', function ($attribute, $value, $parameters) {
 //        });
+    }
+
+    protected function registerAdmin()
+    {
+        $this->app->configure("admin");
     }
 
     public function boot()

@@ -2,6 +2,8 @@
 
 namespace Modules\Admin\Models;
 
+use Jiuyan\Tools\Business\EncryptTool;
+
 class User
 {
     const ROLE_ADMIN = 1;
@@ -16,11 +18,14 @@ class User
 
     public $role;
 
+    public $inviteCode;
+
     public function __construct($user)
     {
         foreach ($user as $key => $value) {
             $this->$key = $value;
         }
+        $this->inviteCode = strtoupper(EncryptTool::encryptId(time() . rand(10, 99)));//todo 固定邀请码
     }
 
     public function setToken($token)

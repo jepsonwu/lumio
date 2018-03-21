@@ -4,5 +4,4 @@
 $this->layout('layouts/main-temp');
 ?>
 
-
-i am admin layout
+    我的邀请码：<?= $params['user']->inviteCode ?>
