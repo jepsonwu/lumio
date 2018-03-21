@@ -34,6 +34,16 @@ return [
                 "title" => "账号管理",
                 "url" => "/admin/user-fund/account"
             ]
+        ],
+        "任务管理" => [
+            [
+                "title" => "任务管理",
+                "url" => "/admin/task"
+            ],
+            [
+                "title" => "任务订单管理",
+                "url" => "/admin/task/order"
+            ]
         ]
     ]
 ];

@@ -64,3 +64,12 @@ app()->group([
     resource($app, '/', 'FundController');
 });
 
+app()->group([
+    'namespace' => 'Modules\Admin\Http\Controllers\Task',
+    'prefix' => '/admin/task',
+    'middleware' => ['jiuyan.admin.auth']
+], function (\Laravel\Lumen\Application $app) {
+    resource($app, '/', 'TaskController');
+    resource($app, '/order', 'TaskOrderController');
+});
+
