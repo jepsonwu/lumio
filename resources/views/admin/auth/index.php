@@ -1,6 +1,5 @@
 <?php
 /** @var $this \League\Plates\Template\Template */
-
 $this->layout('layouts/login-temp');
 ?>
 <style>
@@ -29,6 +28,7 @@ $this->layout('layouts/login-temp');
                 <button type="button" id="login-btn" class="btn btn-default btn-lg">登录</button>
             </div>
         </div>
+        <input type="hidden" value="<?= $params['redirect_url'] ?>" id="redirect_url">
     </form>
 </div>
 <script>
@@ -36,16 +36,19 @@ $this->layout('layouts/login-temp');
         $('#login-btn').click(function () {
             var user_name = $('#user_name').val();
             var password = $('#password').val();
+            var redirect_url = $('#redirect_url').val();
+
             $.ajax({
                 url: '/admin/auth/login',
                 method: 'post',
                 data: {
                     user_name: user_name,
-                    password: password
+                    password: password,
+                    redirect_url: redirect_url
                 },
                 success: function (data) {
                     if (data.succ) {
-                        //window.location.href = data.data.redirect_url;
+                        window.location.href = data.data.redirect_url;
                     } else {
                         alert(data.msg)
                     }

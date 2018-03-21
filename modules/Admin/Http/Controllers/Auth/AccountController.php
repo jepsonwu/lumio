@@ -21,11 +21,17 @@ class AccountController extends AdminController
         parent::__construct();
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        if (AuthHelper::user()) {
+            return $this->render('admin/index', []);
+        }
+
         return $this->render('admin/auth/index', [
             'list' => [],
-            'params' => []
+            'params' => [
+                "redirect_url" => $request->input("callback", "")
+            ]
         ]);
     }
 
@@ -33,38 +39,37 @@ class AccountController extends AdminController
     {
         $this->validate($request, [
             "user_name" => "required|string",
-            "password" => "required|string",//redirect_url
+            "password" => "required|string",
+            "redirect_url" => "string"
         ]);
 
         $params = $this->requestParams->getRegularParams();
         $user = $this->_accountService->login($params['user_name'], $params['password']);
 
-        $this->saveLoginInfo($user);
+        $this->saveLoginInfo($user->token, $user->id);
+        $redirectUrl = array_get($params, "redirect_url", "");
         return $this->success([
-            "redirect_url" => "/admin"
+            "redirect_url" => $redirectUrl ? $redirectUrl : env("APP_DOMAIN") . "/admin"
         ]);
     }
 
-    protected function saveLoginInfo($userInfo)
+    protected function saveLoginInfo($token, $userId, $logout = false)
     {
-        $this->addCookie(AccountBusinessConstant::ACCOUNT_AUTHORIZED_COOKIE_TOKEN, $userInfo['token'],
-            UserService::TOKEN_EXPIRES, env("COOKIE_DOMAIN")
+        $this->addCookie(AccountBusinessConstant::ACCOUNT_AUTHORIZED_COOKIE_TOKEN, $token,
+            $logout ? -1 : UserService::TOKEN_EXPIRES, env("COOKIE_DOMAIN")
         );
-        $this->addCookie(AccountBusinessConstant::ACCOUNT_AUTHORIZED_COOKIE_USER_ID, $userInfo['id'],
-            UserService::TOKEN_EXPIRES, env("COOKIE_DOMAIN")
+        $this->addCookie(AccountBusinessConstant::ACCOUNT_AUTHORIZED_COOKIE_USER_ID, $userId,
+            $logout ? -1 : UserService::TOKEN_EXPIRES, env("COOKIE_DOMAIN")
         );
     }
 
     public function logout()
     {
-        $userInfo = AuthHelper::user();
+        $user = AuthHelper::user();
+        $this->saveLoginInfo($user->token, $user->id, true);
+        $response = redirect(env("APP_DOMAIN") . '/admin/auth/login');
+        $response = $this->withCookie($response);
 
-        $this->addCookie(AccountBusinessConstant::ACCOUNT_AUTHORIZED_COOKIE_TOKEN, $userInfo['token'],
-            -1, env("COOKIE_DOMAIN")
-        );
-        $this->addCookie(AccountBusinessConstant::ACCOUNT_AUTHORIZED_COOKIE_USER_ID, $userInfo['id'],
-            -1, env("COOKIE_DOMAIN")
-        );
-        return $this->success([]);
+        return $response;
     }
 }

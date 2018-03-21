@@ -76,6 +76,13 @@ class ApiBaseController extends Controller
             ])
         );
         $response->header('Content-Type', 'application/json');
+        $response = $this->withCookie($response);
+
+        return $response;
+    }
+
+    protected function withCookie(\Symfony\Component\HttpFoundation\Response $response)
+    {
         if ($this->_cookies) {
             foreach ($this->_cookies as $item) {
                 $response->withCookie(
@@ -83,6 +90,7 @@ class ApiBaseController extends Controller
                 );
             }
         }
+
         return $response;
     }
 

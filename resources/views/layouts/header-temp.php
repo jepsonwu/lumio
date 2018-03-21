@@ -21,38 +21,37 @@
         <div class="top-menu">
             <ul class="nav navbar-nav pull-right">
                 <!-- BEGIN NOTIFICATION DROPDOWN -->
-<!--                <li class="dropdown dropdown-extended dropdown-notification" id="header_notification_bar">-->
-<!--                    --><?php //$this->insert('layouts/notification') ?>
-<!--                    --><?php //$this->insert('layouts/notice-and-reload') ?>
-<!--                </li>-->
+                <!--                <li class="dropdown dropdown-extended dropdown-notification" id="header_notification_bar">-->
+                <!--                    --><?php //$this->insert('layouts/notification') ?>
+                <!--                    --><?php //$this->insert('layouts/notice-and-reload') ?>
+                <!--                </li>-->
                 <!-- END NOTIFICATION DROPDOWN -->
                 <!-- BEGIN USER LOGIN DROPDOWN -->
                 <li class="dropdown dropdown-user">
-                    <?php $user=Auth::user();if($user){?>
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown"
-                       data-close-others="true">
+                    <?php $user = Auth::user();
+                    if ($user) { ?>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown"
+                           data-close-others="true">
 
-                        <span class="username username-hide-on-mobile"><?= $user->name ?> </span>
-                        <i class="fa fa-angle-down"></i>
-                    </a>
-                    <?php }?>
+                            <span class="username username-hide-on-mobile"><?= $user->userName ?> </span>
+                            <i class="fa fa-angle-down"></i>
+                        </a>
+                    <?php } ?>
 
-                    <!--                    <ul class="dropdown-menu">-->
-<!--                        <li class="divider">-->
-<!--                        </li>-->
-<!--                        <li>-->
-<!--                            <a href="/super">-->
-<!--                                <i class="icon-home"></i> 渠道首页 </a>-->
-<!--                        </li>-->
-<!--                    </ul>-->
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="/admin/auth/logout">
+                                <i class="icon-logout"></i>退出</a>
+                        </li>
+                    </ul>
                 </li>
                 <!-- END USER LOGIN DROPDOWN -->
                 <!-- BEGIN QUICK SIDEBAR TOGGLER -->
-<!--                <li class="dropdown dropdown-quick-sidebar-toggler">-->
-<!--                    <a href="javascript:;" class="dropdown-toggle">-->
-<!--                        <i class="icon-logout"></i>-->
-<!--                    </a>-->
-<!--                </li>-->
+                <!--                <li class="dropdown dropdown-quick-sidebar-toggler">-->
+                <!--                    <a href="javascript:;" class="dropdown-toggle">-->
+                <!--                        <i class="icon-logout"></i>-->
+                <!--                    </a>-->
+                <!--                </li>-->
                 <!-- END QUICK SIDEBAR TOGGLER -->
             </ul>
         </div>

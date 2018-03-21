@@ -23,7 +23,7 @@ class UserInternalService extends BaseService implements AuthenticateAdminContra
     public function getLoginUrl($uri)
     {
         //html地址
-        return env("APP_DOMAIN") . '/auth/login?callback=' . urlencode($uri);
+        return env("APP_DOMAIN") . '/admin/auth/login?callback=' . urlencode($uri);
     }
 
     public function getLoginUser()
@@ -34,11 +34,8 @@ class UserInternalService extends BaseService implements AuthenticateAdminContra
             ) {
                 return [];
             }
-            dd($userToken);
-            //$user = $this->getUserByToken($userToken);
-            $user = [];
 
-            return $user;
+            return $this->userService->getByToken($userToken);
         }
         return config('admin_auth.mock_user');
     }
@@ -46,6 +43,15 @@ class UserInternalService extends BaseService implements AuthenticateAdminContra
     public function setMock($mock)
     {
         $this->mock = $mock;
+    }
+
+    /**
+     * @param $userId
+     * @return \Modules\Admin\Models\User|null
+     */
+    public function isValidUser($userId)
+    {
+        return $this->userService->getById($userId);
     }
 }
 
