@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Validation\ValidationException;
 use Jiuyan\Common\Component\InFramework\Exceptions\ApiExceptions;
 use Jiuyan\Common\Component\InFramework\Exceptions\BusinessException;
+use Jiuyan\Tools\Business\EnvironmentTool;
 use Jiuyan\Tools\Business\JsonTool;
 use Laravel\Lumen\Exceptions\Handler as ExceptionHandler;
 
@@ -38,11 +39,6 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $e)
     {
-        //todo package
-//        if (app()->environment() == 'local') {
-//            return parent::render($request, $e);
-//        }
-
         $errorInfo = explode('|', GlobalErrorConstant::ERR_SYSTEM);
         $message = $errorInfo[1];
         $code = $errorInfo[0];
@@ -57,14 +53,16 @@ class Handler extends ExceptionHandler
             \Log::error($e->getMessage());
         }
 
+        $response = [
+            'succ' => false,
+            'data' => [],
+            'code' => $code,
+            'msg' => $message,
+            'time' => time(),
+        ];
+        EnvironmentTool::isDevelopment() && $response['debug'] = $e->getTraceAsString();
         return response()->make(
-            JsonTool::encode([
-                'succ' => false,
-                'data' => [],
-                'code' => $code,
-                'msg' => $message,
-                'time' => time()
-            ]),
+            JsonTool::encode($response),
             200,
             ['Content-Type' => 'application/json']
         );
