@@ -1,5 +1,8 @@
 <?php
 
 return [
-    'name' => 'Task'
+    'name' => 'Task',
+    "command_list" => [
+        \Modules\Task\Commands\AutoOperateCommand::class
+    ]
 ];

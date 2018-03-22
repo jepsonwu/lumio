@@ -11,10 +11,13 @@ use Modules\Task\Constants\TaskErrorConstant;
 use Modules\Task\Models\Task;
 use Modules\Task\Models\TaskOrder;
 use Modules\Task\Repositories\TaskOrderRepositoryEloquent;
+use Monolog\Logger;
 
 class TaskOrderService extends BaseService
 {
     const COMMISSION_PERCENT = 10;//万分之几
+
+    const AUTO_OPERATE_EXPIRY = 86400;
 
     protected $_taskService;
 
@@ -355,9 +358,24 @@ class TaskOrderService extends BaseService
         || ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_DISALLOW_CLOSE);
     }
 
-    public function autoOperate()
+    public function autoOperate(Logger $logger)
     {
-        //todo 自动完成 商家确认、买家确认、商家完成
+        $orderList = $this->getRepository()->getAutoOperateList(time() - self::AUTO_OPERATE_EXPIRY);
+        $orderList || $logger->info("order list is empty");
+
+        $orderList->each(function (TaskOrder $taskOrder) use ($logger) {
+            try {
+                if ($taskOrder->isDoing()) {
+                    $this->sellerConfirm($taskOrder->task_user_id, $taskOrder->id);
+                } elseif ($taskOrder->isSellerConfirm()) {
+                    $this->buyerConfirm($taskOrder->user_id, $taskOrder->id);
+                } elseif ($taskOrder->isBuyerConfirm()) {
+                    $this->done($taskOrder->task_user_id, $taskOrder->id);
+                }
+            } catch (\Exception $e) {
+                $logger->error("execute failed,task_order:", $taskOrder->toArray());
+            }
+        });
     }
 
     public function freeze($userId, $taskOrderId)

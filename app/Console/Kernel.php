@@ -31,11 +31,38 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
+     * @param  \Illuminate\Console\Scheduling\Schedule $schedule
      * @return void
      */
     protected function schedule(Schedule $schedule)
     {
-        //
+    }
+
+    protected function getCommands()
+    {
+        $commands = parent::getCommands();
+        $commands = array_merge($commands, $this->getModulesCommands());
+
+        return $commands;
+    }
+
+    protected function getModulesCommands()
+    {
+        $modulesList = [
+            "account",
+            "admin",
+            "common",
+            "seller",
+            "task",
+            "userfund"
+        ];
+
+        $modulesCommands = [];
+        foreach ($modulesList as $module) {
+            $config = config($module . ".command_list");
+            $config && $modulesCommands = array_merge($modulesCommands, $config);
+        }
+
+        return $modulesCommands;
     }
 }

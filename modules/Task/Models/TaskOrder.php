@@ -74,6 +74,22 @@ class TaskOrder extends Model implements Transformable, IModelAccess
         return $this;
     }
 
+    public function whereOperateTime(Builder &$builder, $time)
+    {
+        $builder->where("operate_time", "<=", $time);
+        return $this;
+    }
+
+    public function whereNoticeStatus(Builder &$builder)
+    {
+        $builder->whereIn("order_status", [
+            self::STATUS_DOING,
+            self::STATUS_SELLER_CONFIRM,
+            self::STATUS_BUYER_CONFIRM,
+        ]);
+        return $this;
+    }
+
     public function verify()
     {
         return $this->update([

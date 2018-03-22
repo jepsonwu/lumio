@@ -38,6 +38,14 @@ class TaskOrderRepositoryEloquent extends BaseRepository
         return $builder->get();
     }
 
+    public function getAutoOperateList($time)
+    {
+        $builder = $this->model->newQuery();
+        $this->model->whereNoticeStatus($builder)->whereOperateTime($builder, $time);
+        return $builder->get();
+    }
+
+
     public function verify(TaskOrder $taskOrder)
     {
         return $taskOrder->verify();
