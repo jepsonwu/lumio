@@ -29,6 +29,13 @@ class UserService extends BaseService
         return $user ? new User($user) : null;
     }
 
+    public function getIdByInviteCode($inviteCode)
+    {
+        $userId = (int)AccountBanyanDBConstant::commonAccountUserInviteCodeMap()->get($inviteCode);
+        return $this->getById($userId);
+    }
+
+
     /**
      * @param $token
      * @return User|null

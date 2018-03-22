@@ -3,6 +3,7 @@
 namespace Modules\Admin\Models;
 
 use Jiuyan\Tools\Business\EncryptTool;
+use Modules\Admin\Constants\AccountBanyanDBConstant;
 
 class User
 {
@@ -25,7 +26,20 @@ class User
         foreach ($user as $key => $value) {
             $this->$key = $value;
         }
-        $this->inviteCode = strtoupper(EncryptTool::encryptId(time() . rand(10, 99)));//todo 固定邀请码
+        $this->initInviteCode();
+    }
+
+    protected function initInviteCode()
+    {
+        $banyan = AccountBanyanDBConstant::commonAccountUserInviteCode();
+        $inviteCode = $banyan->get($this->id);
+        if (!$inviteCode) {
+            $inviteCode = strtoupper(EncryptTool::encryptId(time() . rand(10, 99)));
+            $banyan->set($this->id, $inviteCode);
+            AccountBanyanDBConstant::commonAccountUserInviteCodeMap()->set($inviteCode, $this->id);
+        }
+
+        $this->inviteCode = $inviteCode;
     }
 
     public function setToken($token)

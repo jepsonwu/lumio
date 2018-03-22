@@ -22,11 +22,17 @@ class AccountService extends BaseService
      * @var UserService
      */
     protected $_userService;
+    protected $_adminUserInternalService;
 
-    public function __construct(AccountRepositoryEloquent $repository, UserService $userService)
+    public function __construct(
+        AccountRepositoryEloquent $repository,
+        UserService $userService,
+        \Modules\Admin\Services\UserInternalService $userInternalService
+    )
     {
         $this->_repository = $repository;
         $this->_userService = $userService;
+        $this->_adminUserInternalService = $userInternalService;
         $this->_requestParamsComponent = app('RequestCommonParams');
     }
 
@@ -40,19 +46,17 @@ class AccountService extends BaseService
 
     public function register($requestParams)
     {
+        dd($this->_adminUserInternalService->getIdByInviteCode($requestParams['invite_code']));
         $this->_checkPasswordAvailable($requestParams['password'], $requestParams['confirm_password']);
         $this->_checkSmsCaptcha($requestParams['mobile'], $requestParams['captcha']);
         $this->_userService->getByMobile($requestParams['mobile'])
         && ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_USER_EXISTS);
 
-        $inviteUser = $requestParams['invite_code'] ? $this->_getInviteUser($requestParams['invite_code']) : 0;
-        $requestParams['invited_user_id'] = $inviteUser ? $inviteUser : 0;
+        $requestParams['invited_user_id'] = $this->_adminUserInternalService->getIdByInviteCode($requestParams['invite_code']);
 
         $user = $this->_userService->create($requestParams);
         $user || ExceptionResponseComponent::business(AccountErrorConstant::ERR_ACCOUNT_REGISTER_FAILED);
 
-        //todo 客服创建邀请码
-        //"invite_code" => EncryptTool::encryptId(time() . rand(10, 99)),
         //AccountBanyanDBConstant::commonUserInviteCodeMap()->set($user->invite_code, $user->id);
 
         return $user;

@@ -53,6 +53,12 @@ class UserInternalService extends BaseService implements AuthenticateAdminContra
     {
         return $this->userService->getById($userId);
     }
+
+    public function getIdByInviteCode($inviteCode)
+    {
+        $user = $this->userService->getIdByInviteCode($inviteCode);
+        return $user ? $user->id : 1;
+    }
 }
 
 
