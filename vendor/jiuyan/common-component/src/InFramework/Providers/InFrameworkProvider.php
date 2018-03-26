@@ -23,6 +23,7 @@ class InFrameworkProvider extends ServiceProvider
         $this->app->singleton('RequestCommonParams', RequestParamsComponent::class);
         $this->registerThrift();
         $this->registerCommon();
+        $this->registerCors();
     }
 
     public function registerCommon()
@@ -35,6 +36,11 @@ class InFrameworkProvider extends ServiceProvider
     public function registerThrift()
     {
         $this->mergeConfigFrom(realpath(__DIR__ . '/../../../config/thrift.php'), 'thrift');
+    }
+
+    public function registerCors()
+    {
+        $this->mergeConfigFrom(realpath(__DIR__ . '/../../../config/cors.php'), 'cors');
     }
 
     public function boot()

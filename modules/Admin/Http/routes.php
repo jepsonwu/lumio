@@ -16,7 +16,6 @@ app()->group([
 ], function (\Laravel\Lumen\Application $app) {
     $app->get("/login", 'AccountController@index');
     $app->post("/login", 'AccountController@login');
-    $app->get("/logout", 'AccountController@logout');
 });
 
 app()->group([

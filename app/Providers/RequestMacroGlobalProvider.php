@@ -36,6 +36,7 @@ class RequestMacroGlobalProvider extends ServiceProvider
     protected function registerCommon()
     {
         $this->app->configure("common");
+        $this->app->configure("cors");
     }
 
     protected function registerSession()

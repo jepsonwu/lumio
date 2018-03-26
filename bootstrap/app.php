@@ -49,13 +49,14 @@ $app->withFacades(true, $userAliases);
 $app->withEloquent();
 
 $app->middleware([
-    \Illuminate\Session\Middleware\StartSession::class
+    \Illuminate\Session\Middleware\StartSession::class,
+    \Jiuyan\Common\Component\InFramework\Middleware\CorsMiddleware::class
 ]);
 $app->routeMiddleware(
     [
         'jiuyan.api.auth' => \Jiuyan\LumioSSO\Middlewares\ApiAuthMiddleware::class,
         'jiuyan.admin.auth' => \Jiuyan\LumioSSO\Middlewares\AdminMiddleware::class,
-        'jiuyan.api.sign' => \Jiuyan\Common\Component\InFramework\Middleware\RequestSignatureMiddleware::class
+        'jiuyan.api.sign' => \Jiuyan\Common\Component\InFramework\Middleware\RequestSignatureMiddleware::class,
     ]
 );
 
