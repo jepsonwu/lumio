@@ -94,8 +94,8 @@ class SmsSendChannel
 
             } else {
 
-                $sms_result_value = $VetoChannel;
-
+                //$sms_result_value = $VetoChannel;
+                $sms_result_value = [];
             }
 
             if ($succ) {

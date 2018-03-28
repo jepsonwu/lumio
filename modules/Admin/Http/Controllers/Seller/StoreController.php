@@ -48,8 +48,8 @@ class StoreController extends AdminController
 
         //todo 放到合适的位置 todo 有个分库分表的bug
         $query = Store::query();
-        $list = $query->where($conditions)->paginate(10);
-
+        $list = $query->where($conditions)->paginate(2);
+        //return $this->success($list);
         return $this->render('admin/seller-store/index', [
             'list' => $list,
             'params' => $params
