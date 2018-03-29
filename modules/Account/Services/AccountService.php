@@ -46,7 +46,6 @@ class AccountService extends BaseService
 
     public function register($requestParams)
     {
-        dd($this->_adminUserInternalService->getIdByInviteCode($requestParams['invite_code']));
         $this->_checkPasswordAvailable($requestParams['password'], $requestParams['confirm_password']);
         $this->_checkSmsCaptcha($requestParams['mobile'], $requestParams['captcha']);
         $this->_userService->getByMobile($requestParams['mobile'])

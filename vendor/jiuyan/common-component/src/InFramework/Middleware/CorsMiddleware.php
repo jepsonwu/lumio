@@ -19,7 +19,7 @@ class CorsMiddleware
             || in_array('*', $crossAllow) || strpos($origin, "chrome-extension") !== -1
         ) {
             $this->headers = [
-                'Access-Control-Allow-Origin' => "*",//empty($origin) ? "*" : $origin
+                'Access-Control-Allow-Origin' => empty($origin) ? "*" : $origin,
                 'Access-Control-Allow-Headers' => 'x-requested-with, Content-Type',
                 'Access-Control-Allow-Methods' => '*',
                 'Access-Control-Allow-Credentials' => 'true'
