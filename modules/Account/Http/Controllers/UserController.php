@@ -3,8 +3,10 @@
 namespace Modules\Account\Http\Controllers;
 
 use App\Components\Helpers\AuthHelper;
+use App\Constants\GlobalDBConstant;
 use Illuminate\Http\Request;
 use Jiuyan\Common\Component\InFramework\Controllers\ApiBaseController;
+use Modules\Account\Models\User;
 use Modules\Account\Services\UserService;
 
 class UserController extends ApiBaseController
@@ -14,6 +16,52 @@ class UserController extends ApiBaseController
     public function __construct(UserService $userService)
     {
         $this->userService = $userService;
+    }
+
+    /**
+     *
+     *
+     * @api {GET} /api/user/v1/assign-list 派发用户列表
+     * @apiSampleRequest /api/task/v1/assign-list
+     *
+     * @apiVersion 1.0.0
+     *
+     * @apiGroup user
+     * @apiName assign-list
+     *
+     * @apiParam {string} [username] 用户名
+     * @apiParam {string} [mobile] 手机号
+     *
+     * @apiError  20113
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * {"succ":true,"data":{"current_page":"1","data":[{"id":"10","username":"jepson","avatar":"","mobile":"18258438129","gender":"1","qq":"11","email":"11","invited_user_id":"0","invite_code":"1QKXVDDaAb","role":"1","level":"1","open_status":"1","taobao_account":"","jd_account":"","token":"","created_at":"1518423978"}],"from":"1","last_page":"1","next_page_url":"","path":"http:\/\/test.lumio.com\/api\/user\/v1\/assign-list","per_page":"10","prev_page_url":"","to":"1","total":"1"},"code":"0","msg":"","time":"1523188266"}
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function assignList(Request $request)
+    {
+        $this->validate($request, [
+            "username" => ['bail', 'string', 'between:1,50'],
+            'mobile' => 'mobile',
+        ]);
+
+        $params = $this->requestParams->getRegularParams();
+        $params = array_filter($params, function ($val) {
+            return $val != "";
+        });
+
+        $conditions = [
+            ["role", "=", User::ROLE_BUYER],
+            ["open_status", "=", GlobalDBConstant::DB_TRUE]
+        ];
+        isset($params['username'])
+        && $conditions['username'] = ['username', 'like', "%{$params['username']}%"];
+        isset($params['mobile']) && $conditions['mobile'] = $params['mobile'];
+
+        $result = $this->userService->list($conditions);
+        return $this->success($result);
     }
 
     /**
@@ -84,8 +132,7 @@ class UserController extends ApiBaseController
     public function userDetail(Request $request, $userId)
     {
         $user = $this->userService->isValidById($userId);
-        //todo 返回安全信息
-        $user->token = "";
+        $user = $this->userService->formatSecurity($user);
         return $this->success($user);
     }
 

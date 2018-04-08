@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Container\Container as Application;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Pagination\Paginator;
 use Prettus\Repository\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Prettus\Repository\Contracts\CriteriaInterface;
@@ -424,6 +425,14 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         return $this->parserResult($results);
     }
 
+    /**
+     * @param $where
+     * @param null $limit
+     * @param array $columns
+     * @param string $method
+     * @return mixed|Paginator
+     * @throws RepositoryException
+     */
     public function paginateWithWhere($where, $limit = null, $columns = ['*'], $method = "paginate")
     {
         $this->applyCriteria();

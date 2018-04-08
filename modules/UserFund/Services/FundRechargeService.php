@@ -63,7 +63,7 @@ class FundRechargeService extends BaseService
         $attributes['source_account_type'] = FundRecharge::ACCOUNT_TYPE_BACK;
         $attributes['destination_account_type'] = FundRecharge::ACCOUNT_TYPE_BACK;
         $attributes['recharge_status'] = FundRecharge::RECHARGE_STATUS_VERIFYING;
-        $attributes['recharge_time'] = time();
+        //$attributes['recharge_time'] = time();
         $attributes['created_at'] = time();
 
         return $this->getRepository()->create($attributes);

@@ -10,7 +10,9 @@ use Modules\Account\Constants\AccountErrorConstant;
 use Modules\Account\Models\User;
 use Modules\UserFund\Constants\UserFundErrorConstant;
 use Modules\UserFund\Models\Fund;
+use Modules\UserFund\Models\FundRecharge;
 use Modules\UserFund\Models\FundRecord;
+use Modules\UserFund\Models\FundWithdraw;
 
 class WalletService extends BaseService
 {
@@ -50,7 +52,20 @@ class WalletService extends BaseService
 
     public function rechargeList($conditions)
     {
-        return $this->_fundRechargeService->getRepository()->paginateWithWhere($conditions, 10);
+        $rechargeList = [];
+
+        $result = $this->_fundRechargeService->getRepository()->paginateWithWhere($conditions, 10);
+        $result->each(function (FundRecharge $recharge) use (&$rechargeList) {
+            $item = $recharge->transform();
+            $item['source_account_info'] = $this->_accountService->formatSecurity(
+                $this->_accountService->isValidAccount($recharge->source_account_id)
+            )->transform();
+            $item['destination_account_info'] = $this->_accountService->getSystemById($recharge->destination_account_id);
+
+            $rechargeList[] = $item;
+        });
+
+        return $result->setCollection(new Collection($rechargeList));
     }
 
     public function checkRechargePermission($userId)
@@ -180,7 +195,19 @@ class WalletService extends BaseService
 
     public function withdrawList($conditions)
     {
-        return $this->_fundWithdrawService->getRepository()->paginateWithWhere($conditions, 10);
+        $withdrawList = [];
+
+        $result = $this->_fundWithdrawService->getRepository()->paginateWithWhere($conditions, 10);
+        $result->each(function (FundWithdraw $withdraw) use (&$withdrawList) {
+            $item = $withdraw->transform();
+            $item['account_info'] = $this->_accountService->formatSecurity(
+                $this->_accountService->isValidAccount($withdraw->account_id)
+            )->transform();
+
+            $withdrawList[] = $item;
+        });
+
+        return $result->setCollection(new Collection($withdrawList));
     }
 
     public function checkWithdrawPermission($userId)

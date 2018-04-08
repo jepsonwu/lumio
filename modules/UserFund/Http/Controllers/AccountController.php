@@ -39,18 +39,7 @@ class AccountController extends ApiBaseController
      */
     public function systemList(Request $request)
     {
-        $result = [
-            [
-                "id" => 1,
-                "user_id" => 1,
-                "real_name" => "jepson",
-                "id_card" => "123123",
-                "bank_card" => "3123213",
-                "bank" => "招行",
-                "bankfiliale" => "招行"
-            ]
-        ];
-        return $this->success($result);
+        return $this->success($this->accountService->getSystemList());
     }
 
     /**

@@ -118,7 +118,7 @@ class WalletController extends ApiBaseController
      * @apiError  20113
      *
      * @apiSuccessExample {json} Success-Response:
-     * {"succ":true,"data":{"current_page":"1","data":[{"id":"1","user_id":"10","fund_record_id":"3","amount":"100","source_account_type":"1","source_account_id":"4","destination_account_id":"1","destination_account_type":"1","recharge_time":"1520045510","recharge_status":"0","verify_time":"1","verify_remark":"","verify_user_id":"0","created_at":"1520045510"}],"from":"1","last_page":"1","next_page_url":"","path":"http:\/\/test.lumio.com\/api\/user-fund\/wallet\/v1\/recharge","per_page":"10","prev_page_url":"","to":"1","total":"1"},"code":"0","msg":"","time":"1520046479"}
+     * {"succ":true,"data":{"current_page":"1","data":[{"id":"1","user_id":"10","fund_record_id":"3","amount":"100","source_account_type":"1","source_account_id":"4","destination_account_id":"1","destination_account_type":"1","recharge_time":"1520045510","recharge_status":"3","verify_time":"1","verify_remark":"","verify_user_id":"0","created_at":"1520045510","source_account_info":{"id":"4","user_id":"10","real_name":"\u5434\u5065\u5e73","id_card":"3602221991078362","bank_card":"234234343413134","bank":"\u4e2d\u56fd\u94f6\u884c","bankfiliale":"\u676d\u5dde\u4e5d\u5821\u652f\u884c","created_at":"1518760738"},"destination_account_info":{"id":"1","user_id":"1","real_name":"jepson","id_card":"123123","bank_card":"3123213","bank":"\u62db\u884c","bankfiliale":"\u62db\u884c"}}],"from":"1","last_page":"1","next_page_url":"","path":"http:\/\/test.lumio.com\/api\/user-fund\/wallet\/v1\/recharge","per_page":"10","prev_page_url":"","to":"1","total":"1"},"code":"0","msg":"","time":"1523189055"}
      *
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
@@ -166,6 +166,7 @@ class WalletController extends ApiBaseController
      * @apiError  20113
      *
      * @apiSuccess {int} amount
+     * @apiSuccess {int} recharge_time
      * @apiSuccess {int} source_account_id
      * @apiSuccess {int} source_account_type
      * @apiSuccess {int} destination_account_id
@@ -185,6 +186,7 @@ class WalletController extends ApiBaseController
     {
         $this->validate($request, [
             'amount' => ['bail', 'int', 'required'],
+            'recharge_time' => ['bail', 'int', 'required'],
             'source_account_id' => ['bail', 'int', 'required'],
             'source_account_type' => ['bail', 'int', 'required', 'in:1,2,3'],
             'destination_account_id' => ['bail', 'int', 'required'],
@@ -238,7 +240,7 @@ class WalletController extends ApiBaseController
      * @apiError  20113
      *
      * @apiSuccessExample {json} Success-Response:
-     * {"succ":true,"data":{"current_page":"1","data":[{"id":"1","user_id":"10","fund_record_id":"4","amount":"100","account_id":"4","account_type":"1","withdraw_status":"0","withdraw_time":"1520046897","verify_remark":"","verify_time":"0","verify_user_id":"0","created_at":"1520046897"}],"from":"1","last_page":"1","next_page_url":"","path":"http:\/\/test.lumio.com\/api\/user-fund\/wallet\/v1\/withdraw","per_page":"10","prev_page_url":"","to":"1","total":"1"},"code":"0","msg":"","time":"1520047068"}
+     * {"succ":true,"data":{"current_page":"1","data":[{"id":"1","user_id":"10","fund_record_id":"4","amount":"100","account_id":"4","account_type":"1","withdraw_status":"1","withdraw_time":"1520046897","verify_remark":"","verify_time":"1521036800","verify_user_id":"1","created_at":"1520046897","account_info":{"id":"4","user_id":"10","real_name":"\u5434\u5065\u5e73","id_card":"3602221991078362","bank_card":"234234343413134","bank":"\u4e2d\u56fd\u94f6\u884c","bankfiliale":"\u676d\u5dde\u4e5d\u5821\u652f\u884c","created_at":"1518760738"}}],"from":"1","last_page":"1","next_page_url":"","path":"http:\/\/test.lumio.com\/api\/user-fund\/wallet\/v1\/withdraw","per_page":"10","prev_page_url":"","to":"1","total":"1"},"code":"0","msg":"","time":"1523189159"}
      *
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response

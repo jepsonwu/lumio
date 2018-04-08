@@ -9,6 +9,7 @@
 namespace Modules\Account\Services;
 
 use App\Constants\GlobalDBConstant;
+use Illuminate\Support\Collection;
 use Jiuyan\Common\Component\InFramework\Components\ExceptionResponseComponent;
 use Jiuyan\Common\Component\InFramework\Services\BaseService;
 use Jiuyan\Tools\Business\EncryptTool;
@@ -27,6 +28,16 @@ class UserService extends BaseService
         $this->_requestParamsComponent = app('RequestCommonParams');
     }
 
+    public function list($conditions)
+    {
+        $result = $this->getRepository()->paginateWithWhere($conditions, 10);
+        $result->each(function (User $user) {
+            return $this->formatSecurity($user);
+        });
+
+        return $result;
+    }
+
     /**
      * @param $userId
      * @return \Modules\Account\Models\User
@@ -34,6 +45,25 @@ class UserService extends BaseService
     public function getById($userId)
     {
         $user = $this->getRepository()->find($userId);
+        return $user;
+    }
+
+    public function formatSecurity($userMix)
+    {
+        if (is_array($userMix) || $userMix instanceof Collection) {
+            foreach ($userMix as &$user) {
+                $user = $this->formatSecurityRaw($user);
+            }
+        } else {
+            $userMix = $this->formatSecurityRaw($userMix);
+        }
+
+        return $userMix;
+    }
+
+    protected function formatSecurityRaw(User $user)
+    {
+        $user->token = "";
         return $user;
     }
 

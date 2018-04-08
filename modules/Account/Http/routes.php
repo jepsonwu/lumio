@@ -29,6 +29,7 @@ Route::version('v1', [
     'namespace' => 'Modules\Account\Http\Controllers',
     'middleware' => ['jiuyan.api.auth']
 ], function () {
+    Route::get('/assign-list', 'UserController@assignList');
     Route::get('/', 'UserController@myDetail');
     Route::get('/{id}', 'UserController@userDetail');
     Route::put('/', 'UserController@update');

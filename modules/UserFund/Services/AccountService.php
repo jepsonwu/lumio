@@ -14,10 +14,38 @@ class AccountService extends BaseService
 {
     const BANYAN_USER_FUND_STAT_ACCOUNT_NUMBER_KEY = "account_number";
 
+    protected $systemList = [
+        1 => [
+            "id" => 1,
+            "user_id" => 1,
+            "real_name" => "jepson",
+            "id_card" => "",
+            "bank_card" => "3123213",
+            "bank" => "招行",
+            "bankfiliale" => "招行"
+        ]
+    ];
+
     public function __construct(AccountRepositoryEloquent $accountRepositoryEloquent)
     {
         $this->setRepository($accountRepositoryEloquent);
         $this->_requestParamsComponent = app('RequestCommonParams');
+    }
+
+    public function getSystemList()
+    {
+        return array_values($this->systemList);
+    }
+
+    public function getSystemById($id)
+    {
+        return array_get($this->systemList, $id, []);
+    }
+
+    public function formatSecurity(Account $account)
+    {
+        $account->id_card = "";
+        return $account;
     }
 
     /**
