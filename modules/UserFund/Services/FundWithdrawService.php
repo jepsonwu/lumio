@@ -60,7 +60,7 @@ class FundWithdrawService extends BaseService
     {
         $attributes['user_id'] = $userId;
         $attributes['fund_record_id'] = $fundRecordId;
-        $attributes['account_type'] = FundWithdraw::ACCOUNT_TYPE_BACK;
+        $attributes['account_type'] = FundWithdraw::ACCOUNT_TYPE_BANK;
         $attributes['withdraw_status'] = FundWithdraw::WITHDRAW_STATUS_VERIFYING;
         $attributes['withdraw_time'] = time();
         $attributes['created_at'] = time();

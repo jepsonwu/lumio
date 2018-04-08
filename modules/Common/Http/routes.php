@@ -6,5 +6,6 @@ Route::version('v1', [
     'middleware' => ['jiuyan.api.auth']
 ], function () {
     Route::get('/upload-token', 'UploadController@token');
+    Route::get('/sms-captcha', 'CommonController@getSmsCaptcha');
 });
 

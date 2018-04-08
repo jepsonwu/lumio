@@ -9,6 +9,8 @@ Route::version('v1', [
     Route::post('/', 'AccountController@create');
     Route::put('/{id}', 'AccountController@update');
     Route::delete('/{id}', 'AccountController@delete');
+
+    Route::get('/system-list', 'AccountController@systemList');
 });
 
 Route::version('v1', [

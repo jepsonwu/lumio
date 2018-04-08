@@ -35,7 +35,7 @@ class FundWithdraw extends Model implements Transformable, IModelAccess
 
     protected $table = "user_fund_withdraw";
 
-    const ACCOUNT_TYPE_BACK = 1;
+    const ACCOUNT_TYPE_BANK = 1;
     const ACCOUNT_TYPE_ALIPAY = 2;
     const ACCOUNT_TYPE_WECHAT = 3;
 

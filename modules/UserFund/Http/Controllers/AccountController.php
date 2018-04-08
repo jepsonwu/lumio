@@ -16,21 +16,52 @@ class AccountController extends ApiBaseController
         $this->accountService = $accountService;
     }
 
-    //todo 系统账号
-    public function systemList()
+    /**
+     *
+     *
+     * @api {GET} /api/user-fund/account/v1/system-list 系统资金账户
+     * @apiSampleRequest /api/user-fund/account/v1/system-list
+     *
+     * @apiVersion 1.0.0
+     *
+     * @apiGroup user-fund-account
+     * @apiName system-list
+     *
+     *
+     *
+     * @apiError  20113
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * {"succ":true,"data":[{"id":"1","user_id":"1","real_name":"jepson","id_card":"123123","bank_card":"3123213","bank":"\u62db\u884c","bankfiliale":"\u62db\u884c"}],"code":"0","msg":"","time":"1523185046"}
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function systemList(Request $request)
     {
-
+        $result = [
+            [
+                "id" => 1,
+                "user_id" => 1,
+                "real_name" => "jepson",
+                "id_card" => "123123",
+                "bank_card" => "3123213",
+                "bank" => "招行",
+                "bankfiliale" => "招行"
+            ]
+        ];
+        return $this->success($result);
     }
 
     /**
      *
      *
-     * @api {GET} /api/user-fund/v1 我的资金账户
-     * @apiSampleRequest /api/user-fund/v1
+     * @api {GET} /api/user-fund/account/v1 我的资金账户
+     * @apiSampleRequest /api/user-fund/account/v1
      *
      * @apiVersion 1.0.0
      *
-     * @apiGroup user-fund
+     * @apiGroup user-fund-account
      * @apiName list
      *
      *
@@ -52,12 +83,12 @@ class AccountController extends ApiBaseController
     /**
      *
      *
-     * @api {POST} /api/user-fund/v1 创建资金账户
-     * @apiSampleRequest /api/user-fund/v1
+     * @api {POST} /api/user-fund/account/v1 创建资金账户
+     * @apiSampleRequest /api/user-fund/account/v1
      *
      * @apiVersion 1.0.0
      *
-     * @apiGroup user-fund
+     * @apiGroup user-fund-account
      * @apiName create
      *
      * @apiParam {string} real_name 真实姓名
@@ -93,12 +124,12 @@ class AccountController extends ApiBaseController
     /**
      *
      *
-     * @api {PUT} /api/user-fund/v1/{id} 修改资金账户
-     * @apiSampleRequest /api/user-fund/v1/{id}
+     * @api {PUT} /api/user-fund/account/v1/{id} 修改资金账户
+     * @apiSampleRequest /api/user-fund/account/v1/{id}
      *
      * @apiVersion 1.0.0
      *
-     * @apiGroup user-fund
+     * @apiGroup user-fund-account
      * @apiName update
      *
      * @apiParam {string} real_name 真实姓名
@@ -136,12 +167,12 @@ class AccountController extends ApiBaseController
     /**
      *
      *
-     * @api {DELETE} /api/user-fund/v1/{id} 删除资金账户
-     * @apiSampleRequest /api/user-fund/v1/{id}
+     * @api {DELETE} /api/user-fund/account/v1/{id} 删除资金账户
+     * @apiSampleRequest /api/user-fund/account/v1/{id}
      *
      * @apiVersion 1.0.0
      *
-     * @apiGroup user-fund
+     * @apiGroup user-fund-account
      * @apiName delete
      *
      * @apiError  20113

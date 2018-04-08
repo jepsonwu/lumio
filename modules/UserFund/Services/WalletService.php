@@ -73,7 +73,7 @@ class WalletService extends BaseService
             $fundRecord = $this->_fundRecordService->prepareRecharge(
                 $userId,
                 $amount,
-                "提现"
+                "充值"
             );
             $this->throwDBException(
                 $fundRecord,
@@ -205,7 +205,7 @@ class WalletService extends BaseService
                 $userId,
                 $amount,
                 $this->makeWithdrawCommission($amount),
-                "充值"
+                "提现"
             );
             $this->throwDBException(
                 $fundRecord,
