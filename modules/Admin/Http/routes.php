@@ -33,8 +33,8 @@ app()->group([
 ], function (\Laravel\Lumen\Application $app) {
     resource($app, '/store', 'StoreController');
 
-    $app->post("/store/{id}/verify-fail", 'StoreController@verifyFail');
-    $app->post("/store/{id}/verify-pass", 'StoreController@verifyPass');
+    $app->post("/store/verify-fail", 'StoreController@verifyFail');
+    $app->post("/store/verify-pass", 'StoreController@verifyPass');
 });
 
 app()->group([
@@ -51,12 +51,12 @@ app()->group([
     'middleware' => ['jiuyan.admin.auth']
 ], function (\Laravel\Lumen\Application $app) {
     resource($app, '/withdraw', 'WithdrawController');
-    $app->post("/withdraw/{id}/verify-fail", 'WithdrawController@verifyFail');
-    $app->post("/withdraw/{id}/verify-pass", 'WithdrawController@verifyPass');
+    $app->post("/withdraw/verify-fail", 'WithdrawController@verifyFail');
+    $app->post("/withdraw/verify-pass", 'WithdrawController@verifyPass');
 
     resource($app, '/recharge', 'RechargeController');
-    $app->post("/recharge/{id}/verify-fail", 'RechargeController@verifyFail');
-    $app->post("/recharge/{id}/verify-pass", 'RechargeController@verifyPass');
+    $app->post("/recharge/verify-fail", 'RechargeController@verifyFail');
+    $app->post("/recharge/verify-pass", 'RechargeController@verifyPass');
 
     resource($app, '/record', 'RecordController');
     resource($app, '/account', 'AccountController');

@@ -5,7 +5,7 @@ $(function () {
     //global setup
     $.ajaxSetup({
         data: {
-            '_token': getCsrfToken()
+            '_xtoken': getCsrfToken()
         },
         error: function () {
             console.log(arguments);
@@ -36,7 +36,7 @@ $(function () {
                 url = url.substr(0, url.length - 1);
             }
             if (url.substr(0))
-            url = url + "/" + id;
+                url = url + "/" + id;
         }
 
         $.ajax({
@@ -50,11 +50,11 @@ $(function () {
                 }
                 alert('删除失败【' + data.message + '】');
             },
-            complete: function(xhr){
+            complete: function (xhr) {
                 console.log(xhr.responseJSON);
-                if(xhr.responseJSON){
+                if (xhr.responseJSON) {
                     console.log(xhr.responseJSON.data._token);
-                    if(xhr.responseJSON.data._token){
+                    if (xhr.responseJSON.data._token) {
                         updateCsrfToken(xhr.responseJSON.data._token);
                     }
                 }

@@ -56,22 +56,28 @@ class StoreController extends AdminController
         ]);
     }
 
-    public function verifyFail(Request $request, $id)
+    public function verifyFail(Request $request)
     {
         $this->validate($request, [
-            "reason" => "required|string|between:1,100"
+            "reason" => "required|string|between:1,100",
+            "id" => "required|integer"
         ]);
 
         //todo auth
         $params = $this->requestParams->getRegularParams();
-        $this->sellerInternalService->verifyFailStore($id, $params['reason'], 1);
+        $this->sellerInternalService->verifyFailStore($params['id'], $params['reason'], 1);
 
         return $this->success([]);
     }
 
-    public function verifyPass(Request $request, $id)
+    public function verifyPass(Request $request)
     {
-        $this->sellerInternalService->verifyPassStore($id, 1);
+        $this->validate($request, [
+            "id" => "required|integer"
+        ]);
+
+        $params = $this->requestParams->getRegularParams();
+        $this->sellerInternalService->verifyPassStore($params['id'], 1);
 
         return $this->success([]);
     }

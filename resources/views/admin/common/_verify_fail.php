@@ -42,10 +42,11 @@
             var id = $(this).data('id');
             var route = $(this).data('route');
             $.ajax({
-                url: route + id + "/verify-fail",
+                url: route + "/verify-fail",
                 method: 'post',
                 data: {
-                    reason: verify_reason
+                    reason: verify_reason,
+                    id: id
                 },
                 success: function (data) {
                     if (data.succ) {
@@ -60,7 +61,7 @@
                 complete: function (xhr) {
                     if (xhr.responseJSON) {
                         if (xhr.responseJSON.data._token) {
-                            updateCsrfToken(xhr.responseJSON.data._token);
+                            updateCsrfToken(xhr.responseJSON.data._xtoken);
                         }
                     }
                 }
@@ -78,11 +79,14 @@
                 url = url.substr(0, url.length - 1);
             }
             if (url.substr(0))
-                url = url + "/" + id + "/verify-pass";
+                url = url + "/verify-pass";
 
             $.ajax({
                 url: url,
                 method: 'post',
+                data: {
+                    id: id
+                },
                 success: function (data) {
                     if (data.succ) {
                         window.location.reload()
@@ -95,7 +99,7 @@
                 complete: function (xhr) {
                     if (xhr.responseJSON) {
                         if (xhr.responseJSON.data._token) {
-                            updateCsrfToken(xhr.responseJSON.data._token);
+                            updateCsrfToken(xhr.responseJSON.data._xtoken);
                         }
                     }
                 }

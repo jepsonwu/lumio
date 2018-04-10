@@ -45,7 +45,6 @@ class UserService extends BaseService
         $data = AccountBanyanDBConstant::commonAccountUserLoginToken()->get($token);
         $data = json_decode($data, true);
         $data || $data = [];
-
         $valid = array_get($data, "valid", 0);
         $userId = $valid > time() ? array_get($data, "id", 0) : 0;
 
@@ -62,6 +61,7 @@ class UserService extends BaseService
             "valid" => time() + self::TOKEN_EXPIRES
         ];
         AccountBanyanDBConstant::commonAccountUserLoginToken()->set($token, json_encode($data));
+
         $user->setToken($token);
     }
 }

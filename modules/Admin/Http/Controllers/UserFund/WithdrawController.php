@@ -47,21 +47,27 @@ class WithdrawController extends AdminController
         ]);
     }
 
-    public function verifyFail(Request $request, $id)
+    public function verifyFail(Request $request)
     {
         $this->validate($request, [
-            "reason" => "required|string|between:1,100"
+            "reason" => "required|string|between:1,100",
+            "id" => "required|integer"
         ]);
 
         $params = $this->requestParams->getRegularParams();
-        $this->userFundInternalService->failWithdraw($id, 1, $params['reason']);
+        $this->userFundInternalService->failWithdraw($params['id'], 1, $params['reason']);
 
         return $this->success([]);
     }
 
-    public function verifyPass(Request $request, $id)
+    public function verifyPass(Request $request)
     {
-        $this->userFundInternalService->passWithdraw($id, 1);
+        $this->validate($request, [
+            "id" => "required|integer"
+        ]);
+
+        $params = $this->requestParams->getRegularParams();
+        $this->userFundInternalService->passWithdraw($params['id'], 1);
 
         return $this->success([]);
     }

@@ -23,9 +23,9 @@ class AccountController extends AdminController
 
     public function index(Request $request)
     {
-        if (AuthHelper::user()) {
-            return $this->render('admin/index', []);
-        }
+//        if (AuthHelper::user()) {
+//            return $this->render('admin/index', []);
+//        }
 
         return $this->render('admin/auth/index', [
             'list' => [],
