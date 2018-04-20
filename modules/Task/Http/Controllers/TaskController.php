@@ -192,6 +192,45 @@ class TaskController extends ApiBaseController
     }
 
     /**
+     *
+     *
+     * @api {POST} /api/task/v1/{id} 任务详情
+     * @apiSampleRequest /api/task/v1/{id}
+     *
+     * @apiVersion 1.0.0
+     *
+     * @apiGroup task
+     * @apiName detail
+     *
+     * @apiError  20113
+     *
+     * @apiSuccess {int} id
+     * @apiSuccess {int} user_id
+     * @apiSuccess {int} store_id
+     * @apiSuccess {int} goods_id
+     * @apiSuccess {string} goods_name
+     * @apiSuccess {int} goods_price
+     * @apiSuccess {string} goods_image
+     * @apiSuccess {int} finished_order_number 完成总订单数
+     * @apiSuccess {int} doing_order_number 正在进行订单数
+     * @apiSuccess {int} waiting_order_number 等待进行订单数
+     * @apiSuccess {int} task_status 任务状态：1-waiting，2-doing，3-done，4-close
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * {"succ":true,"data":{"id":"1","task_name":"","user_id":"10","store_id":"1","goods_id":"1","goods_name":"demo","goods_price":"1","goods_image":"","goods_keyword":"cc","total_order_number":"10","finished_order_number":"0","waiting_order_number":"0","doing_order_number":"0","platform":"1","task_status":"4","created_at":"1519822522"},"code":"0","msg":"","time":"1524188613"}
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     * @throws \Jiuyan\Common\Component\InFramework\Exceptions\BusinessException
+     */
+    public function detail(Request $request, $id)
+    {
+        $store = $this->taskService->isValidTask($id);
+        return $this->success($store);
+    }
+
+    /**
      *只能修改总订单数、搜索关键字、平台
      *
      * @api {PUT} /api/task/v1/{id} 修改任务

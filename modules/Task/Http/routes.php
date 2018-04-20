@@ -9,6 +9,7 @@ Route::version('v1', [
     Route::get('/', 'TaskController@list');
     Route::get('/check', 'TaskController@isAllowCreate');
     Route::post('/', 'TaskController@create');
+    Route::get('/{id}', 'TaskController@detail');
     Route::put('/{id}', 'TaskController@update');
     Route::delete('/{id}', 'TaskController@close');
 });
