@@ -38,4 +38,5 @@ class TaskErrorConstant
     const ERR_TASK_ORDER_DISALLOW_FREEZE = '23221|不允许冻结任务';
     const ERR_TASK_ORDER_UNFREEZE_FAILED = '23222|任务订单解冻失败';
     const ERR_TASK_ORDER_DISALLOW_UNFREEZE = '23223|不允许解冻任务';
+    const ERR_TASK_ORDER_APPLIED = '23224|已经申请过该任务了';
 }

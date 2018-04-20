@@ -83,6 +83,10 @@ class TaskOrderService extends BaseService
 
     public function checkPermission($userId, $taskId)
     {
+        $this->getRepository()->getByUserTask($userId, $taskId) &&
+        ExceptionResponseComponent::business(TaskErrorConstant::ERR_TASK_ORDER_APPLIED);
+
+
         $task = $this->_taskService->isValidTask($taskId);
         InternalServiceFactory::getSellerInternalService()->isTaobaoStore($task->store_id)
             ? InternalServiceFactory::getUserInternalService()->isDeployTaobaoAccount($userId)
@@ -259,6 +263,7 @@ class TaskOrderService extends BaseService
         $taskOrder = $this->isValidTaskOrder($taskOrderId);
         $this->isAllowDone($userId, $taskOrder);
 
+        //todo 任务需要记录资金记录ID
         return $this->doingTransaction(function () use ($userId, $taskOrder) {
             $task = $this->_taskService->isValidTask($taskOrder->task_id, true);
             $this->throwDBException(

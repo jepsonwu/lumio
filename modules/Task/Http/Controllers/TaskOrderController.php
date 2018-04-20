@@ -28,6 +28,7 @@ class TaskOrderController extends ApiBaseController
      * @apiName list
      *
      * @apiParam {int} [order_status] 状态
+     * @apiParam {int} [task_id] 任务ID
      *
      * @apiError  20113
      *
@@ -41,6 +42,7 @@ class TaskOrderController extends ApiBaseController
     {
         $this->validate($request, [
             'order_status' => ['in:1,2,3,4'],
+            'task_id' => ['integer'],
         ]);
 
         $params = $this->requestParams->getRegularParams();
@@ -54,6 +56,7 @@ class TaskOrderController extends ApiBaseController
             $userKey => $user->id,
         ];
         isset($params['order_status']) && $conditions['order_status'] = $params['order_status'];
+        isset($params['task_id']) && $conditions['task_id'] = $params['task_id'];
 
         $result = $this->taskOrderService->list($conditions);
         return $this->success($result);
