@@ -105,6 +105,13 @@ class User extends Model implements Transformable, IModelAccess
         return $this->role == self::ROLE_SELLER;
     }
 
+    public function becomeSeller()
+    {
+        return $this->update([
+            "role" => self::ROLE_SELLER
+        ]);
+    }
+
     public function isAutoApplyTask()
     {
         return $this->open_status == GlobalDBConstant::DB_TRUE;

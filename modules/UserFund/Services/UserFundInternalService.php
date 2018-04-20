@@ -20,10 +20,9 @@ class UserFundInternalService extends BaseService
         $this->accountService->checkDeployAccount($userId);
     }
 
-    //这一步不需要 充值就成为卖家
     public function isFinishedDeployWallet($userId)
     {
-
+        $this->walletService->checkBalance($userId, 1);
     }
 
     //todo 分模块 需要处理code码

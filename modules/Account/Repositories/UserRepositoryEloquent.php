@@ -58,4 +58,9 @@ class UserRepositoryEloquent extends BaseRepository
     {
         return $user->isSeller();
     }
+
+    public function becomeSeller(User $user)
+    {
+        return $user->becomeSeller();
+    }
 }

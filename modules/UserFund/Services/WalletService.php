@@ -2,6 +2,7 @@
 
 namespace Modules\UserFund\Services;
 
+use App\Components\Factories\InternalServiceFactory;
 use Illuminate\Support\Collection;
 use Jiuyan\Captcha\CaptchaComponent;
 use Jiuyan\Common\Component\InFramework\Components\ExceptionResponseComponent;
@@ -134,12 +135,16 @@ class WalletService extends BaseService
                 "fund recharge failed{$errorMessage}"
             );
 
+            $this->throwDBException(
+                InternalServiceFactory::getUserInternalService()->becomeSeller($record->user_id),
+                "fund recharge become seller failed"
+            );
             return true;
-        }, new Collection([
+        }, new Collection(array_merge([
             $this->_fundRecordService->getRepository(),
             $this->_fundService->getRepository(),
-            $this->_fundWithdrawService->getRepository()
-        ]), UserFundErrorConstant::ERR_WALLET_VERIFY_RECHARGE_FAILED);
+            $this->_fundWithdrawService->getRepository(),
+        ], InternalServiceFactory::getUserInternalService()->getRepository())), UserFundErrorConstant::ERR_WALLET_VERIFY_RECHARGE_FAILED);
     }
 
     public function failRecharge($rechargeId, $verifyUserId, $reason)

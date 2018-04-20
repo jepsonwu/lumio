@@ -48,8 +48,10 @@ class TaskOrderController extends ApiBaseController
             return $val != "";
         });
 
+        $user = AuthHelper::user();
+        $userKey = $user->isBuyer() ? "user_id" : "task_user_id";
         $conditions = [
-            "user_id" => AuthHelper::user()->id,
+            $userKey => $user->id,
         ];
         isset($params['order_status']) && $conditions['order_status'] = $params['order_status'];
 

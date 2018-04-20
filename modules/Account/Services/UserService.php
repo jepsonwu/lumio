@@ -18,9 +18,18 @@ use Modules\Account\Models\User;
 use Modules\Account\Repositories\UserRepositoryEloquent;
 use Exception;
 
+/**
+ * Class UserService
+ * @mixin UserRepositoryEloquent
+ * @package Modules\Account\Services
+ */
 class UserService extends BaseService
 {
     const TOKEN_EXPIRES = 864000;
+
+    protected $_allowCallRepositoryMethods = [
+        "becomeSeller"
+    ];
 
     public function __construct(UserRepositoryEloquent $userRepository)
     {

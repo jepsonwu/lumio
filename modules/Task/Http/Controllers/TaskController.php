@@ -19,7 +19,7 @@ class TaskController extends ApiBaseController
 
     /**
      *
-     * @api {GET} /api/task/my/v1 我的任务列表
+     * @api {GET} /api/task/v1/my 我的任务列表
      * @apiSampleRequest /api/task/my/v1
      *
      * @apiVersion 1.0.0
@@ -115,7 +115,7 @@ class TaskController extends ApiBaseController
     /**
      *
      *
-     * @api {GET} /api/task/check/v1 检查是否有权限创建任务
+     * @api {GET} /api/task/v1/check 检查是否有权限创建任务
      * @apiSampleRequest /api/task/check/v1
      *
      * @apiVersion 1.0.0

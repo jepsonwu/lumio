@@ -74,6 +74,12 @@ class UserInternalService extends BaseService implements AuthenticateContract
         return $this->userService->isBuyer($user);
     }
 
+    public function becomeSeller($userId)
+    {
+        $user = $this->userService->isValidById($userId);
+        return $this->userService->becomeSeller($user);
+    }
+
     public function isDeployTaobaoAccount($userId)
     {
         $user = $this->userService->isValidById($userId);
@@ -90,6 +96,11 @@ class UserInternalService extends BaseService implements AuthenticateContract
     {
         $user = $this->userService->isValidById($userId);
         return $this->userService->isAutoApplyTask($user);
+    }
+
+    public function getRepository()
+    {
+        return [$this->userService->getRepository()];
     }
 }
 
