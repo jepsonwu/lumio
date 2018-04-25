@@ -13,8 +13,8 @@ use In\Sms\config\SmsConfig;
 class Montnetssms extends BaseSmsAgent
 {
     protected $url = "http://122.144.173.66:5102/mwgate/wmgw.asmx";
-    protected $user = "send01";
-    protected $pwd = "123456";
+    protected $user = "";
+    protected $pwd = "";
 
 
     /**

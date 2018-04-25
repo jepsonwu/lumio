@@ -156,8 +156,8 @@ Route::version('v1', ['prefix' => 'prefix', 'middleware'=>'middlewareName', 'nam
 
 ```
 return array(
-    'host' => '10.10.106.35', // statsd的服务器地址
-    'port' => 8125,
+    'host' => '', // statsd的服务器地址
+    'port' => ,
     'timeout' => 3,
     'namespace' => 'stats.apps.information',  // 打点前缀
 );
@@ -176,8 +176,6 @@ return [
 
 ```
 
-访问连接中加入$_REQUEST['xhp']  = 1 可以获取xhprof 信息。
-
 
 ## api用户信息获取
 
@@ -195,10 +193,10 @@ return [
 2. 后台管理员登陆信息, 后台配置文件 sso_auth.php
 ```php
 return [
-    'callback' => 'http://www.in66.com/admin',
-    'sso_base_domain' => 'itugo.com',
-    'sso_domain' => 'http://ssoadmin.itugo.com',
-    'router_prefix' => '/admin'
+    'callback' => '',
+    'sso_base_domain' => '',
+    'sso_domain' => '',
+    'router_prefix' => ''
 ];
 ```
 
@@ -294,11 +292,6 @@ ApcIdGeneratorFactory::getInstance('这里是表名(来存储各个id端的数�
 
 
 ## 接口访问的全局参数
-
-```
-1. qa测试全局参数 _ch=Enterprise&_ct=8&_g=m&_idfa=52532F47-86C4-4453-B013-570B34A77F93&_n=wifi&_osv=10.2.1&_pf=iPhone7%2C2&_res=375&_s=ios&_token=c0a53e9715e26ec00d4a891381a4de88&_udid=88C4B3B605C845C1A981B3817C2A1C85&_uiid=40CFF496-2324-4746-9748-A2407AAE7890&_uuid=88C4B3B605C845C1A981B3817C2A1C85&_v=3.0.4&_wm=58%3Ab6%3A33%3Ad%3Ad5%3Aec&_wn=jywifi&sign=2.y2e1a45e107b63f5eb6746e87a7d54bfd1503889552
-
-```
 
 实现的功能如下
 

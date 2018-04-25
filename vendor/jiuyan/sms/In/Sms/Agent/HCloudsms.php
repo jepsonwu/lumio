@@ -14,9 +14,9 @@ class HCloudsms extends BaseSmsAgent
 {
 
     protected $url = "http://sms.haotingyun.com/v2/sms/single_send.json";
-    protected $user = "18989863314";
-    protected $pwd = "abc123456";
-    protected $api = "b9eb5a2394604e4722537bd6ba50fe0a";
+    protected $user = "";
+    protected $pwd = "";
+    protected $api = "";
 
     public function send($type, $mobile, $content)
     {

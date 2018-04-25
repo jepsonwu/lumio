@@ -37,9 +37,6 @@ class SmsConfig
         //指定发短信的模板
         "smstemplate" => array(
             'in' => '手机验证码：code，请勿将验证码告知他人。【艾由】',
-            'promo' => '你的好友name在in里关注了你，马上去看看。url',
-            'comment' => '你的好友name在in里面回复了你，去看看>url',
-            'watch' => '哇哦，name在in里面关注你了，快去in中看看ta是谁吧>url',
         )
 
     );

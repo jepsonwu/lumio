@@ -11,8 +11,8 @@ use In\Sms\config\SmsConfig;
 class Tuopengsms extends BaseSmsAgent{
 
     protected $url = "http://121.199.48.186:1210/services/msgsend.asmx/";
-    protected $user="hzjy";
-    protected $pwd="hzjy5858";
+    protected $user="";
+    protected $pwd="";
 
 
     /**

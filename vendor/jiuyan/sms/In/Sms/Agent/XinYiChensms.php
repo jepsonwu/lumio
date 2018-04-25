@@ -33,8 +33,8 @@ class XinYiChensms extends BaseSmsAgent
     protected $connectTimeout = 3;
 
     protected $url = "http://113.108.68.228:8001/sendSMS.action";
-    protected $user = "admin";
-    protected $pwd = "4a3db8fdb340de54c7f7b1d6282a39cd";
+    protected $user = "";
+    protected $pwd = "";
 
 
 
