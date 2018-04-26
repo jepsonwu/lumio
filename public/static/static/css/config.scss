@@ -1,0 +1,22 @@
+$main_color: #f25f55;
+$active_color: #d83e35;
+$hover_color: rgb(231, 77, 69);
+$active_border_color: rgb(210,17,10);
+$grey: #666;
+$light_grey: #999;
+
+// px转换为rem
+@function pxtorem($px) {
+	@return $px / 100 + rem; 
+}
+
+// 字体大小
+@mixin font-dpr($font-size: 12){ 
+	font-size: $font-size + px; 
+	[data-dpr="2"] & { 
+		font-size: $font-size * 2 + px; 
+	} 
+	[data-dpr="3"] & { 
+		font-size: $font-size * 3 + px; 
+	} 
+}
